@@ -2,7 +2,7 @@ import { Controller, useForm } from "react-hook-form";
 import { View, Text, TextInput, KeyboardType } from "react-native";
 import { PropsWithChildren, useEffect } from "react";
 import { form } from "../app/styles";
-import CustomButt from "./CustomButt";
+import CustomButt from "./custom-butt";
 
 export default function Form(
     props: PropsWithChildren<{

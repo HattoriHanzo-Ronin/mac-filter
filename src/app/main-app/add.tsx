@@ -1,11 +1,11 @@
 import axios from "axios";
-import { useAppContext } from "@/src/components/AppContextProvider";
+import { useAppContext } from "@/src/components/app-context-provider";
 import { View, Text } from "react-native";
-import Formu from "@/src/components/Formu";
+import Formu from "@/src/components/formu";
 import { useState } from "react";
-import { makeNm } from "@/src/components/CommonUtils";
+import { makeNm } from "@/src/components/common-utils";
 import { add } from "../styles";
-import Background from "@/src/components/Background";
+import Background from "@/src/components/background";
 
 export default function Add() {
     const context = useAppContext();

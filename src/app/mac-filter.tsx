@@ -1,13 +1,13 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { FlatList, View, Text, useWindowDimensions, BackHandler } from "react-native";
-import { Device, useAppContext } from "@/src/components/AppContextProvider";
+import { Device, useAppContext } from "@/src/components/app-context-provider";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { makeNm, Pick, SearchInput } from "@/src/components/CommonUtils";
+import { makeNm, Pick, SearchInput } from "@/src/components/common-utils";
 import { router } from "expo-router";
 import { macFilter } from "./styles";
-import Background from "../components/Background";
-import CustomButt from "../components/CustomButt";
+import Background from "../components/background";
+import CustomButt from "../components/custom-butt";
 
 export default function MacFilter() {
     const context = useAppContext();
@@ -35,7 +35,7 @@ export default function MacFilter() {
     useEffect(() => {
         getData(allow);
         const sub = BackHandler.addEventListener("hardwareBackPress", () => {
-            router.replace("/mainApp");
+            router.replace("/main-app");
             return true;
         });
 

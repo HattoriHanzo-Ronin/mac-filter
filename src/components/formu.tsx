@@ -1,5 +1,5 @@
-import { useAppContext } from "./AppContextProvider";
-import Form from "./Form";
+import { useAppContext } from "./app-context-provider";
+import Form from "./form";
 
 export default function Formu(props: {
     onSubmit: Function;
@@ -23,22 +23,14 @@ export default function Formu(props: {
                     placeHold: "nombre",
                     rules: {
                         required: reqErr,
-                        pattern: {
-                            value: /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9 ]+$/,
-                            message: formMess
-                        }
+                        pattern: { value: /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9 ]+$/, message: formMess }
                     },
                     key: "name",
                     onChange: props.onChangeName
                 },
                 {
                     placeHold: "tipo",
-                    rules: {
-                        pattern: {
-                            value: /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9 ]+$/,
-                            message: formMess
-                        }
-                    },
+                    rules: { pattern: { value: /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9 ]+$/, message: formMess } },
                     key: "type",
                     onChange: props.onChangeType
                 },

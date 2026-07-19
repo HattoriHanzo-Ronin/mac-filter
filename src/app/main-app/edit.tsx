@@ -1,10 +1,10 @@
 import { View, Text } from "react-native";
-import { Device, useAppContext } from "../../components/AppContextProvider";
+import { Device, useAppContext } from "../../components/app-context-provider";
 import axios from "axios";
-import Formu from "../../components/Formu";
-import { makeNm } from "@/src/components/CommonUtils";
+import Formu from "../../components/formu";
+import { makeNm } from "@/src/components/common-utils";
 import { edit } from "../styles";
-import Background from "@/src/components/Background";
+import Background from "@/src/components/background";
 export default function Edit() {
     const context = useAppContext();
     const onSubmit = async (data: {}) => {

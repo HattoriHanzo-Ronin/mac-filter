@@ -1,13 +1,13 @@
 import { TextInput, View, Pressable, Text, Switch, BackHandler } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
-import { Device, useAppContext } from "../components/AppContextProvider";
+import { Device, useAppContext } from "../components/app-context-provider";
 import { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { accesRouter } from "./styles";
 import axios from "axios";
-import { Pick } from "../components/CommonUtils";
+import { Pick } from "../components/common-utils";
 
 export default function Rout() {
     const context = useAppContext();
@@ -87,7 +87,7 @@ export default function Rout() {
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <View style={accesRouter.parent}>
-                <Pressable onPress={() => router.replace("/mainApp")}>
+                <Pressable onPress={() => router.replace("/main-app")}>
                     <Ionicons name="arrow-back" size={20} />
                 </Pressable>
                 <TextInput

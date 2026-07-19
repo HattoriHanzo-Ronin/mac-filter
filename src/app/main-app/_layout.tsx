@@ -1,4 +1,4 @@
-import TabNav from "@/src/components/TabNav";
+import TabNav from "@/src/components/tab-nav";
 
 export default function layout() {
     return (

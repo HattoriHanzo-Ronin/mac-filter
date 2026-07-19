@@ -1,7 +1,7 @@
 import { Picker } from "@react-native-picker/picker";
-import { Device } from "./AppContextProvider";
+import { Device } from "./app-context-provider";
 import { TextInput, View } from "react-native";
-import CustomButt from "./CustomButt";
+import CustomButt from "./custom-butt";
 
 export const Pick = (props: { list: Device[]; val: string; onChange: Function; changeItem: Function }) => {
     return (

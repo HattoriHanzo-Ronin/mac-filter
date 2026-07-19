@@ -2,7 +2,7 @@ import { Redirect } from "expo-router";
 import { useEffect, useRef } from "react";
 
 import { Animated, View } from "react-native";
-import { useAppContext } from "../components/AppContextProvider";
+import { useAppContext } from "../components/app-context-provider";
 export default function Index() {
     const context = useAppContext();
 
@@ -10,7 +10,7 @@ export default function Index() {
         return <IconBeat />;
     }
 
-    return <Redirect href={"/mainApp"} />;
+    return <Redirect href={"/main-app"} />;
 }
 
 const IconBeat = () => {

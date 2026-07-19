@@ -1,13 +1,13 @@
 import { View, Text, FlatList, useWindowDimensions } from "react-native";
 import { useEffect, useState } from "react";
-import { Device, useAppContext } from "@/src/components/AppContextProvider";
+import { Device, useAppContext } from "@/src/components/app-context-provider";
 import axios from "axios";
 import { router } from "expo-router";
-import { makeNm, Pick, SearchInput } from "@/src/components/CommonUtils";
+import { makeNm, Pick, SearchInput } from "@/src/components/common-utils";
 import { index } from "../styles";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Background from "@/src/components/Background";
-import CustomButt from "@/src/components/CustomButt";
+import Background from "@/src/components/background";
+import CustomButt from "@/src/components/custom-butt";
 
 export default function Index() {
     const context = useAppContext();
@@ -86,9 +86,9 @@ export default function Index() {
                             label="Administrar"
                             onPress={() => {
                                 if (context.lastDev?.name === "RepPasillo") {
-                                    router.replace("/macFilter");
+                                    router.replace("/mac-filter");
                                 } else {
-                                    router.replace("/accesRouter");
+                                    router.replace("/acces-router");
                                 }
                             }}
                         />

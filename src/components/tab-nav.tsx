@@ -2,7 +2,7 @@ import { withLayoutContext } from "expo-router";
 import { createMaterialTopTabNavigator } from "expo-router/js-top-tabs";
 import React from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Background from "./Background";
+import Background from "./background";
 
 const Tab = withLayoutContext(createMaterialTopTabNavigator().Navigator);
 

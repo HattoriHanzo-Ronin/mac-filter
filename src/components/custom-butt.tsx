@@ -28,7 +28,7 @@ export default function CustomButt(props: {
             onPress={() => props.onPress()}
         >
             <Background type="butt" opacity={opacity}>
-                <Text style={{ color: color, textAlign: "center", fontSize: 19, fontWeight: "bold" }}>
+                <Text style={{ color, textAlign: "center", fontSize: 19, fontWeight: "bold" }}>
                     {props.label}
                 </Text>
             </Background>

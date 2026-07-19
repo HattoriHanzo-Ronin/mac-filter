@@ -1,6 +1,6 @@
 import TabNav from "@/src/components/tab-nav";
 
-export default function layout() {
+export default function Layout() {
     return (
         <TabNav
             tabs={[

@@ -98,7 +98,7 @@ export const macFilter = StyleSheet.create({
     valueProp: commonStyle.valueProp
 });
 
-export const accesRouter = StyleSheet.create({
+export const accessRouter = StyleSheet.create({
     parent: {
         flexDirection: "row",
         justifyContent: "center",

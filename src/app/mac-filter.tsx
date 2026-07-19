@@ -1,23 +1,25 @@
 import { useEffect, useState } from "react";
 import { FlatList, View, Text, useWindowDimensions, BackHandler } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ListItem, makeNm, Pick, SearchInput } from "@/src/components/common-utils";
+import { ListItem, Pick, SearchInput } from "@/src/components/common-components";
 import { router } from "expo-router";
-import { macFilter } from "./styles";
+import { macFilter } from "../styles";
 import Background from "../components/background";
 import CustomButt from "../components/custom-butt";
+import UiUtils from "../utils/ui-utils";
+import { PLACEHOLDER_ITEM } from "../constants";
 
-const entries: ListItem[] = [{ id: "placeholder", name: "Dispositivo", type: "", mac: "00:00:00:00:00:00" }];
+const entries = [PLACEHOLDER_ITEM];
 
 export default function MacFilter() {
     const safeTop = useSafeAreaInsets().top + (useWindowDimensions().height * 10) / 100;
     const safeBottom = useSafeAreaInsets().bottom + (useWindowDimensions().height * 6) / 100;
     const [allow, setAllow] = useState(true);
     const [val, setVal] = useState(entries[0].id);
-    const [selectedEntry, setSelectedEntry] = useState(entries[0]);
+    const [selectedEntry, setSelectedEntry] = useState<ListItem>(entries[0]);
     const [search, setSearch] = useState("");
     const entryProps = [
-        { label: "Nombre", val: makeNm(selectedEntry.name, selectedEntry.type) },
+        { label: "Nombre", val: UiUtils.makeName(selectedEntry.name, selectedEntry.type) },
         { label: "Mac", val: selectedEntry.mac }
     ];
 

@@ -1,8 +1,9 @@
 import { Controller, RegisterOptions, useForm } from "react-hook-form";
 import { View, Text, TextInput, KeyboardType } from "react-native";
 import { PropsWithChildren, useEffect } from "react";
-import { form } from "../app/styles";
+import { form } from "../styles";
 import CustomButt from "./custom-butt";
+import UiUtils from "../utils/ui-utils";
 
 export type FormValues = Record<string, string>;
 
@@ -36,7 +37,6 @@ export default function Form(
         props.onSubmit(newData);
     };
     const getKey = (k: string) => k as keyof FormValues;
-    const firsToUpper = (st: string) => st.replace(st.charAt(0), st.charAt(0).toUpperCase());
 
     useEffect(() => {
         reset(props.type);
@@ -56,7 +56,7 @@ export default function Form(
                             render={({ field: { onChange, onBlur, value } }) => (
                                 <TextInput
                                     placeholderTextColor="black"
-                                    placeholder={firsToUpper(item.placeHold)}
+                                    placeholder={UiUtils.firstToUpper(item.placeHold)}
                                     value={value}
                                     onChangeText={(val) => onChange(item.onChange ? item.onChange(val) : val)}
                                     onBlur={onBlur}

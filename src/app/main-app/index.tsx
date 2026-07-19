@@ -1,23 +1,23 @@
 import { View, Text, FlatList, useWindowDimensions } from "react-native";
 import { useState } from "react";
 import { router } from "expo-router";
-import { ListItem, makeNm, Pick, SearchInput } from "@/src/components/common-utils";
-import { index } from "../styles";
+import { ListItem, Pick, SearchInput } from "@/src/components/common-components";
+import { index } from "../../styles";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Background from "@/src/components/background";
 import CustomButt from "@/src/components/custom-butt";
+import UiUtils from "@/src/utils/ui-utils";
+import { PLACEHOLDER_ITEM } from "@/src/constants";
 
-const devices: ListItem[] = [
-    { id: "placeholder", name: "Router", type: "Router", mac: "00:00:00:00:00:00", intrface: "LAN", ip: "0.0.0.0" }
-];
+const devices = [PLACEHOLDER_ITEM];
 
 export default function Index() {
-    const [selectedDevice, setSelectedDevice] = useState(devices[0]);
+    const [selectedDevice, setSelectedDevice] = useState<ListItem>(devices[0]);
     const [val, setVal] = useState(selectedDevice.id);
     const [search, setSearch] = useState("");
     const safe = useSafeAreaInsets().bottom + (useWindowDimensions().height * 4) / 100;
     const deviceProps = [
-        { label: "Nombre", val: makeNm(selectedDevice.name, selectedDevice.type) },
+        { label: "Nombre", val: UiUtils.makeName(selectedDevice.name, selectedDevice.type) },
         { label: "Mac", val: selectedDevice.mac },
         { label: "Interfaz", val: selectedDevice.intrface ?? "" },
         { label: "Ip", val: selectedDevice.ip ?? "" }
@@ -55,7 +55,7 @@ export default function Index() {
                 />
                 <View style={index.parentButt}>
                     <CustomButt label="Borrar" onPress={() => {}} />
-                    <CustomButt label="Administrar" onPress={() => router.replace("/acces-router")} />
+                    <CustomButt label="Administrar" onPress={() => router.replace("/access-router")} />
                 </View>
             </View>
         </Background>

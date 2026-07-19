@@ -1,5 +1,3 @@
-import axios from "axios";
-import { useAppContext } from "@/src/components/app-context-provider";
 import { View, Text } from "react-native";
 import Formu from "@/src/components/formu";
 import { useState } from "react";
@@ -8,13 +6,9 @@ import { add } from "../styles";
 import Background from "@/src/components/background";
 
 export default function Add() {
-    const context = useAppContext();
-    const onSubmit = async (data: {}) => {
-        await axios.post(context.url, data);
-        await context.getNet();
+    const onSubmit = () => {
         setName("");
         setType("");
-        alert("Agregado");
     };
     const [name, setName] = useState("");
     const [type, setType] = useState("");

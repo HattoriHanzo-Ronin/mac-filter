@@ -11,11 +11,12 @@ export default function RootLayout() {
             const now = Date.now();
             if (lastTouch.current && now - lastTouch.current < 300) {
                 BackHandler.exitApp();
-            } else {
-                lastTouch.current = now;
-                ToastAndroid.show("Presiona otra vez para salir", ToastAndroid.SHORT);
                 return true;
             }
+
+            lastTouch.current = now;
+            ToastAndroid.show("Presiona otra vez para salir", ToastAndroid.SHORT);
+            return true;
         });
 
         return () => sub.remove();

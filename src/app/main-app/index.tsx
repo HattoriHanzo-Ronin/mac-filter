@@ -1,65 +1,48 @@
 import { View, Text, FlatList, useWindowDimensions } from "react-native";
-import { useEffect, useState } from "react";
-import { Device, useAppContext } from "@/src/components/app-context-provider";
-import axios from "axios";
+import { useState } from "react";
 import { router } from "expo-router";
-import { makeNm, Pick, SearchInput } from "@/src/components/common-utils";
+import { ListItem, makeNm, Pick, SearchInput } from "@/src/components/common-utils";
 import { index } from "../styles";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Background from "@/src/components/background";
 import CustomButt from "@/src/components/custom-butt";
 
+const devices: ListItem[] = [
+    { id: "placeholder", name: "Router", type: "Router", mac: "00:00:00:00:00:00", intrface: "LAN", ip: "0.0.0.0" }
+];
+
 export default function Index() {
-    const context = useAppContext();
-    const [val, setVal] = useState("");
-    const [devProps, setDevProps] = useState<any[]>([]);
+    const [selectedDevice, setSelectedDevice] = useState(devices[0]);
+    const [val, setVal] = useState(selectedDevice.id);
     const [search, setSearch] = useState("");
-    const mkDevProps = (dev: Device | null) => {
-        if (dev) {
-            if (dev?.ip !== "") {
-                return [
-                    { label: "Nombre", val: makeNm(dev.name, dev.type) },
-                    { label: "Mac", val: dev.mac },
-                    { label: "Interfaz", val: dev.intrface },
-                    { label: "Ip", val: dev.ip }
-                ];
-            }
-
-            return [
-                { label: "Nombre", val: makeNm(dev.name, dev.type) },
-                { label: "Mac", val: dev.mac },
-                { label: "Interfaz", val: dev.intrface }
-            ];
-        }
-
-        return [];
-    };
     const safe = useSafeAreaInsets().bottom + (useWindowDimensions().height * 4) / 100;
+    const deviceProps = [
+        { label: "Nombre", val: makeNm(selectedDevice.name, selectedDevice.type) },
+        { label: "Mac", val: selectedDevice.mac },
+        { label: "Interfaz", val: selectedDevice.intrface ?? "" },
+        { label: "Ip", val: selectedDevice.ip ?? "" }
+    ];
 
-    useEffect(() => {
-        setVal(context.lastDev?.id ?? "");
-        setDevProps(mkDevProps(context.lastDev));
-    }, [context.lastDev]);
     return (
         <Background>
             <View style={[index.parent, { paddingBottom: safe }]}>
-                <Text style={index.wifiFormat}>{context.net.wifipass}</Text>
+                <Text style={index.wifiFormat}>Red local</Text>
                 <Pick
-                    list={context.net?.devices}
+                    list={devices}
                     val={val}
-                    onChange={(v: string) => setVal(v)}
-                    changeItem={(item: Device) => context.setLastDev(item)}
+                    onChange={(value: string) => setVal(value)}
+                    changeItem={setSelectedDevice}
                 />
                 <SearchInput
-                    list={context.net?.devices}
+                    list={devices}
                     search={search}
-                    onChange={(tx: string) => setSearch(tx)}
-                    setVal={(tx: string) => setVal(tx)}
-                    changeItem={(item: Device) => context.setLastDev(item)}
+                    onChange={(value: string) => setSearch(value)}
+                    setVal={(value: string) => setVal(value)}
+                    changeItem={setSelectedDevice}
                 />
                 <FlatList
                     contentContainerStyle={index.list}
-                    data={devProps}
+                    data={deviceProps}
                     renderItem={(it) => (
                         <View style={index.parentDevProp}>
                             <Text style={index.labelProp}>{it.item.label}:</Text>
@@ -71,28 +54,8 @@ export default function Index() {
                     keyExtractor={(it) => it.label}
                 />
                 <View style={index.parentButt}>
-                    <CustomButt
-                        label="Borrar"
-                        onPress={async () => {
-                            await axios.delete(`${context.url}/${context.lastDev?.id}`);
-                            await context.getNet();
-                            context.setLastDev(context.net.devices[0]);
-                            alert("Eliminado");
-                        }}
-                    />
-                    {(context.lastDev?.type === "Router" ||
-                        (context.lastDev?.type === "Rep" && context.lastDev.name !== "RepCande")) && (
-                        <CustomButt
-                            label="Administrar"
-                            onPress={() => {
-                                if (context.lastDev?.name === "RepPasillo") {
-                                    router.replace("/mac-filter");
-                                } else {
-                                    router.replace("/acces-router");
-                                }
-                            }}
-                        />
-                    )}
+                    <CustomButt label="Borrar" onPress={() => {}} />
+                    <CustomButt label="Administrar" onPress={() => router.replace("/acces-router")} />
                 </View>
             </View>
         </Background>

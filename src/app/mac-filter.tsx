@@ -1,39 +1,27 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { FlatList, View, Text, useWindowDimensions, BackHandler } from "react-native";
-import { Device, useAppContext } from "@/src/components/app-context-provider";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { makeNm, Pick, SearchInput } from "@/src/components/common-utils";
+import { ListItem, makeNm, Pick, SearchInput } from "@/src/components/common-utils";
 import { router } from "expo-router";
 import { macFilter } from "./styles";
 import Background from "../components/background";
 import CustomButt from "../components/custom-butt";
 
+const entries: ListItem[] = [{ id: "placeholder", name: "Dispositivo", type: "", mac: "00:00:00:00:00:00" }];
+
 export default function MacFilter() {
-    const context = useAppContext();
     const safeTop = useSafeAreaInsets().top + (useWindowDimensions().height * 10) / 100;
     const safeBottom = useSafeAreaInsets().bottom + (useWindowDimensions().height * 6) / 100;
     const [allow, setAllow] = useState(true);
-    const [list, setList] = useState<Device[]>([]);
-    const [val, setVal] = useState("");
-    const [lastWhite, setLastWhite] = useState<Device | undefined>(undefined);
-    const [devProps, setDevProps] = useState<any[]>([]);
+    const [val, setVal] = useState(entries[0].id);
+    const [selectedEntry, setSelectedEntry] = useState(entries[0]);
     const [search, setSearch] = useState("");
-    const getData = async (isAllow: boolean) => {
-        const { data } = await axios.get(`${context.url}?${isAllow ? "allow" : "notAllow"}=${context.lastDev?.id}`);
-        setList(data);
-        setLastWhite(data[0]);
-        setVal(data[0].id);
-    };
-    const mkDevProps = (dev: Device) => {
-        return [
-            { label: "Nombre", val: makeNm(dev.name, dev.type) },
-            { label: "Mac", val: dev.mac.toUpperCase().replaceAll("-", ":") }
-        ];
-    };
+    const entryProps = [
+        { label: "Nombre", val: makeNm(selectedEntry.name, selectedEntry.type) },
+        { label: "Mac", val: selectedEntry.mac }
+    ];
 
     useEffect(() => {
-        getData(allow);
         const sub = BackHandler.addEventListener("hardwareBackPress", () => {
             router.replace("/main-app");
             return true;
@@ -42,38 +30,29 @@ export default function MacFilter() {
         return () => sub.remove();
     }, []);
 
-    useEffect(() => {
-        if (lastWhite) {
-            setDevProps(mkDevProps(lastWhite));
-        }
-    }, [lastWhite]);
-
     return (
         <Background>
             <View style={[macFilter.parent, { paddingTop: safeTop, paddingBottom: safeBottom }]}>
                 <CustomButt
                     label={`Cambiar a ${allow ? "no permitidos" : "permitidos"}`}
-                    onPress={() => {
-                        setAllow(!allow);
-                        getData(!allow);
-                    }}
+                    onPress={() => setAllow(!allow)}
                 />
                 <Pick
-                    list={list}
+                    list={entries}
                     val={val}
-                    onChange={(v: string) => setVal(v)}
-                    changeItem={(item: Device) => setLastWhite(item)}
+                    onChange={(value: string) => setVal(value)}
+                    changeItem={setSelectedEntry}
                 />
                 <SearchInput
-                    list={list}
+                    list={entries}
                     search={search}
-                    onChange={(tx: string) => setSearch(tx)}
-                    setVal={(tx: string) => setVal(tx)}
-                    changeItem={(item: Device) => setLastWhite(item)}
+                    onChange={(value: string) => setSearch(value)}
+                    setVal={(value: string) => setVal(value)}
+                    changeItem={setSelectedEntry}
                 />
                 <FlatList
                     contentContainerStyle={macFilter.list}
-                    data={devProps}
+                    data={entryProps}
                     renderItem={(it) => (
                         <View style={macFilter.parentDevProp}>
                             <Text style={macFilter.labelProp}>{it.item.label}:</Text>
@@ -84,20 +63,7 @@ export default function MacFilter() {
                     )}
                     keyExtractor={(it) => it.label}
                 />
-                <CustomButt
-                    label={allow ? "Quitar" : "Añadir"}
-                    onPress={async () => {
-                        if (allow) {
-                            await axios.delete(`${context.url}/allow/${context.lastDev?.id}/${lastWhite?.id}`);
-                            await getData(allow);
-                            alert("Eliminado");
-                        } else {
-                            await axios.post(`${context.url}/allow/${context.lastDev?.id}`, lastWhite);
-                            await getData(allow);
-                            alert("Añadido");
-                        }
-                    }}
-                />
+                <CustomButt label={allow ? "Quitar" : "Añadir"} onPress={() => {}} />
             </View>
         </Background>
     );

@@ -1,26 +1,32 @@
-import { Controller, useForm } from "react-hook-form";
+import { Controller, RegisterOptions, useForm } from "react-hook-form";
 import { View, Text, TextInput, KeyboardType } from "react-native";
 import { PropsWithChildren, useEffect } from "react";
 import { form } from "../app/styles";
 import CustomButt from "./custom-butt";
 
+export type FormValues = Record<string, string>;
+
 export default function Form(
     props: PropsWithChildren<{
-        type: {};
-        values: { placeHold: string; rules: {}; key: string; keyBoard?: string; onChange?: Function }[];
-        onSubmit: Function;
+        type: FormValues;
+        values: {
+            placeHold: string;
+            rules: RegisterOptions<FormValues>;
+            key: string;
+            keyBoard?: KeyboardType;
+            onChange?: (value: string) => string;
+        }[];
+        onSubmit: (data: Partial<FormValues>) => void | Promise<void>;
     }>
 ) {
-    type Form = typeof props.type;
-
     const {
         control,
         handleSubmit,
         formState: { errors, isSubmitting },
         reset
-    } = useForm<Form>({ defaultValues: props.type });
-    const onSubmit = async (data: Form) => {
-        let newData = {};
+    } = useForm<FormValues>({ defaultValues: props.type });
+    const onSubmit = async (data: FormValues) => {
+        let newData: Partial<FormValues> = {};
         props.values.map((it) => {
             const addValue = data[getKey(it.key)];
             if (addValue !== "") {
@@ -29,12 +35,12 @@ export default function Form(
         });
         props.onSubmit(newData);
     };
-    const getKey = (k: string) => k as keyof Form;
+    const getKey = (k: string) => k as keyof FormValues;
     const firsToUpper = (st: string) => st.replace(st.charAt(0), st.charAt(0).toUpperCase());
 
     useEffect(() => {
         reset(props.type);
-    }, [props.type]);
+    }, [props.type, reset]);
 
     return (
         <View style={form.parent}>
@@ -55,9 +61,7 @@ export default function Form(
                                     onChangeText={(val) => onChange(item.onChange ? item.onChange(val) : val)}
                                     onBlur={onBlur}
                                     style={form.txIn}
-                                    keyboardType={
-                                        item.keyBoard !== undefined ? (item.keyBoard as KeyboardType) : "default"
-                                    }
+                                    keyboardType={item.keyBoard ?? "default"}
                                 />
                             )}
                         />

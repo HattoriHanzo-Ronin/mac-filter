@@ -1,23 +1,15 @@
-import { useAppContext } from "./app-context-provider";
-import Form from "./form";
+import Form, { FormValues } from "./form";
 
 export default function Formu(props: {
-    onSubmit: Function;
-    onChangeName?: Function;
-    onChangeType?: Function;
-    editMode?: true;
+    onSubmit: (data: Partial<FormValues>) => void | Promise<void>;
+    onChangeName?: (value: string) => string;
+    onChangeType?: (value: string) => string;
 }) {
     const formMess = "Formato incorrecto";
     const reqErr = "Requerido";
-    const context = useAppContext();
-    const dev = context.lastDev;
     return (
         <Form
-            type={
-                props.editMode
-                    ? { name: dev?.name, mac: dev?.mac, intrface: dev?.intrface, type: dev?.type, ip: dev?.ip }
-                    : { name: "", mac: "", intrface: "", type: "", ip: "" }
-            }
+            type={{ name: "", mac: "", intrface: "", type: "", ip: "" }}
             values={[
                 {
                     placeHold: "nombre",
@@ -40,10 +32,6 @@ export default function Formu(props: {
                         validate: (val: string) => {
                             if (val && !/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/.test(val)) {
                                 return formMess;
-                            }
-
-                            if (context.net.devices.some((it) => it.mac === val) && !props.editMode) {
-                                return "La mac coincide con la de otro dispositivo";
                             }
 
                             if (!val) {

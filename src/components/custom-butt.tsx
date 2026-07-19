@@ -1,8 +1,13 @@
-import { Pressable, Text } from "react-native";
+import { Pressable, StyleProp, Text, ViewStyle } from "react-native";
 import Background from "./background";
 import { useState } from "react";
 
-export default function CustomButt(props: { label: string; onPress: Function; disable?: boolean; style?: {} }) {
+export default function CustomButt(props: {
+    label: string;
+    onPress: () => void;
+    disable?: boolean;
+    style?: StyleProp<ViewStyle>;
+}) {
     const [color, setColor] = useState("white");
     const [opacity, setOpacity] = useState(0.4);
     const noTouch = () => {

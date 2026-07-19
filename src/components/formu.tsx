@@ -1,12 +1,11 @@
 import Form, { FormValues } from "./form";
+import { VALIDATION_MESSAGES, VALIDATION_PATTERNS } from "../constants";
 
 export default function Formu(props: {
     onSubmit: (data: Partial<FormValues>) => void | Promise<void>;
     onChangeName?: (value: string) => string;
     onChangeType?: (value: string) => string;
 }) {
-    const formMess = "Formato incorrecto";
-    const reqErr = "Requerido";
     return (
         <Form
             type={{ name: "", mac: "", intrface: "", type: "", ip: "" }}
@@ -14,15 +13,23 @@ export default function Formu(props: {
                 {
                     placeHold: "nombre",
                     rules: {
-                        required: reqErr,
-                        pattern: { value: /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9 ]+$/, message: formMess }
+                        required: VALIDATION_MESSAGES.REQUIRED,
+                        pattern: {
+                            value: VALIDATION_PATTERNS.NAME_OR_TYPE,
+                            message: VALIDATION_MESSAGES.INVALID_FORMAT
+                        }
                     },
                     key: "name",
                     onChange: props.onChangeName
                 },
                 {
                     placeHold: "tipo",
-                    rules: { pattern: { value: /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9 ]+$/, message: formMess } },
+                    rules: {
+                        pattern: {
+                            value: VALIDATION_PATTERNS.NAME_OR_TYPE,
+                            message: VALIDATION_MESSAGES.INVALID_FORMAT
+                        }
+                    },
                     key: "type",
                     onChange: props.onChangeType
                 },
@@ -30,12 +37,12 @@ export default function Formu(props: {
                     placeHold: "mac",
                     rules: {
                         validate: (val: string) => {
-                            if (val && !/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/.test(val)) {
-                                return formMess;
+                            if (val && !VALIDATION_PATTERNS.MAC.test(val)) {
+                                return VALIDATION_MESSAGES.INVALID_FORMAT;
                             }
 
                             if (!val) {
-                                return reqErr;
+                                return VALIDATION_MESSAGES.REQUIRED;
                             }
 
                             return true;
@@ -48,16 +55,16 @@ export default function Formu(props: {
                     placeHold: "interfaz",
                     rules: {
                         validate: (val: string) => {
-                            if (val && !/^[A-Za-z]+$/.test(val)) {
-                                return formMess;
+                            if (val && !VALIDATION_PATTERNS.INTERFACE.test(val)) {
+                                return VALIDATION_MESSAGES.INVALID_FORMAT;
                             }
 
                             if (val.length > 4) {
-                                return "Longitud máxima, 4 caracteres";
+                                return VALIDATION_MESSAGES.MAX_INTERFACE_LENGTH;
                             }
 
                             if (!val) {
-                                return reqErr;
+                                return VALIDATION_MESSAGES.REQUIRED;
                             }
 
                             return true;
@@ -69,8 +76,8 @@ export default function Formu(props: {
                     placeHold: "ip",
                     rules: {
                         pattern: {
-                            value: /^((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)$/,
-                            message: formMess
+                            value: VALIDATION_PATTERNS.IP,
+                            message: VALIDATION_MESSAGES.INVALID_FORMAT
                         }
                     },
                     key: "ip"

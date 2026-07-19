@@ -1,6 +1,7 @@
 import { Picker } from "@react-native-picker/picker";
 import { TextInput, View } from "react-native";
 import CustomButt from "./custom-butt";
+import UiUtils from "../utils/ui-utils";
 
 export interface ListItem {
     id: string;
@@ -34,7 +35,7 @@ export const Pick = (props: {
                     style={{ fontSize: 20, fontWeight: "bold" }}
                     key={item.id}
                     value={item.id}
-                    label={makeNm(item.name, item.type)}
+                    label={UiUtils.makeName(item.name, item.type)}
                 />
             ))}
         </Picker>
@@ -78,5 +79,3 @@ export const SearchInput = (props: {
         />
     </View>
 );
-
-export const makeNm = (st: string, st2: string) => `${st} ${st2 !== "" ? `( ${st2} )` : ""}`;

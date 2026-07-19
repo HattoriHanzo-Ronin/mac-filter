@@ -1,5 +1,5 @@
 import { Pressable, Text } from "react-native";
-import Background from "./Background";
+import Background from "./background";
 import { useState } from "react";
 
 export default function CustomButt(props: { label: string; onPress: Function; disable?: boolean; style?: {} }) {

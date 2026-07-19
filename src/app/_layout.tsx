@@ -1,5 +1,5 @@
 import { Slot } from "expo-router";
-import AppContextProvider from "@/src/components/AppContextProvider";
+import AppContextProvider from "@/src/components/app-context-provider";
 import { BackHandler, ToastAndroid, View } from "react-native";
 import { useEffect, useRef } from "react";
 

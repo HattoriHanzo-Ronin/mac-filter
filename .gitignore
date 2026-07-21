@@ -44,3 +44,6 @@ app-example
 
 # Prettier local configuration
 .prettierrc
+
+#env file
+.env

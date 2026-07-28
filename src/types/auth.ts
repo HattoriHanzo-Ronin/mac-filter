@@ -9,19 +9,18 @@ export interface RefreshTokenRequest {
     refreshToken: string;
 }
 
-export type LogoutRequest = RefreshTokenRequest;
-
-interface AuthResponse {
-    user: {
-        id: string;
-        username: string;
-        roles: UserRole[];
-        scope?: UserRole[];
-    };
-    accessToken: string;
-    refreshToken: string;
+export interface AuthUser {
+    id: string;
+    username: string;
+    roles: UserRole[];
+    scope?: UserRole[];
 }
 
-export type LoginResponse = AuthResponse;
+interface AuthResponse extends RefreshTokenRequest {
+    user: AuthUser;
+    accessToken: string;
+}
 
+export type LogoutRequest = RefreshTokenRequest;
+export type LoginResponse = AuthResponse;
 export type RefreshTokenResponse = AuthResponse;

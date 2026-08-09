@@ -3,7 +3,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 
 import { Redirect } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAppContext } from "../components/app-context-provider";
-import { ValidationErrors } from "../types/api-error";
+import { ValidationErrors } from "../types/ui";
 import { LoginRequest } from "../types/auth";
 import UiUtils from "../utils/ui-utils";
 

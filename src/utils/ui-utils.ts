@@ -1,5 +1,6 @@
 import { ToastAndroid } from "react-native";
-import { ApiValidationErrorDetail, ValidationErrors } from "../types/api-error";
+import { ApiValidationErrorDetail } from "../types/api-error";
+import { ValidationErrors } from "../types/ui";
 
 /**
  * UI utilities

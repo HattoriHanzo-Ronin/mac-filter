@@ -2,7 +2,7 @@ import { ApiResponse } from "../types/api-response";
 import { AuthUser, LoginRequest, LoginResponse, RefreshTokenRequest } from "../types/auth";
 import axios from "axios";
 import ApiUtils from "./api-utils";
-import SecureStoreUtils from "./secure-store-utils";
+import { Storage } from "./storage/storage";
 import UiUtils from "./ui-utils";
 import { ApiValidationErrorDetail } from "../types/api-error";
 
@@ -17,15 +17,18 @@ export default class AuthUtils {
     private setIsAuthenticated: (isAuthenticated: boolean) => void;
     private setUser: (user: AuthUser | null) => void;
     private setIsLoading: (isLoading: boolean) => void;
+    private storage: Storage;
 
     constructor(
         setIsAuthenticated: (isAuthenticated: boolean) => void,
         setUser: (user: AuthUser | null) => void,
-        setIsLoading: (isLoading: boolean) => void
+        setIsLoading: (isLoading: boolean) => void,
+        storage: Storage
     ) {
         this.setIsAuthenticated = setIsAuthenticated;
         this.setUser = setUser;
         this.setIsLoading = setIsLoading;
+        this.storage = storage;
     }
 
     /**
@@ -42,7 +45,7 @@ export default class AuthUtils {
      * Restores the current authentication session
      */
     async restoreSession(): Promise<void> {
-        const refreshToken = await SecureStoreUtils.get<RefreshTokenRequest>(AuthUtils.REFRESH_TOKEN_KEY);
+        const refreshToken = await this.storage.get<RefreshTokenRequest>(AuthUtils.REFRESH_TOKEN_KEY);
         if (!refreshToken) {
             this.clearSession();
             return;
@@ -55,7 +58,7 @@ export default class AuthUtils {
      * Closes the current authentication session
      */
     async logout(): Promise<void> {
-        const refreshToken = await SecureStoreUtils.get<RefreshTokenRequest>(AuthUtils.REFRESH_TOKEN_KEY);
+        const refreshToken = await this.storage.get<RefreshTokenRequest>(AuthUtils.REFRESH_TOKEN_KEY);
         if (!refreshToken) {
             this.clearSession();
             return;
@@ -64,7 +67,7 @@ export default class AuthUtils {
         this.setIsLoading(true);
         const result = await ApiUtils.logout(refreshToken);
         if (result.success) {
-            await SecureStoreUtils.delete(AuthUtils.REFRESH_TOKEN_KEY);
+            await this.storage.delete(AuthUtils.REFRESH_TOKEN_KEY);
             this.clearSession();
             this.setIsLoading(false);
             return;
@@ -88,7 +91,7 @@ export default class AuthUtils {
         const { success } = result;
         if (success) {
             const { user, refreshToken, accessToken } = result.data;
-            await SecureStoreUtils.set<RefreshTokenRequest>(AuthUtils.REFRESH_TOKEN_KEY, { refreshToken });
+            await this.storage.set<RefreshTokenRequest>(AuthUtils.REFRESH_TOKEN_KEY, { refreshToken });
             if (AuthUtils.AUTH_INTERCEPTOR_ID !== null) {
                 axios.interceptors.request.eject(AuthUtils.AUTH_INTERCEPTOR_ID);
             }
@@ -106,7 +109,7 @@ export default class AuthUtils {
         const { code, message, details } = result.error;
         switch (code) {
             case "INVALID_TOKEN": {
-                await SecureStoreUtils.delete(AuthUtils.REFRESH_TOKEN_KEY);
+                await this.storage.delete(AuthUtils.REFRESH_TOKEN_KEY);
                 this.clearSession();
                 break;
             }

@@ -3,31 +3,33 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 
 import { Redirect } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAppContext } from "../components/app-context-provider";
-import { ValidationErrors } from "../types/ui";
 import { LoginRequest } from "../types/auth";
+import { ValidationErrors } from "../types/ui";
 import UiUtils from "../utils/ui-utils";
 
 export default function Index() {
-    const { authUtils, isAuthenticated, isLoading } = useAppContext();
+    const { authUtils, loadingUtils, isAuthenticated, isLoading } = useAppContext();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [validationErrors, setValidationErrors] = useState<ValidationErrors<LoginRequest>>({});
     const isSubmitDisabled = isLoading || !username.trim() || !password;
     const { username: usernameError, password: passwordError } = validationErrors;
 
-    useEffect(() => {
-        authUtils.restoreSession();
-    }, [authUtils]);
-
     async function handleLogin() {
-        const validationDetails = await authUtils.login({ username: username.trim(), password });
+        const validationDetails = await loadingUtils.run(() =>
+            authUtils.login({ username: username.trim(), password })
+        );
         if (validationDetails) {
             setValidationErrors(UiUtils.mapValidationErrors<LoginRequest>(validationDetails));
         }
     }
 
+    useEffect(() => {
+        void loadingUtils.run(() => authUtils.restoreSession());
+    }, [authUtils, loadingUtils]);
+
     if (isAuthenticated) {
-        return <Redirect href="/logout" />;
+        return <Redirect href="/main-app" />;
     }
 
     return (

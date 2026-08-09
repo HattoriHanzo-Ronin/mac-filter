@@ -2,9 +2,25 @@ import { LoginRequest, LoginResponse, LogoutRequest, RefreshTokenRequest, Refres
 import axios, { isAxiosError } from "axios";
 import { ApiError } from "../types/api-error";
 import { ApiResponse } from "../types/api-response";
+import {
+    CreateDeviceRequest,
+    CreateDeviceResponse,
+    DeleteDeviceResponse,
+    GetAllowedDevicesResponse,
+    GetDevicesResponse,
+    GetNotAllowedDevicesResponse,
+    UpdateDeviceRequest,
+    UpdateDeviceResponse
+} from "../types/devices";
+import {
+    CreateWhitelistRequest,
+    CreateWhitelistResponse,
+    DeleteWhitelistRequest,
+    DeleteWhitelistResponse
+} from "../types/whitelist";
 
 /**
- * Authentication API client
+ * API client
  *
  * @author HattoriHanzo-Ronin
  */
@@ -39,10 +55,116 @@ export default class ApiUtils {
      * Closes the current session
      *
      * @param request Logout token
+     * @returns Logout response
      */
     static async logout(request: LogoutRequest): Promise<ApiResponse<void>> {
         return this.executeRequest(async () => {
-            await axios.post<void>(this.buildUrl("auth/logout"), request);
+            await axios.delete<void>(this.buildUrl("auth"), { data: request });
+        });
+    }
+
+    /**
+     * Returns all devices
+     *
+     * @returns Devices
+     */
+    static async getDevices(): Promise<ApiResponse<GetDevicesResponse>> {
+        return this.executeRequest(async () => {
+            const { data } = await axios.get<GetDevicesResponse>(this.buildUrl("devices"));
+            return data;
+        });
+    }
+
+    /**
+     * Returns allowed devices for a router
+     *
+     * @param id Router identifier
+     * @returns Allowed devices
+     */
+    static async getAllowedDevices(id: string): Promise<ApiResponse<GetAllowedDevicesResponse>> {
+        return this.executeRequest(async () => {
+            const { data } = await axios.get<GetAllowedDevicesResponse>(this.buildUrl(`devices/allowed/${id}`));
+            return data;
+        });
+    }
+
+    /**
+     * Returns not allowed devices for a router
+     *
+     * @param id Router identifier
+     * @returns Not allowed devices
+     */
+    static async getNotAllowedDevices(id: string): Promise<ApiResponse<GetNotAllowedDevicesResponse>> {
+        return this.executeRequest(async () => {
+            const { data } = await axios.get<GetNotAllowedDevicesResponse>(this.buildUrl(`devices/notallowed/${id}`));
+            return data;
+        });
+    }
+
+    /**
+     * Creates a device
+     *
+     * @param request Device data
+     * @returns Created device
+     */
+    static async createDevice(request: CreateDeviceRequest): Promise<ApiResponse<CreateDeviceResponse>> {
+        return this.executeRequest(async () => {
+            const { data } = await axios.post<CreateDeviceResponse>(this.buildUrl("devices"), request);
+            return data;
+        });
+    }
+
+    /**
+     * Updates a device
+     *
+     * @param request Device data
+     * @returns Updated device
+     */
+    static async updateDevice(request: UpdateDeviceRequest): Promise<ApiResponse<UpdateDeviceResponse>> {
+        return this.executeRequest(async () => {
+            const { data } = await axios.put<UpdateDeviceResponse>(this.buildUrl("devices"), request);
+            return data;
+        });
+    }
+
+    /**
+     * Deletes a device
+     *
+     * @param id Device identifier
+     * @returns Deleted device identifier
+     */
+    static async deleteDevice(id: string): Promise<ApiResponse<DeleteDeviceResponse>> {
+        return this.executeRequest(async () => {
+            const { data } = await axios.delete<DeleteDeviceResponse>(this.buildUrl(`devices/${id}`));
+            return data;
+        });
+    }
+
+    /**
+     * Creates a whitelist entry
+     *
+     * @param request Whitelist data
+     * @returns Created whitelist entry
+     */
+    static async createWhitelist(request: CreateWhitelistRequest): Promise<ApiResponse<CreateWhitelistResponse>> {
+        return this.executeRequest(async () => {
+            const { routerId, ...data } = request;
+            const response = await axios.post<CreateWhitelistResponse>(this.buildUrl(`whitelist/${routerId}`), data);
+            return response.data;
+        });
+    }
+
+    /**
+     * Deletes a whitelist entry
+     *
+     * @param request Whitelist data
+     * @returns Deleted whitelist entry
+     */
+    static async deleteWhitelist(request: DeleteWhitelistRequest): Promise<ApiResponse<DeleteWhitelistResponse>> {
+        return this.executeRequest(async () => {
+            const { routerId, ...data } = request;
+            const response = await axios.delete<DeleteWhitelistResponse>(this.buildUrl(`whitelist/${routerId}`), { data });
+            return response.data;
         });
     }
 

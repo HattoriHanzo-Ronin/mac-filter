@@ -1,27 +1,66 @@
-import { useEffect, useState } from "react";
-import { FlatList, View, Text, useWindowDimensions, BackHandler } from "react-native";
+import { DevicePicker, DeviceSearchInput } from "@/src/components/common-components";
+import { Redirect, router } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
+import { BackHandler, Button, FlatList, Pressable, Text, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ListItem, Pick, SearchInput } from "@/src/components/common-components";
-import { router } from "expo-router";
-import { macFilter } from "../styles";
+import { useAppContext } from "../components/app-context-provider";
 import Background from "../components/background";
-import CustomButt from "../components/custom-butt";
+import { index, macFilter } from "../styles";
+import { Device } from "../types/devices";
 import UiUtils from "../utils/ui-utils";
-import { PLACEHOLDER_ITEM } from "../constants";
-
-const entries = [PLACEHOLDER_ITEM];
 
 export default function MacFilter() {
+    const { lastDevice, isAuthenticated, isLoading, executeApiRequest } = useAppContext();
+    const routerId = lastDevice?.id;
     const safeTop = useSafeAreaInsets().top + (useWindowDimensions().height * 10) / 100;
     const safeBottom = useSafeAreaInsets().bottom + (useWindowDimensions().height * 6) / 100;
-    const [allow, setAllow] = useState(true);
-    const [val, setVal] = useState(entries[0].id);
-    const [selectedEntry, setSelectedEntry] = useState<ListItem>(entries[0]);
-    const [search, setSearch] = useState("");
-    const entryProps = [
-        { label: "Nombre", val: UiUtils.makeName(selectedEntry.name, selectedEntry.type) },
-        { label: "Mac", val: selectedEntry.mac }
-    ];
+    const [showAllowed, setShowAllowed] = useState(true);
+    const [devices, setDevices] = useState<Device[]>([]);
+    const [selectedDeviceId, setSelectedDeviceId] = useState("");
+    const [selectedDevice, setSelectedDevice] = useState<Device>();
+    const [connectionTypeIndex, setConnectionTypeIndex] = useState(0);
+    const deviceProperties = selectedDevice
+        ? UiUtils.mapDeviceProperties(selectedDevice).filter((property) =>
+              ["name", "connection_type", "mac"].includes(property.key)
+          )
+        : [];
+
+    async function handleWhitelistPress(): Promise<void> {
+        if (selectedDevice && routerId) {
+            const { id: deviceId, connections } = selectedDevice;
+            const connection = connections[connectionTypeIndex];
+            if (!connection) {
+                return;
+            }
+
+            const { mac } = connection;
+            const result = await executeApiRequest((apiUtils) =>
+                showAllowed
+                    ? apiUtils.deleteWhitelist({ routerId, id: deviceId, mac })
+                    : apiUtils.createWhitelist({ routerId, id: deviceId, mac })
+            );
+
+            if (result.success) {
+                const { data } = result;
+                const updatedDevices = devices.flatMap((device) => {
+                    if (device.id !== data.id) {
+                        return [device];
+                    }
+
+                    const remainingConnections = device.connections.filter(({ mac }) => mac !== data.mac);
+                    return remainingConnections.length > 0 ? [{ ...device, connections: remainingConnections }] : [];
+                });
+                setDevices(updatedDevices);
+                selectDevice(updatedDevices.find(({ id }) => id === data.id) ?? updatedDevices[0]);
+            }
+        }
+    }
+
+    const selectDevice = useCallback((device?: Device): void => {
+        setSelectedDevice(device);
+        setSelectedDeviceId(device?.id ?? "");
+        setConnectionTypeIndex(0);
+    }, []);
 
     useEffect(() => {
         const sub = BackHandler.addEventListener("hardwareBackPress", () => {
@@ -32,40 +71,73 @@ export default function MacFilter() {
         return () => sub.remove();
     }, []);
 
+    useEffect(() => {
+        void (async () => {
+            if (routerId) {
+                const result = await executeApiRequest((apiUtils) =>
+                    showAllowed ? apiUtils.getAllowedDevices(routerId) : apiUtils.getNotAllowedDevices(routerId)
+                );
+
+                if (result.success) {
+                    const { data } = result;
+                    setDevices(data);
+                    selectDevice(data[0]);
+                }
+            }
+        })();
+    }, [executeApiRequest, routerId, selectDevice, showAllowed]);
+
+    if (!isAuthenticated) {
+        return <Redirect href="/" />;
+    }
+
     return (
         <Background>
             <View style={[macFilter.parent, { paddingTop: safeTop, paddingBottom: safeBottom }]}>
-                <CustomButt
-                    label={`Cambiar a ${allow ? "no permitidos" : "permitidos"}`}
-                    onPress={() => setAllow(!allow)}
+                <Button
+                    disabled={isLoading}
+                    title={"Cambiar a " + (showAllowed ? "no permitidos" : "permitidos")}
+                    onPress={() => setShowAllowed((showAllowed) => !showAllowed)}
                 />
-                <Pick
-                    list={entries}
-                    val={val}
-                    onChange={(value: string) => setVal(value)}
-                    changeItem={setSelectedEntry}
-                />
-                <SearchInput
-                    list={entries}
-                    search={search}
-                    onChange={(value: string) => setSearch(value)}
-                    setVal={(value: string) => setVal(value)}
-                    changeItem={setSelectedEntry}
-                />
+                <DevicePicker devices={devices} selectedDeviceId={selectedDeviceId} onSelect={selectDevice} />
+                <DeviceSearchInput devices={devices} onSelect={selectDevice} />
                 <FlatList
-                    contentContainerStyle={macFilter.list}
-                    data={entryProps}
-                    renderItem={(it) => (
+                    key={selectedDevice?.id ?? "empty"}
+                    style={macFilter.scroll}
+                    contentContainerStyle={[macFilter.list, { paddingBottom: 20 }]}
+                    data={deviceProperties}
+                    extraData={connectionTypeIndex}
+                    initialNumToRender={deviceProperties.length}
+                    maxToRenderPerBatch={deviceProperties.length}
+                    removeClippedSubviews={false}
+                    renderItem={({ item }) => (
                         <View style={macFilter.parentDevProp}>
-                            <Text style={macFilter.labelProp}>{it.item.label}:</Text>
-                            <Text selectable style={macFilter.valueProp}>
-                                {it.item.val}
-                            </Text>
+                            <Text style={macFilter.labelProp}>{item.label}:</Text>
+                            {item.key === "connection_type" ? (
+                                <View style={index.connectionOptions}>
+                                    {item.val.map((connectionType, connectionIndex) => (
+                                        <Pressable
+                                            key={connectionType}
+                                            style={index.connectionOption}
+                                            onPress={() => setConnectionTypeIndex(connectionIndex)}
+                                        >
+                                            <View style={index.radioOuter}>
+                                                {connectionTypeIndex === connectionIndex && <View style={index.radioInner} />}
+                                            </View>
+                                            <Text style={macFilter.valueProp}>{connectionType}</Text>
+                                        </Pressable>
+                                    ))}
+                                </View>
+                            ) : (
+                                <Text selectable style={macFilter.valueProp}>
+                                    {item.key === "mac" ? item.val[connectionTypeIndex] : item.val}
+                                </Text>
+                            )}
                         </View>
                     )}
-                    keyExtractor={(it) => it.label}
+                    keyExtractor={(property) => property.key}
                 />
-                <CustomButt label={allow ? "Quitar" : "Añadir"} onPress={() => {}} />
+                <Button disabled={isLoading} title={showAllowed ? "Quitar" : "Añadir"} onPress={handleWhitelistPress} />
             </View>
         </Background>
     );

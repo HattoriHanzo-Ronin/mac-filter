@@ -3,7 +3,7 @@ import { ApiValidationErrorDetail } from "../../src/types/api-error";
 import { AuthUser, LoginRequest, LoginResponse, RefreshTokenRequest } from "../../src/types/auth";
 import ApiUtils from "../../src/utils/api-utils";
 import AuthUtils from "../../src/utils/auth-utils";
-import SecureStoreUtils from "../../src/utils/secure-store-utils";
+import SecureStoreUtils from "../../src/utils/storage/secure-store-utils";
 import UiUtils from "../../src/utils/ui-utils";
 
 const CREDENTIALS: LoginRequest = { username: "ronin", password: "secret" };
@@ -21,14 +21,16 @@ describe("AuthUtils", () => {
     const setUser = jest.fn();
     const setIsLoading = jest.fn();
     let authUtils: AuthUtils;
+    let secureStoreUtils: SecureStoreUtils;
 
     beforeEach(() => {
         jest.clearAllMocks();
-        authUtils = new AuthUtils(setIsAuthenticated, setUser, setIsLoading);
+        secureStoreUtils = new SecureStoreUtils();
+        authUtils = new AuthUtils(setIsAuthenticated, setUser, setIsLoading, secureStoreUtils);
         jest.spyOn(axios.interceptors.request, "use").mockReturnValue(1);
-        jest.spyOn(SecureStoreUtils, "set").mockResolvedValue();
-        jest.spyOn(SecureStoreUtils, "get").mockResolvedValue(null);
-        jest.spyOn(SecureStoreUtils, "delete").mockResolvedValue();
+        jest.spyOn(secureStoreUtils, "set").mockResolvedValue();
+        jest.spyOn(secureStoreUtils, "get").mockResolvedValue(null);
+        jest.spyOn(secureStoreUtils, "delete").mockResolvedValue();
         jest.spyOn(UiUtils, "showMessage").mockImplementation();
     });
 
@@ -39,7 +41,7 @@ describe("AuthUtils", () => {
     it("stores the refresh token and authenticates the user after a successful login", async () => {
         jest.spyOn(ApiUtils, "login").mockResolvedValue({ success: true, data: LOGIN_RESPONSE });
         await authUtils.login(CREDENTIALS);
-        expect(SecureStoreUtils.set).toHaveBeenCalledWith("refreshToken", { refreshToken: "refresh-token" });
+        expect(secureStoreUtils.set).toHaveBeenCalledWith("refreshToken", { refreshToken: "refresh-token" });
         expect(setUser).toHaveBeenCalledWith(USER);
         expect(setIsAuthenticated).toHaveBeenCalledWith(true);
     });
@@ -66,11 +68,11 @@ describe("AuthUtils", () => {
     });
 
     it("replaces the refresh token and updates the user after a successful refresh", async () => {
-        jest.spyOn(SecureStoreUtils, "get").mockResolvedValue(STORED_REFRESH_TOKEN);
+        jest.spyOn(secureStoreUtils, "get").mockResolvedValue(STORED_REFRESH_TOKEN);
         jest.spyOn(ApiUtils, "refreshToken").mockResolvedValue({ success: true, data: LOGIN_RESPONSE });
         await authUtils.restoreSession();
         expect(ApiUtils.refreshToken).toHaveBeenCalledWith(STORED_REFRESH_TOKEN);
-        expect(SecureStoreUtils.set).toHaveBeenCalledWith("refreshToken", { refreshToken: "refresh-token" });
+        expect(secureStoreUtils.set).toHaveBeenCalledWith("refreshToken", { refreshToken: "refresh-token" });
         expect(setUser).toHaveBeenCalledWith(USER);
         expect(setIsAuthenticated).toHaveBeenCalledWith(true);
     });
@@ -84,47 +86,47 @@ describe("AuthUtils", () => {
     });
 
     it("deletes the refresh token and clears the session when it is invalid", async () => {
-        jest.spyOn(SecureStoreUtils, "get").mockResolvedValue(STORED_REFRESH_TOKEN);
+        jest.spyOn(secureStoreUtils, "get").mockResolvedValue(STORED_REFRESH_TOKEN);
         jest.spyOn(ApiUtils, "refreshToken").mockResolvedValue({
             success: false,
             error: { code: "INVALID_TOKEN", message: "Token inválido" }
         });
         await authUtils.restoreSession();
-        expect(SecureStoreUtils.delete).toHaveBeenCalledWith("refreshToken");
+        expect(secureStoreUtils.delete).toHaveBeenCalledWith("refreshToken");
         expect(setUser).toHaveBeenCalledWith(null);
         expect(setIsAuthenticated).toHaveBeenCalledWith(false);
     });
 
     it("keeps the refresh token after a network error", async () => {
-        jest.spyOn(SecureStoreUtils, "get").mockResolvedValue(STORED_REFRESH_TOKEN);
+        jest.spyOn(secureStoreUtils, "get").mockResolvedValue(STORED_REFRESH_TOKEN);
         jest.spyOn(ApiUtils, "refreshToken").mockResolvedValue({
             success: false,
             error: { code: "NETWORK_ERROR", message: "Error de red" }
         });
         await authUtils.restoreSession();
-        expect(SecureStoreUtils.delete).not.toHaveBeenCalled();
+        expect(secureStoreUtils.delete).not.toHaveBeenCalled();
         expect(setUser).not.toHaveBeenCalled();
         expect(setIsAuthenticated).not.toHaveBeenCalled();
     });
 
     it("deletes the refresh token and clears the session after logout", async () => {
-        jest.spyOn(SecureStoreUtils, "get").mockResolvedValue(STORED_REFRESH_TOKEN);
+        jest.spyOn(secureStoreUtils, "get").mockResolvedValue(STORED_REFRESH_TOKEN);
         jest.spyOn(ApiUtils, "logout").mockResolvedValue({ success: true, data: undefined });
         await authUtils.logout();
-        expect(SecureStoreUtils.delete).toHaveBeenCalledWith("refreshToken");
+        expect(secureStoreUtils.delete).toHaveBeenCalledWith("refreshToken");
         expect(setUser).toHaveBeenCalledWith(null);
         expect(setIsAuthenticated).toHaveBeenCalledWith(false);
         expect(setIsLoading.mock.calls).toEqual([[true], [false]]);
     });
 
     it("keeps the session and displays the error after a failed logout", async () => {
-        jest.spyOn(SecureStoreUtils, "get").mockResolvedValue(STORED_REFRESH_TOKEN);
+        jest.spyOn(secureStoreUtils, "get").mockResolvedValue(STORED_REFRESH_TOKEN);
         jest.spyOn(ApiUtils, "logout").mockResolvedValue({
             success: false,
             error: { code: "NETWORK_ERROR", message: "Error de red" }
         });
         await authUtils.logout();
-        expect(SecureStoreUtils.delete).not.toHaveBeenCalled();
+        expect(secureStoreUtils.delete).not.toHaveBeenCalled();
         expect(setUser).not.toHaveBeenCalled();
         expect(setIsAuthenticated).not.toHaveBeenCalled();
         expect(UiUtils.showMessage).toHaveBeenCalledWith("Error de red");

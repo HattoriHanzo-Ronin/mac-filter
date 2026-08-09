@@ -2,9 +2,14 @@ import { StyleSheet } from "react-native";
 
 const commonStyle = StyleSheet.create({
     list: {
+        padding: "10%"
+    },
+    scroll: {
         flex: 1,
-        padding: "2%",
-        justifyContent: "center"
+        minHeight: 0
+    },
+    listFooter: {
+        height: 80
     },
     parentDevProp: {
         flexDirection: "column",
@@ -68,6 +73,33 @@ export const index = StyleSheet.create({
         width: "100%",
         gap: "2%"
     },
+    connectionOptions: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        justifyContent: "center",
+        gap: 16
+    },
+    connectionOption: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 8
+    },
+    radioOuter: {
+        width: 20,
+        height: 20,
+        borderWidth: 2,
+        borderRadius: 10,
+        justifyContent: "center",
+        alignItems: "center"
+    },
+    radioInner: {
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+        backgroundColor: "black"
+    },
+    scroll: commonStyle.scroll,
+    listFooter: commonStyle.listFooter,
     list: commonStyle.list,
     parentDevProp: commonStyle.parentDevProp,
     labelProp: commonStyle.labelProp,
@@ -92,6 +124,7 @@ export const macFilter = StyleSheet.create({
         gap: "8%",
         backgroundColor: "rgba(255, 255, 255, 0.23)"
     },
+    scroll: commonStyle.scroll,
     list: commonStyle.list,
     parentDevProp: commonStyle.parentDevProp,
     labelProp: commonStyle.labelProp,

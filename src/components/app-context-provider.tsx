@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useContext, useState } from "react";
+import { createContext, PropsWithChildren, useCallback, useContext, useState } from "react";
 import AuthUtils from "../utils/auth-utils";
 import LoadingUtils from "../utils/loading-utils";
 import SecureStoreUtils from "../utils/storage/secure-store-utils";
@@ -20,18 +20,6 @@ export default function AppContextProvider(props: PropsWithChildren) {
     const [loadingUtils] = useState(() => new LoadingUtils(setIsLoading));
     const [lastDevice, setLastDevice] = useState<Device | null>(null);
     const [devices, setDevices] = useState<Device[]>([]);
-    const contextValue: AppContextValue = {
-        isAuthenticated,
-        user,
-        isLoading,
-        authUtils,
-        loadingUtils,
-        executeApiRequest,
-        lastDevice,
-        setLastDevice,
-        devices,
-        setDevices
-    };
 
     /**
      * Executes an API request and retries it once after restoring the session
@@ -39,7 +27,7 @@ export default function AppContextProvider(props: PropsWithChildren) {
      * @param request API request
      * @returns API response
      */
-    async function executeApiRequest<T>(
+    const executeApiRequest = useCallback(async function executeApiRequest<T>(
         request: (apiUtils: typeof ApiUtils) => Promise<ApiResponse<T>>
     ): Promise<ApiResponse<T>> {
         return (async function execute(canRetry: boolean): Promise<ApiResponse<T>> {
@@ -57,7 +45,19 @@ export default function AppContextProvider(props: PropsWithChildren) {
                 return result;
             });
         })(true);
-    }
+    }, [authUtils, loadingUtils]);
+    const contextValue: AppContextValue = {
+        isAuthenticated,
+        user,
+        isLoading,
+        authUtils,
+        loadingUtils,
+        executeApiRequest,
+        lastDevice,
+        setLastDevice,
+        devices,
+        setDevices
+    };
 
     return <AppContext.Provider value={contextValue}>{props.children}</AppContext.Provider>;
 }

@@ -16,18 +16,15 @@ export default class AuthUtils {
     private static REFRESH_TOKEN_KEY = "refreshToken";
     private setIsAuthenticated: (isAuthenticated: boolean) => void;
     private setUser: (user: AuthUser | null) => void;
-    private setIsLoading: (isLoading: boolean) => void;
     private storage: Storage;
 
     constructor(
         setIsAuthenticated: (isAuthenticated: boolean) => void,
         setUser: (user: AuthUser | null) => void,
-        setIsLoading: (isLoading: boolean) => void,
         storage: Storage
     ) {
         this.setIsAuthenticated = setIsAuthenticated;
         this.setUser = setUser;
-        this.setIsLoading = setIsLoading;
         this.storage = storage;
     }
 
@@ -38,20 +35,31 @@ export default class AuthUtils {
      * @returns Validation error details or nothing
      */
     async login(credentials: LoginRequest): Promise<ApiValidationErrorDetail[] | undefined> {
-        return this.authenticate(() => ApiUtils.login(credentials));
+        const result = await this.authenticate(() => ApiUtils.login(credentials));
+        if (!result.success) {
+            const { code, details } = result.error;
+            if (code === "VALIDATION_FAILED" && details) {
+                return details;
+            }
+        }
+
+        return undefined;
     }
 
     /**
      * Restores the current authentication session
+     *
+     * @returns Whether the session was restored
      */
-    async restoreSession(): Promise<void> {
+    async restoreSession(): Promise<boolean> {
         const refreshToken = await this.storage.get<RefreshTokenRequest>(AuthUtils.REFRESH_TOKEN_KEY);
         if (!refreshToken) {
             this.clearSession();
-            return;
+            return false;
         }
 
-        await this.authenticate(() => ApiUtils.refreshToken(refreshToken));
+        const { success } = await this.authenticate(() => ApiUtils.refreshToken(refreshToken));
+        return success;
     }
 
     /**
@@ -64,29 +72,25 @@ export default class AuthUtils {
             return;
         }
 
-        this.setIsLoading(true);
         const result = await ApiUtils.logout(refreshToken);
         if (result.success) {
             await this.storage.delete(AuthUtils.REFRESH_TOKEN_KEY);
             this.clearSession();
-            this.setIsLoading(false);
             return;
         }
 
         UiUtils.showMessage(result.error.message);
-        this.setIsLoading(false);
     }
 
     /**
      * Authenticates using an API request
      *
      * @param request Authentication request
-     * @returns Validation error details or nothing
+     * @returns Authentication response
      */
     private async authenticate(
         request: () => Promise<ApiResponse<LoginResponse>>
-    ): Promise<ApiValidationErrorDetail[] | undefined> {
-        this.setIsLoading(true);
+    ): Promise<ApiResponse<LoginResponse>> {
         const result = await request();
         const { success } = result;
         if (success) {
@@ -102,26 +106,21 @@ export default class AuthUtils {
             });
             this.setUser(user);
             this.setIsAuthenticated(true);
-            this.setIsLoading(false);
-            return undefined;
         }
 
-        const { code, message, details } = result.error;
-        switch (code) {
-            case "INVALID_TOKEN": {
+        if (!success) {
+            const { error } = result;
+            if (error.code === "INVALID_TOKEN") {
                 await this.storage.delete(AuthUtils.REFRESH_TOKEN_KEY);
                 this.clearSession();
-                break;
             }
-            case "VALIDATION_FAILED": {
-                this.setIsLoading(false);
-                return details;
+
+            if (error.code !== "VALIDATION_FAILED") {
+                UiUtils.showMessage(error.message);
             }
         }
 
-        UiUtils.showMessage(message);
-        this.setIsLoading(false);
-        return undefined;
+        return result;
     }
 
     private clearSession(): void {

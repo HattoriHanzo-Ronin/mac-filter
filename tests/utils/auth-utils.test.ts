@@ -19,14 +19,13 @@ const VALIDATION_DETAILS: ApiValidationErrorDetail[] = [{ field: "username", mes
 describe("AuthUtils", () => {
     const setIsAuthenticated = jest.fn();
     const setUser = jest.fn();
-    const setIsLoading = jest.fn();
     let authUtils: AuthUtils;
     let secureStoreUtils: SecureStoreUtils;
 
     beforeEach(() => {
         jest.clearAllMocks();
         secureStoreUtils = new SecureStoreUtils();
-        authUtils = new AuthUtils(setIsAuthenticated, setUser, setIsLoading, secureStoreUtils);
+        authUtils = new AuthUtils(setIsAuthenticated, setUser, secureStoreUtils);
         jest.spyOn(axios.interceptors.request, "use").mockReturnValue(1);
         jest.spyOn(secureStoreUtils, "set").mockResolvedValue();
         jest.spyOn(secureStoreUtils, "get").mockResolvedValue(null);
@@ -64,13 +63,12 @@ describe("AuthUtils", () => {
         });
         expect(await authUtils.login(CREDENTIALS)).toEqual(VALIDATION_DETAILS);
         expect(UiUtils.showMessage).not.toHaveBeenCalled();
-        expect(setIsLoading.mock.calls).toEqual([[true], [false]]);
     });
 
     it("replaces the refresh token and updates the user after a successful refresh", async () => {
         jest.spyOn(secureStoreUtils, "get").mockResolvedValue(STORED_REFRESH_TOKEN);
         jest.spyOn(ApiUtils, "refreshToken").mockResolvedValue({ success: true, data: LOGIN_RESPONSE });
-        await authUtils.restoreSession();
+        await expect(authUtils.restoreSession()).resolves.toBe(true);
         expect(ApiUtils.refreshToken).toHaveBeenCalledWith(STORED_REFRESH_TOKEN);
         expect(secureStoreUtils.set).toHaveBeenCalledWith("refreshToken", { refreshToken: "refresh-token" });
         expect(setUser).toHaveBeenCalledWith(USER);
@@ -79,7 +77,7 @@ describe("AuthUtils", () => {
 
     it("clears the session when there is no refresh token", async () => {
         const refreshSpy = jest.spyOn(ApiUtils, "refreshToken");
-        await authUtils.restoreSession();
+        await expect(authUtils.restoreSession()).resolves.toBe(false);
         expect(refreshSpy).not.toHaveBeenCalled();
         expect(setUser).toHaveBeenCalledWith(null);
         expect(setIsAuthenticated).toHaveBeenCalledWith(false);
@@ -91,7 +89,7 @@ describe("AuthUtils", () => {
             success: false,
             error: { code: "INVALID_TOKEN", message: "Token inválido" }
         });
-        await authUtils.restoreSession();
+        await expect(authUtils.restoreSession()).resolves.toBe(false);
         expect(secureStoreUtils.delete).toHaveBeenCalledWith("refreshToken");
         expect(setUser).toHaveBeenCalledWith(null);
         expect(setIsAuthenticated).toHaveBeenCalledWith(false);
@@ -103,7 +101,7 @@ describe("AuthUtils", () => {
             success: false,
             error: { code: "NETWORK_ERROR", message: "Error de red" }
         });
-        await authUtils.restoreSession();
+        await expect(authUtils.restoreSession()).resolves.toBe(false);
         expect(secureStoreUtils.delete).not.toHaveBeenCalled();
         expect(setUser).not.toHaveBeenCalled();
         expect(setIsAuthenticated).not.toHaveBeenCalled();
@@ -116,7 +114,6 @@ describe("AuthUtils", () => {
         expect(secureStoreUtils.delete).toHaveBeenCalledWith("refreshToken");
         expect(setUser).toHaveBeenCalledWith(null);
         expect(setIsAuthenticated).toHaveBeenCalledWith(false);
-        expect(setIsLoading.mock.calls).toEqual([[true], [false]]);
     });
 
     it("keeps the session and displays the error after a failed logout", async () => {
@@ -130,7 +127,6 @@ describe("AuthUtils", () => {
         expect(setUser).not.toHaveBeenCalled();
         expect(setIsAuthenticated).not.toHaveBeenCalled();
         expect(UiUtils.showMessage).toHaveBeenCalledWith("Error de red");
-        expect(setIsLoading.mock.calls).toEqual([[true], [false]]);
     });
 
     it("adds the access token to subsequent requests", async () => {
@@ -139,11 +135,5 @@ describe("AuthUtils", () => {
         const interceptor = jest.mocked(axios.interceptors.request.use).mock.calls[0][0];
         const config = await interceptor!({ headers: {} } as InternalAxiosRequestConfig);
         expect(config.headers.Authorization).toBe("Bearer access-token");
-    });
-
-    it("sets and clears the loading state around authentication", async () => {
-        jest.spyOn(ApiUtils, "login").mockResolvedValue({ success: true, data: LOGIN_RESPONSE });
-        await authUtils.login(CREDENTIALS);
-        expect(setIsLoading.mock.calls).toEqual([[true], [false]]);
     });
 });

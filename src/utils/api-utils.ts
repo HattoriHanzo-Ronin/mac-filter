@@ -1,6 +1,6 @@
 import { LoginRequest, LoginResponse, LogoutRequest, RefreshTokenRequest, RefreshTokenResponse } from "../types/auth";
 import axios, { isAxiosError } from "axios";
-import { ApiErrorResponse } from "../types/api-error";
+import { ApiError } from "../types/api-error";
 import { ApiResponse } from "../types/api-response";
 
 /**
@@ -60,8 +60,8 @@ export default class ApiUtils {
         try {
             return { success: true, data: await callback() };
         } catch (err) {
-            let error: ApiErrorResponse = { code: "NETWORK_ERROR", message: "No se pudo conectar con el servidor" };
-            if (isAxiosError<ApiErrorResponse>(err) && err.response) {
+            let error: ApiError = { code: "NETWORK_ERROR", message: "No se pudo conectar con el servidor" };
+            if (isAxiosError<ApiError>(err) && err.response) {
                 error = err.response.data;
             }
 

@@ -4,12 +4,10 @@ export interface ApiValidationErrorDetail {
 }
 
 /**
- * API error response
+ * API error
  */
-export interface ApiErrorResponse {
+export interface ApiError {
     message: string;
     code: string;
     details?: ApiValidationErrorDetail[];
 }
-
-export type ValidationErrors<T extends object> = Partial<Record<keyof T, string[]>>;

@@ -14,6 +14,7 @@ import { ApiValidationErrorDetail } from "../types/api-error";
 export default class AuthUtils {
     private static AUTH_INTERCEPTOR_ID: number | null = null;
     private static REFRESH_TOKEN_KEY = "refreshToken";
+    private static SESSION_GENERATION = 0;
     private setIsAuthenticated: (isAuthenticated: boolean) => void;
     private setUser: (user: AuthUser | null) => void;
     private storage: Storage;
@@ -91,7 +92,12 @@ export default class AuthUtils {
     private async authenticate(
         request: () => Promise<ApiResponse<LoginResponse>>
     ): Promise<ApiResponse<LoginResponse>> {
+        const generation = AuthUtils.SESSION_GENERATION;
         const result = await request();
+        if (generation !== AuthUtils.SESSION_GENERATION) {
+            return { success: false, error: { code: "SESSION_INVALIDATED", message: "" } };
+        }
+
         const { success } = result;
         if (success) {
             const { user, refreshToken, accessToken } = result.data;
@@ -131,5 +137,6 @@ export default class AuthUtils {
 
         this.setUser(null);
         this.setIsAuthenticated(false);
+        AuthUtils.SESSION_GENERATION++;
     }
 }

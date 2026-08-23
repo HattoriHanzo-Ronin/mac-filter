@@ -107,6 +107,24 @@ describe("AuthUtils", () => {
         expect(setIsAuthenticated).not.toHaveBeenCalled();
     });
 
+    it("does not restore a session invalidated by logout", async () => {
+        let resolveRefresh!: (response: Awaited<ReturnType<typeof ApiUtils.refreshToken>>) => void;
+        jest.spyOn(secureStoreUtils, "get").mockResolvedValue(STORED_REFRESH_TOKEN);
+        jest.spyOn(ApiUtils, "refreshToken").mockReturnValue(
+            new Promise((resolve) => {
+                resolveRefresh = resolve;
+            })
+        );
+        jest.spyOn(ApiUtils, "logout").mockResolvedValue({ success: true, data: undefined });
+        const restoreSession = authUtils.restoreSession();
+        await Promise.resolve();
+        await authUtils.logout();
+        resolveRefresh({ success: true, data: LOGIN_RESPONSE });
+        await expect(restoreSession).resolves.toBe(false);
+        expect(setUser).not.toHaveBeenCalledWith(USER);
+        expect(setIsAuthenticated).not.toHaveBeenCalledWith(true);
+    });
+
     it("deletes the refresh token and clears the session after logout", async () => {
         jest.spyOn(secureStoreUtils, "get").mockResolvedValue(STORED_REFRESH_TOKEN);
         jest.spyOn(ApiUtils, "logout").mockResolvedValue({ success: true, data: undefined });

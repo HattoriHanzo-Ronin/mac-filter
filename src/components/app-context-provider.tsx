@@ -25,13 +25,15 @@ export default function AppContextProvider(props: PropsWithChildren) {
      * Executes an API request and retries it once after restoring the session
      *
      * @param request API request
+     * @param isBackground Whether to execute without changing the loading state
      * @returns API response
      */
     const executeApiRequest = useCallback(async function executeApiRequest<T>(
-        request: (apiUtils: typeof ApiUtils) => Promise<ApiResponse<T>>
+        request: (apiUtils: typeof ApiUtils) => Promise<ApiResponse<T>>,
+        isBackground = false
     ): Promise<ApiResponse<T>> {
         return (async function execute(canRetry: boolean): Promise<ApiResponse<T>> {
-            return loadingUtils.run(async () => {
+            const executeRequest = async (): Promise<ApiResponse<T>> => {
                 const result = await request(ApiUtils);
                 if (!result.success) {
                     const { code, message } = result.error;
@@ -43,7 +45,8 @@ export default function AppContextProvider(props: PropsWithChildren) {
                 }
 
                 return result;
-            });
+            };
+            return isBackground ? executeRequest() : loadingUtils.run(executeRequest);
         })(true);
     }, [authUtils, loadingUtils]);
     const contextValue: AppContextValue = {

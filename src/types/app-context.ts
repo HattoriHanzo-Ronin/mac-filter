@@ -7,7 +7,8 @@ import { AuthUser } from "./auth";
 import { Device } from "./devices";
 
 export type ExecuteApiRequest = <T>(
-    request: (apiUtils: typeof ApiUtils) => Promise<ApiResponse<T>>
+    request: (apiUtils: typeof ApiUtils) => Promise<ApiResponse<T>>,
+    isBackground?: boolean
 ) => Promise<ApiResponse<T>>;
 
 export interface AppContextValue {

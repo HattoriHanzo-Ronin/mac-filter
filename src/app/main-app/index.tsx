@@ -2,6 +2,8 @@ import { useAppContext } from "@/src/components/app-context-provider";
 import Background from "@/src/components/background";
 import { DevicePicker, DeviceSearchInput } from "@/src/components/common-components";
 import { Device } from "@/src/types/devices";
+import { GetDevicesVersionResponse } from "@/src/types/version";
+import ApiUtils from "@/src/utils/api-utils";
 import UiUtils from "@/src/utils/ui-utils";
 import { Redirect, router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
@@ -13,12 +15,19 @@ export default function Index() {
     const [deviceId, setDeviceId] = useState("");
     const [connectionTypeIndex, setConnectionTypeIndex] = useState(0);
     const deviceProperties = lastDevice ? UiUtils.mapDeviceProperties(lastDevice) : [];
-
     const selectDevice = useCallback((device?: Device): void => {
         setLastDevice(device ?? null);
         setDeviceId(device?.id ?? "");
         setConnectionTypeIndex(0);
     }, [setLastDevice]);
+    const loadDevices = useCallback(async (): Promise<void> => {
+        const result = await executeApiRequest((apiUtils) => apiUtils.getDevices());
+        if (result.success) {
+            const { data } = result;
+            setDevices(data);
+            selectDevice(data[0]);
+        }
+    }, [executeApiRequest, selectDevice, setDevices]);
 
     async function deleteDevice(): Promise<void> {
         if (lastDevice) {
@@ -33,15 +42,23 @@ export default function Index() {
     }
 
     useEffect(() => {
-        void (async () => {
-            const result = await executeApiRequest((apiUtils) => apiUtils.getDevices());
-            if (result.success) {
-                const { data } = result;
-                setDevices(data);
-                selectDevice(data[0]);
-            }
-        })();
-    }, [executeApiRequest, selectDevice, setDevices]);
+        void loadDevices();
+    }, [loadDevices]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            void (async () => {
+                if (!isLoading) {
+                    const result = await executeApiRequest((apiUtils) => apiUtils.getVersion<GetDevicesVersionResponse>("devices"), true);
+                    if (result.success && result.data.devices !== ApiUtils.DEVICES_VERSION) {
+                        await loadDevices();
+                    }
+                }
+            })();
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [executeApiRequest, isLoading, loadDevices]);
 
     if (!isAuthenticated) {
         return <Redirect href="/" />;

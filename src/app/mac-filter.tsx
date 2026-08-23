@@ -7,6 +7,8 @@ import { useAppContext } from "../components/app-context-provider";
 import Background from "../components/background";
 import { index, macFilter } from "../styles";
 import { Device } from "../types/devices";
+import { GetFilteredDevicesVersionResponse } from "../types/version";
+import ApiUtils from "../utils/api-utils";
 import UiUtils from "../utils/ui-utils";
 
 export default function MacFilter() {
@@ -24,6 +26,24 @@ export default function MacFilter() {
               ["name", "connection_type", "mac"].includes(property.key)
           )
         : [];
+    const selectDevice = useCallback((device?: Device): void => {
+        setSelectedDevice(device);
+        setSelectedDeviceId(device?.id ?? "");
+        setConnectionTypeIndex(0);
+    }, []);
+    const loadDevices = useCallback(async (): Promise<void> => {
+        if (routerId) {
+            const result = await executeApiRequest((apiUtils) =>
+                showAllowed ? apiUtils.getAllowedDevices(routerId) : apiUtils.getNotAllowedDevices(routerId)
+            );
+
+            if (result.success) {
+                const { data } = result;
+                setDevices(data);
+                selectDevice(data[0]);
+            }
+        }
+    }, [executeApiRequest, routerId, selectDevice, showAllowed]);
 
     async function handleWhitelistPress(): Promise<void> {
         if (selectedDevice && routerId) {
@@ -56,12 +76,6 @@ export default function MacFilter() {
         }
     }
 
-    const selectDevice = useCallback((device?: Device): void => {
-        setSelectedDevice(device);
-        setSelectedDeviceId(device?.id ?? "");
-        setConnectionTypeIndex(0);
-    }, []);
-
     useEffect(() => {
         const sub = BackHandler.addEventListener("hardwareBackPress", () => {
             router.replace("/main-app");
@@ -72,20 +86,30 @@ export default function MacFilter() {
     }, []);
 
     useEffect(() => {
-        void (async () => {
-            if (routerId) {
-                const result = await executeApiRequest((apiUtils) =>
-                    showAllowed ? apiUtils.getAllowedDevices(routerId) : apiUtils.getNotAllowedDevices(routerId)
-                );
+        void loadDevices();
+    }, [loadDevices]);
 
-                if (result.success) {
-                    const { data } = result;
-                    setDevices(data);
-                    selectDevice(data[0]);
+    useEffect(() => {
+        const interval = setInterval(() => {
+            void (async () => {
+                if (!isLoading) {
+                    const versions = await executeApiRequest(
+                        (apiUtils) => apiUtils.getVersion<GetFilteredDevicesVersionResponse>("devices,whitelist"),
+                        true
+                    );
+                    if (
+                        versions.success &&
+                        (versions.data.devices !== ApiUtils.DEVICES_VERSION ||
+                            versions.data.whitelist !== ApiUtils.WHITELIST_VERSION)
+                    ) {
+                        await loadDevices();
+                    }
                 }
-            }
-        })();
-    }, [executeApiRequest, routerId, selectDevice, showAllowed]);
+            })();
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [executeApiRequest, isLoading, loadDevices]);
 
     if (!isAuthenticated) {
         return <Redirect href="/" />;

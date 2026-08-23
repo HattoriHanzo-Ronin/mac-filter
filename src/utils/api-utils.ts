@@ -25,6 +25,9 @@ import {
  * @author HattoriHanzo-Ronin
  */
 export default class ApiUtils {
+    static DEVICES_VERSION = "0";
+    static WHITELIST_VERSION = "0";
+
     /**
      * Returns the login result
      *
@@ -64,13 +67,27 @@ export default class ApiUtils {
     }
 
     /**
+     * Returns the version for an identifier
+     *
+     * @param id Version identifier
+     * @returns Version
+     */
+    static async getVersion<T>(id: string): Promise<ApiResponse<T>> {
+        return this.executeRequest(async () => {
+            const { data } = await axios.get<T>(this.buildUrl("data-versions"), { params: { id } });
+            return data;
+        });
+    }
+
+    /**
      * Returns all devices
      *
      * @returns Devices
      */
     static async getDevices(): Promise<ApiResponse<GetDevicesResponse>> {
         return this.executeRequest(async () => {
-            const { data } = await axios.get<GetDevicesResponse>(this.buildUrl("devices"));
+            const { data, headers } = await axios.get<GetDevicesResponse>(this.buildUrl("devices"));
+            ApiUtils.DEVICES_VERSION = String(headers["data-version"]);
             return data;
         });
     }
@@ -83,7 +100,9 @@ export default class ApiUtils {
      */
     static async getAllowedDevices(id: string): Promise<ApiResponse<GetAllowedDevicesResponse>> {
         return this.executeRequest(async () => {
-            const { data } = await axios.get<GetAllowedDevicesResponse>(this.buildUrl(`devices/allowed/${id}`));
+            const { data, headers } = await axios.get<GetAllowedDevicesResponse>(this.buildUrl(`devices/allowed/${id}`));
+            ApiUtils.DEVICES_VERSION = String(headers["devices-version"]);
+            ApiUtils.WHITELIST_VERSION = String(headers["whitelist-version"]);
             return data;
         });
     }
@@ -96,7 +115,9 @@ export default class ApiUtils {
      */
     static async getNotAllowedDevices(id: string): Promise<ApiResponse<GetNotAllowedDevicesResponse>> {
         return this.executeRequest(async () => {
-            const { data } = await axios.get<GetNotAllowedDevicesResponse>(this.buildUrl(`devices/notallowed/${id}`));
+            const { data, headers } = await axios.get<GetNotAllowedDevicesResponse>(this.buildUrl(`devices/notallowed/${id}`));
+            ApiUtils.DEVICES_VERSION = String(headers["devices-version"]);
+            ApiUtils.WHITELIST_VERSION = String(headers["whitelist-version"]);
             return data;
         });
     }
@@ -110,6 +131,7 @@ export default class ApiUtils {
     static async createDevice(request: CreateDeviceRequest): Promise<ApiResponse<CreateDeviceResponse>> {
         return this.executeRequest(async () => {
             const { data } = await axios.post<CreateDeviceResponse>(this.buildUrl("devices"), request);
+            ApiUtils.DEVICES_VERSION = String(BigInt(ApiUtils.DEVICES_VERSION) + 1n);
             return data;
         });
     }
@@ -123,6 +145,7 @@ export default class ApiUtils {
     static async updateDevice(request: UpdateDeviceRequest): Promise<ApiResponse<UpdateDeviceResponse>> {
         return this.executeRequest(async () => {
             const { data } = await axios.put<UpdateDeviceResponse>(this.buildUrl("devices"), request);
+            ApiUtils.DEVICES_VERSION = String(BigInt(ApiUtils.DEVICES_VERSION) + 1n);
             return data;
         });
     }
@@ -136,6 +159,7 @@ export default class ApiUtils {
     static async deleteDevice(id: string): Promise<ApiResponse<DeleteDeviceResponse>> {
         return this.executeRequest(async () => {
             const { data } = await axios.delete<DeleteDeviceResponse>(this.buildUrl(`devices/${id}`));
+            ApiUtils.DEVICES_VERSION = String(BigInt(ApiUtils.DEVICES_VERSION) + 1n);
             return data;
         });
     }
@@ -150,6 +174,7 @@ export default class ApiUtils {
         return this.executeRequest(async () => {
             const { routerId, ...data } = request;
             const response = await axios.post<CreateWhitelistResponse>(this.buildUrl(`whitelist/${routerId}`), data);
+            ApiUtils.WHITELIST_VERSION = String(BigInt(ApiUtils.WHITELIST_VERSION) + 1n);
             return response.data;
         });
     }
@@ -163,7 +188,10 @@ export default class ApiUtils {
     static async deleteWhitelist(request: DeleteWhitelistRequest): Promise<ApiResponse<DeleteWhitelistResponse>> {
         return this.executeRequest(async () => {
             const { routerId, ...data } = request;
-            const response = await axios.delete<DeleteWhitelistResponse>(this.buildUrl(`whitelist/${routerId}`), { data });
+            const response = await axios.delete<DeleteWhitelistResponse>(this.buildUrl(`whitelist/${routerId}`), {
+                data
+            });
+            ApiUtils.WHITELIST_VERSION = String(BigInt(ApiUtils.WHITELIST_VERSION) + 1n);
             return response.data;
         });
     }

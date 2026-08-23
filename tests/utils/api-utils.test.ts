@@ -2,6 +2,7 @@ import axios, { isAxiosError } from "axios";
 import ApiUtils from "../../src/utils/api-utils";
 import { LoginResponse } from "../../src/types/auth";
 import { CreateDeviceRequest, Device, UpdateDeviceRequest } from "../../src/types/devices";
+import { GetFilteredDevicesVersionResponse } from "../../src/types/version";
 
 jest.mock("axios");
 
@@ -18,6 +19,8 @@ const LOGIN_RESPONSE: LoginResponse = {
 describe("ApiUtils", () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        ApiUtils.DEVICES_VERSION = "0";
+        ApiUtils.WHITELIST_VERSION = "0";
     });
 
     it("logs in with credentials", async () => {
@@ -41,39 +44,58 @@ describe("ApiUtils", () => {
         expect(axios.delete).toHaveBeenCalledWith(`${API_URL}/auth`, { data: request });
     });
 
+    it("returns the version for an identifier", async () => {
+        jest.mocked(axios.get).mockResolvedValue({ data: { devices: "12", whitelist: "7" } });
+        expect(await ApiUtils.getVersion<GetFilteredDevicesVersionResponse>("devices,whitelist")).toEqual({
+            success: true,
+            data: { devices: "12", whitelist: "7" }
+        });
+        expect(axios.get).toHaveBeenCalledWith(`${API_URL}/data-versions`, {
+            params: { id: "devices,whitelist" }
+        });
+    });
+
     it("returns all devices", async () => {
-        jest.mocked(axios.get).mockResolvedValue({ data: [DEVICE] });
+        jest.mocked(axios.get).mockResolvedValue({ data: [DEVICE], headers: { "data-version": "12" } });
         expect(await ApiUtils.getDevices()).toEqual({ success: true, data: [DEVICE] });
+        expect(ApiUtils.DEVICES_VERSION).toBe("12");
         expect(axios.get).toHaveBeenCalledWith(`${API_URL}/devices`);
     });
 
     it("returns allowed devices for a router", async () => {
-        jest.mocked(axios.get).mockResolvedValue({ data: [DEVICE] });
+        jest.mocked(axios.get).mockResolvedValue({ data: [DEVICE], headers: { "devices-version": "13", "whitelist-version": "7" } });
         expect(await ApiUtils.getAllowedDevices("router-1")).toEqual({ success: true, data: [DEVICE] });
+        expect(ApiUtils.DEVICES_VERSION).toBe("13");
+        expect(ApiUtils.WHITELIST_VERSION).toBe("7");
         expect(axios.get).toHaveBeenCalledWith(`${API_URL}/devices/allowed/router-1`);
     });
 
     it("returns not allowed devices for a router", async () => {
-        jest.mocked(axios.get).mockResolvedValue({ data: [DEVICE] });
+        jest.mocked(axios.get).mockResolvedValue({ data: [DEVICE], headers: { "devices-version": "14", "whitelist-version": "8" } });
         expect(await ApiUtils.getNotAllowedDevices("router-1")).toEqual({ success: true, data: [DEVICE] });
+        expect(ApiUtils.DEVICES_VERSION).toBe("14");
+        expect(ApiUtils.WHITELIST_VERSION).toBe("8");
         expect(axios.get).toHaveBeenCalledWith(`${API_URL}/devices/notallowed/router-1`);
     });
 
     it("creates a device", async () => {
         jest.mocked(axios.post).mockResolvedValue({ data: DEVICE });
         expect(await ApiUtils.createDevice(CREATE_DEVICE)).toEqual({ success: true, data: DEVICE });
+        expect(ApiUtils.DEVICES_VERSION).toBe("1");
         expect(axios.post).toHaveBeenCalledWith(`${API_URL}/devices`, CREATE_DEVICE);
     });
 
     it("updates a device", async () => {
         jest.mocked(axios.put).mockResolvedValue({ data: DEVICE });
         expect(await ApiUtils.updateDevice(UPDATE_DEVICE)).toEqual({ success: true, data: DEVICE });
+        expect(ApiUtils.DEVICES_VERSION).toBe("1");
         expect(axios.put).toHaveBeenCalledWith(`${API_URL}/devices`, UPDATE_DEVICE);
     });
 
     it("deletes a device", async () => {
         jest.mocked(axios.delete).mockResolvedValue({ data: { id: DEVICE.id } });
         expect(await ApiUtils.deleteDevice(DEVICE.id)).toEqual({ success: true, data: { id: DEVICE.id } });
+        expect(ApiUtils.DEVICES_VERSION).toBe("1");
         expect(axios.delete).toHaveBeenCalledWith(`${API_URL}/devices/${DEVICE.id}`);
     });
 
@@ -83,6 +105,7 @@ describe("ApiUtils", () => {
             success: true,
             data: { id: DEVICE.id, mac: "AA:BB" },
         });
+        expect(ApiUtils.WHITELIST_VERSION).toBe("1");
         expect(axios.post).toHaveBeenCalledWith(`${API_URL}/whitelist/router-1`, { id: DEVICE.id, mac: "AA:BB" });
     });
 
@@ -92,6 +115,7 @@ describe("ApiUtils", () => {
             success: true,
             data: { id: DEVICE.id, mac: "AA:BB" },
         });
+        expect(ApiUtils.WHITELIST_VERSION).toBe("1");
         expect(axios.delete).toHaveBeenCalledWith(`${API_URL}/whitelist/router-1`, {
             data: { id: DEVICE.id, mac: "AA:BB" }
         });

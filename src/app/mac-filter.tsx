@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 import { BackHandler, Button, FlatList, Pressable, Text, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAppContext } from "../components/app-context-provider";
-import Background from "../components/background";
 import { index, macFilter } from "../styles";
 import { Device } from "../types/devices";
 import { GetFilteredDevicesVersionResponse } from "../types/version";
@@ -78,7 +77,7 @@ export default function MacFilter() {
 
     useEffect(() => {
         const sub = BackHandler.addEventListener("hardwareBackPress", () => {
-            router.replace("/main-app");
+            router.replace("/tab-nav-screens");
             return true;
         });
 
@@ -116,7 +115,7 @@ export default function MacFilter() {
     }
 
     return (
-        <Background>
+        <View style={{ flex: 1 }}>
             <View style={[macFilter.parent, { paddingTop: safeTop, paddingBottom: safeBottom }]}>
                 <Button
                     disabled={isLoading}
@@ -163,6 +162,6 @@ export default function MacFilter() {
                 />
                 <Button disabled={isLoading} title={showAllowed ? "Quitar" : "Añadir"} onPress={handleWhitelistPress} />
             </View>
-        </Background>
+        </View>
     );
 }

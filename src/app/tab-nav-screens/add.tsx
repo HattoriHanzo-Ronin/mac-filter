@@ -1,4 +1,3 @@
-import Background from "@/src/components/background";
 import { Redirect } from "expo-router";
 import DeviceForm from "@/src/components/device-form";
 import { CreateDeviceRequest } from "@/src/types/devices";
@@ -23,9 +22,5 @@ export default function Add() {
         return <Redirect href="/" />;
     }
 
-    return (
-        <Background>
-            <DeviceForm onSubmit={createDevice} />
-        </Background>
-    );
+    return <DeviceForm onSubmit={createDevice} />;
 }

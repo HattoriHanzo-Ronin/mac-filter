@@ -1,7 +1,6 @@
 import { View, Text } from "react-native";
 import { Redirect } from "expo-router";
 import { edit } from "../../styles";
-import Background from "@/src/components/background";
 import UiUtils from "@/src/utils/ui-utils";
 import { DeviceFormRequest } from "@/src/types/form";
 import { UpdateDeviceRequest } from "@/src/types/devices";
@@ -29,15 +28,15 @@ export default function Edit() {
     }
 
     if (!lastDevice) {
-        return <Redirect href="/main-app" />;
+        return <Redirect href="/tab-nav-screens" />;
     }
 
     return (
-        <Background>
+        <View style={{ flex: 1 }}>
             <View style={edit.parent}>
                 <Text style={edit.titleForm}>Editar {UiUtils.makeName(lastDevice.name, lastDevice.model ?? "")}</Text>
                 <DeviceForm onSubmit={updateDevice} device={lastDevice} />
             </View>
-        </Background>
+        </View>
     );
 }

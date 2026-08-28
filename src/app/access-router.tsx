@@ -92,13 +92,13 @@ export default function AccessRouter() {
     }
 
     if (!lastDevice?.ip) {
-        return <Redirect href="/main-app" />;
+        return <Redirect href="/tab-nav-screens" />;
     }
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <View style={accessRouter.parent}>
-                <Pressable onPress={() => router.replace("/main-app")}>
+                <Pressable onPress={() => router.replace("/tab-nav-screens")}>
                     <Ionicons name="arrow-back" size={20} />
                 </Pressable>
                 <TextInput

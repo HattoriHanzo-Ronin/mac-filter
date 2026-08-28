@@ -88,7 +88,7 @@ export default class ApiUtils {
      */
     static async updatePassword(request: UpdatePasswordRequest): Promise<ApiResponse<void>> {
         return this.executeRequest(async () => {
-            await axios.post<void>(this.buildUrl("users/password"), request);
+            await axios.patch<void>(this.buildUrl("users/password"), request);
         });
     }
 

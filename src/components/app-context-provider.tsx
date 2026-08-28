@@ -52,6 +52,7 @@ export default function AppContextProvider(props: PropsWithChildren) {
     const contextValue: AppContextValue = {
         isAuthenticated,
         user,
+        setUser,
         isLoading,
         authUtils,
         loadingUtils,

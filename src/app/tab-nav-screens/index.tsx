@@ -1,5 +1,4 @@
 import { useAppContext } from "@/src/components/app-context-provider";
-import Background from "@/src/components/background";
 import { DevicePicker, DeviceSearchInput } from "@/src/components/common-components";
 import { Device } from "@/src/types/devices";
 import { GetDevicesVersionResponse } from "@/src/types/version";
@@ -65,7 +64,7 @@ export default function Index() {
     }
 
     return (
-        <Background>
+        <View style={{ flex: 1 }}>
             <View style={index.parent}>
                 <DevicePicker devices={devices} selectedDeviceId={deviceId} onSelect={selectDevice} />
                 <DeviceSearchInput devices={devices} onSelect={selectDevice} />
@@ -120,6 +119,6 @@ export default function Index() {
                     )}
                 </View>
             </View>
-        </Background>
+        </View>
     );
 }

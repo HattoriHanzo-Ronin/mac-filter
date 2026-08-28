@@ -1,5 +1,4 @@
-import { Pressable, StyleProp, Text, ViewStyle } from "react-native";
-import Background from "./background";
+import { Pressable, StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
 import { useState } from "react";
 
 export default function CustomButt(props: {
@@ -27,11 +26,18 @@ export default function CustomButt(props: {
             onTouchEnd={noTouch}
             onPress={() => props.onPress()}
         >
-            <Background type="butt" opacity={opacity}>
-                <Text style={{ color, textAlign: "center", fontSize: 19, fontWeight: "bold" }}>
-                    {props.label}
-                </Text>
-            </Background>
+            <View style={[styles.background, { backgroundColor: opacity === 0.8 ? "rgba(13, 158, 177, 0.8)" : "rgba(13, 158, 177, 0.4)" }]}>
+                <Text style={{ color, textAlign: "center", fontSize: 19, fontWeight: "bold" }}>{props.label}</Text>
+            </View>
         </Pressable>
     );
 }
+
+const styles = StyleSheet.create({
+    background: {
+        width: "100%",
+        height: 50,
+        justifyContent: "center",
+        alignItems: "center"
+    }
+});

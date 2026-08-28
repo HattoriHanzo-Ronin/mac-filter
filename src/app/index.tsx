@@ -29,7 +29,7 @@ export default function Index() {
     }, [authUtils, loadingUtils]);
 
     if (isAuthenticated) {
-        return <Redirect href="/main-app" />;
+        return <Redirect href="/tab-nav-screens" />;
     }
 
     return (

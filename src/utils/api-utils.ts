@@ -18,6 +18,7 @@ import {
     DeleteWhitelistRequest,
     DeleteWhitelistResponse
 } from "../types/whitelist";
+import { UpdatePasswordRequest, UpdateUsernameRequest, UpdateUsernameResponse } from "../types/users";
 
 /**
  * API client
@@ -63,6 +64,31 @@ export default class ApiUtils {
     static async logout(request: LogoutRequest): Promise<ApiResponse<void>> {
         return this.executeRequest(async () => {
             await axios.delete<void>(this.buildUrl("auth"), { data: request });
+        });
+    }
+
+    /**
+     * Updates the current username
+     *
+     * @param request Username data
+     * @returns Updated username
+     */
+    static async updateUsername(request: UpdateUsernameRequest): Promise<ApiResponse<UpdateUsernameResponse>> {
+        return this.executeRequest(async () => {
+            const { data } = await axios.put<UpdateUsernameResponse>(this.buildUrl("users"), request);
+            return data;
+        });
+    }
+
+    /**
+     * Updates the current password
+     *
+     * @param request Password data
+     * @returns Update response
+     */
+    static async updatePassword(request: UpdatePasswordRequest): Promise<ApiResponse<void>> {
+        return this.executeRequest(async () => {
+            await axios.post<void>(this.buildUrl("users/password"), request);
         });
     }
 

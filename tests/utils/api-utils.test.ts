@@ -44,6 +44,20 @@ describe("ApiUtils", () => {
         expect(axios.delete).toHaveBeenCalledWith(`${API_URL}/auth`, { data: request });
     });
 
+    it("updates the current username", async () => {
+        const request = { username: "new-username" };
+        jest.mocked(axios.put).mockResolvedValue({ data: request });
+        expect(await ApiUtils.updateUsername(request)).toEqual({ success: true, data: request });
+        expect(axios.put).toHaveBeenCalledWith(`${API_URL}/users`, request);
+    });
+
+    it("updates the current password", async () => {
+        jest.mocked(axios.post).mockResolvedValue({ data: undefined });
+        const request = { currentPassword: "current-password", newPassword: "new-password" };
+        expect(await ApiUtils.updatePassword(request)).toEqual({ success: true, data: undefined });
+        expect(axios.post).toHaveBeenCalledWith(`${API_URL}/users/password`, request);
+    });
+
     it("returns the version for an identifier", async () => {
         jest.mocked(axios.get).mockResolvedValue({ data: { devices: "12", whitelist: "7" } });
         expect(await ApiUtils.getVersion<GetFilteredDevicesVersionResponse>("devices,whitelist")).toEqual({

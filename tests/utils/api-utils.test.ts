@@ -52,10 +52,10 @@ describe("ApiUtils", () => {
     });
 
     it("updates the current password", async () => {
-        jest.mocked(axios.post).mockResolvedValue({ data: undefined });
+        jest.mocked(axios.patch).mockResolvedValue({ data: undefined });
         const request = { currentPassword: "current-password", newPassword: "new-password" };
         expect(await ApiUtils.updatePassword(request)).toEqual({ success: true, data: undefined });
-        expect(axios.post).toHaveBeenCalledWith(`${API_URL}/users/password`, request);
+        expect(axios.patch).toHaveBeenCalledWith(`${API_URL}/users/password`, request);
     });
 
     it("returns the version for an identifier", async () => {

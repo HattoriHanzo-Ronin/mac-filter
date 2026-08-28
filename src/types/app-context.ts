@@ -14,6 +14,7 @@ export type ExecuteApiRequest = <T>(
 export interface AppContextValue {
     isAuthenticated: boolean;
     user: AuthUser | null;
+    setUser: Dispatch<SetStateAction<AuthUser | null>>;
     isLoading: boolean;
     authUtils: AuthUtils;
     loadingUtils: LoadingUtils;

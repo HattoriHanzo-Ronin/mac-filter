@@ -1,4 +1,5 @@
-import { DevicePicker, DeviceSearchInput } from "@/src/components/common-components";
+import DevicePicker from "@/src/components/device-picker";
+import DeviceSearchInput from "@/src/components/device-search-input";
 import { Redirect, router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { BackHandler, Button, FlatList, Pressable, Text, View, useWindowDimensions } from "react-native";

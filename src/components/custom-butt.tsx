@@ -1,34 +1,37 @@
-import { Pressable, StyleProp, Text, View, ViewStyle } from "react-native";
-import { useState } from "react";
-import { customButt, customButtDynamic } from "@/src/styles/components/style";
+import { ActivityIndicator, Pressable, StyleProp, Text, TextStyle, View, ViewStyle } from "react-native";
+import { customButt } from "@/src/styles/components/style";
 
-export default function CustomButt(props: {
+type CustomButtProps = {
     label: string;
     onPress: () => void;
-    disable?: boolean;
+    disabled?: boolean;
+    loading?: boolean;
     style?: StyleProp<ViewStyle>;
-}) {
-    const [color, setColor] = useState("white");
-    const [opacity, setOpacity] = useState(0.4);
-    const noTouch = () => {
-        setColor("white");
-        setOpacity(0.4);
-    };
+    buttonStyle?: StyleProp<ViewStyle>;
+    textStyle?: StyleProp<TextStyle>;
+};
+
+export default function CustomButt(props: CustomButtProps) {
+    const { label, onPress, disabled = false, loading = false, style, buttonStyle, textStyle } = props;
+    const isDisabled = disabled || loading;
 
     return (
         <Pressable
-            disabled={props.disable}
-            style={props.style ?? customButt.pressable}
-            onTouchStart={() => {
-                setColor("green");
-                setOpacity(0.8);
-            }}
-            onTouchCancel={noTouch}
-            onTouchEnd={noTouch}
-            onPress={() => props.onPress()}
+            disabled={isDisabled}
+            onPress={onPress}
+            style={({ pressed }) => [
+                customButt.pressable,
+                style,
+                isDisabled && customButt.disabled,
+                pressed && customButt.pressed
+            ]}
         >
-            <View style={[customButt.background, customButtDynamic.background(opacity === 0.8)]}>
-                <Text style={[customButt.label, customButtDynamic.label(color)]}>{props.label}</Text>
+            <View style={[customButt.background, buttonStyle]}>
+                {loading ? (
+                    <ActivityIndicator color="white" />
+                ) : (
+                    <Text style={[customButt.label, textStyle]}>{label}</Text>
+                )}
             </View>
         </Pressable>
     );

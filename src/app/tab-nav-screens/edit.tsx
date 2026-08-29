@@ -1,11 +1,9 @@
-import { View, Text } from "react-native";
 import { Redirect } from "expo-router";
-import { edit } from "@/src/styles/tab-nav-screens/style";
-import UiUtils from "@/src/utils/ui-utils";
 import { DeviceFormRequest } from "@/src/types/form";
 import { UpdateDeviceRequest } from "@/src/types/devices";
 import { useAppContext } from "@/src/components/app-context-provider";
 import DeviceForm from "@/src/components/device-form";
+import ScreenBackground from "@/src/components/screen-background";
 import { ApiErrorResponse } from "@/src/types/api-response";
 
 export default function Edit() {
@@ -32,11 +30,8 @@ export default function Edit() {
     }
 
     return (
-        <View style={edit.screen}>
-            <View style={edit.parent}>
-                <Text style={edit.titleForm}>Editar {UiUtils.makeName(lastDevice.name, lastDevice.model ?? "")}</Text>
-                <DeviceForm onSubmit={updateDevice} device={lastDevice} />
-            </View>
-        </View>
+        <ScreenBackground>
+            <DeviceForm onSubmit={updateDevice} device={lastDevice} />
+        </ScreenBackground>
     );
 }

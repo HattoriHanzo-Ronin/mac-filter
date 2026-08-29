@@ -1,10 +1,17 @@
-import { Slot } from "expo-router";
+import { Stack } from "expo-router";
 import AppContextProvider from "@/src/components/app-context-provider";
+import UserMenu from "./_user-menu";
 import { BackHandler, ToastAndroid, View } from "react-native";
 import { useEffect, useRef } from "react";
 
 export default function RootLayout() {
     const lastTouch = useRef(0);
+    const screens = [
+        { name: "index", options: { headerShown: false } },
+        { name: "tab-nav-screens" },
+        { name: "mac-filter" },
+        { name: "access-router" }
+    ];
 
     useEffect(() => {
         const sub = BackHandler.addEventListener("hardwareBackPress", () => {
@@ -25,7 +32,17 @@ export default function RootLayout() {
     return (
         <AppContextProvider>
             <View style={{ flex: 1, backgroundColor: "white" }}>
-                <Slot />
+                <Stack>
+                    {screens.map(({ name, options }) => (
+                        <Stack.Screen
+                            key={name}
+                            name={name}
+                            options={
+                                options ?? { headerTitle: "", headerShadowVisible: false, headerRight: () => <UserMenu /> }
+                            }
+                        />
+                    ))}
+                </Stack>
             </View>
         </AppContextProvider>
     );

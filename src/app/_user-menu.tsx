@@ -3,6 +3,7 @@ import { userMenu } from "@/src/styles/app/style";
 import { Dispatch, PropsWithChildren, SetStateAction, useState } from "react";
 import { Modal, Pressable, Text, TextInput, View } from "react-native";
 import { useAppContext } from "@/src/components/app-context-provider";
+import PasswordInput from "@/src/components/password-input";
 import ValidationMessages from "@/src/components/validation-messages";
 import { ValidationErrors } from "@/src/types/ui";
 import { UpdatePasswordRequest, UpdateUsernameRequest } from "@/src/types/users";
@@ -27,25 +28,6 @@ export function Dialog(props: PropsWithChildren<{ visible: boolean; onCancel: ()
                 </View>
             </View>
         </Modal>
-    );
-}
-
-function PasswordInput(props: { value: string; onChangeText: (value: string) => void }) {
-    const [isVisible, setIsVisible] = useState(false);
-
-    return (
-        <View style={userMenu.passwordInput}>
-            <TextInput
-                autoCapitalize="none"
-                secureTextEntry={!isVisible}
-                style={userMenu.passwordTextInput}
-                value={props.value}
-                onChangeText={props.onChangeText}
-            />
-            <Pressable hitSlop={8} onPress={() => setIsVisible((isVisible) => !isVisible)}>
-                <Ionicons color="#4b5563" name={isVisible ? "eye-off-outline" : "eye-outline"} size={22} />
-            </Pressable>
-        </View>
     );
 }
 
@@ -127,6 +109,10 @@ function ChangePasswordMenu(props: { onClose: () => void }) {
             <Dialog visible={isVisible} onCancel={() => closeDialog(setIsVisible, props.onClose)} onAccept={() => void changePassword()}>
                 <Text>Contraseña actual:</Text>
                 <PasswordInput
+                    autoCapitalize="none"
+                    containerStyle={userMenu.passwordInput}
+                    iconColor="#4b5563"
+                    inputStyle={userMenu.passwordTextInput}
                     value={currentPassword}
                     onChangeText={(value) => {
                         setCurrentPassword(value);
@@ -136,6 +122,10 @@ function ChangePasswordMenu(props: { onClose: () => void }) {
                 <ValidationMessages errors={validationErrors.currentPassword} />
                 <Text>Nueva contraseña:</Text>
                 <PasswordInput
+                    autoCapitalize="none"
+                    containerStyle={userMenu.passwordInput}
+                    iconColor="#4b5563"
+                    inputStyle={userMenu.passwordTextInput}
                     value={newPassword}
                     onChangeText={(value) => {
                         setNewPassword(value);

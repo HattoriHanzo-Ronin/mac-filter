@@ -1,14 +1,18 @@
-import { TextInput, View, Pressable } from "react-native";
+import { Pressable, TextInput, View, useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
 import { Ionicons } from "@expo/vector-icons";
-import { Redirect, router } from "expo-router";
-import { accessRouter } from "@/src/styles/app/style";
+import { Redirect } from "expo-router";
+import { accessRouter, accessRouterDark, accessRouterLight, accessRouterPalette } from "@/src/styles/app/style";
+import ScreenBackground from "@/src/components/screen-background";
 import { useRef, useState } from "react";
 import { useAppContext } from "../components/app-context-provider";
 
 export default function AccessRouter() {
     const { lastDevice } = useAppContext();
+    const isDark = useColorScheme() === "dark";
+    const theme = isDark ? accessRouterDark : accessRouterLight;
+    const palette = isDark ? accessRouterPalette.dark : accessRouterPalette.light;
     const hasAutofilledLogin = useRef(false);
     const webViewRef = useRef<WebView>(null);
     const initialUri = `http://${lastDevice?.ip}`;
@@ -96,31 +100,40 @@ export default function AccessRouter() {
     }
 
     return (
-        <SafeAreaView style={accessRouter.screen}>
-            <View style={accessRouter.parent}>
-                <Pressable onPress={() => router.replace("/tab-nav-screens")}>
-                    <Ionicons name="arrow-back" size={20} />
-                </Pressable>
-                <TextInput
-                    style={accessRouter.tabInput}
-                    value={address}
-                    onChangeText={setAddress}
-                    onSubmitEditing={() => setUri(address)}
-                />
-            </View>
-            <WebView
-                ref={webViewRef}
-                source={{ uri }}
-                onNavigationStateChange={({ url }) => setAddress(url)}
-                onLoadEnd={autofillLogin}
-                onMessage={({ nativeEvent }) => {
-                    if (nativeEvent.data === "LOGIN_AUTOFILLED") {
-                        hasAutofilledLogin.current = true;
-                    }
-                }}
-                javaScriptEnabled
-                domStorageEnabled
-            />
-        </SafeAreaView>
+        <ScreenBackground>
+            <SafeAreaView edges={["bottom", "left", "right"]} style={[accessRouter.screen, theme.screen]}>
+                <View style={[accessRouter.addressBar, theme.addressBar]}>
+                    <Ionicons color={palette.icon} name="globe-outline" size={18} />
+                    <TextInput
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        keyboardType="url"
+                        onChangeText={setAddress}
+                        onSubmitEditing={() => setUri(address)}
+                        selectTextOnFocus
+                        style={[accessRouter.addressInput, theme.addressInput]}
+                        value={address}
+                    />
+                    <Pressable accessibilityLabel="Recargar página" hitSlop={8} onPress={() => webViewRef.current?.reload()}>
+                        <Ionicons color={palette.icon} name="refresh-outline" size={22} />
+                    </Pressable>
+                </View>
+                <View style={[accessRouter.webViewContainer, theme.webViewContainer]}>
+                    <WebView
+                        ref={webViewRef}
+                        source={{ uri }}
+                        onNavigationStateChange={({ url }) => setAddress(url)}
+                        onLoadEnd={autofillLogin}
+                        onMessage={({ nativeEvent }) => {
+                            if (nativeEvent.data === "LOGIN_AUTOFILLED") {
+                                hasAutofilledLogin.current = true;
+                            }
+                        }}
+                        javaScriptEnabled
+                        domStorageEnabled
+                    />
+                </View>
+            </SafeAreaView>
+        </ScreenBackground>
     );
 }

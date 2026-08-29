@@ -5,63 +5,83 @@ export const rootLayout = StyleSheet.create({
     screen: commons.rootScreen
 });
 
+
 export const login = StyleSheet.create({
+    background: {
+        flex: 1
+    },
     safeArea: {
         flex: 1,
-        justifyContent: "center",
-        backgroundColor: "white"
+        justifyContent: "center"
     },
     form: {
-        padding: 24,
-        gap: 16
+        paddingHorizontal: 30,
+        gap: 18
     },
-    title: {
-        marginBottom: 8,
-        fontSize: 28,
-        fontWeight: "700",
-        textAlign: "center"
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: "#d1d5db",
-        borderRadius: 8,
-        paddingHorizontal: 14,
-        paddingVertical: 12,
-        fontSize: 16
-    },
-    passwordInput: {
+    inputContainer: {
+        minHeight: 54,
         flexDirection: "row",
         alignItems: "center",
-        borderWidth: 1,
-        borderColor: "#d1d5db",
-        borderRadius: 8,
-        paddingRight: 14
-    },
-    passwordTextInput: {
-        flex: 1,
+        gap: 12,
         paddingHorizontal: 14,
+        borderWidth: 1,
+        borderRadius: 7
+    },
+    input: {
+        flex: 1,
         paddingVertical: 12,
         fontSize: 16
-    },
-    button: {
-        minHeight: 48,
-        alignItems: "center",
-        justifyContent: "center",
-        borderRadius: 8,
-        backgroundColor: "#1e88e5"
-    },
-    buttonDisabled: {
-        opacity: 0.5
-    },
-    buttonPressed: {
-        opacity: 0.8
-    },
-    buttonText: {
-        color: "white",
-        fontSize: 16,
-        fontWeight: "600"
     }
 });
+
+export const loginLight = StyleSheet.create({
+    background: {
+        backgroundColor: "#f7f4ef"
+    },
+    backgroundImage: {
+        opacity: 0.2
+    },
+    label: {
+        color: "#27205f"
+    },
+    inputContainer: {
+        borderColor: "#d7d2e5",
+        backgroundColor: "rgba(250, 249, 255, 0.92)"
+    },
+    input: {
+        color: "#181433"
+    },
+    button: {
+        backgroundColor: "#378f73"
+    }
+});
+
+export const loginDark = StyleSheet.create({
+    background: {
+        backgroundColor: "#050607"
+    },
+    backgroundImage: {
+        opacity: 0.34
+    },
+    label: {
+        color: "#b9bdc2"
+    },
+    inputContainer: {
+        borderColor: "#2d343a",
+        backgroundColor: "rgba(25, 30, 34, 0.94)"
+    },
+    input: {
+        color: "#f5f7f8"
+    },
+    button: {
+        backgroundColor: "#247d68"
+    }
+});
+
+export const loginPalette = {
+    light: { icon: "#4f43bd", placeholder: "#746f8f" },
+    dark: { icon: "#d2d6da", placeholder: "#8f969c" }
+};
 
 export const userMenu = StyleSheet.create({
     dialogBackdrop: {
@@ -101,7 +121,7 @@ export const userMenu = StyleSheet.create({
         backgroundColor: "#e5e7eb"
     },
     acceptButton: {
-        backgroundColor: "#1e88e5"
+        backgroundColor: "#2f8f75"
     },
     cancelButtonText: {
         color: "#111827",
@@ -175,51 +195,80 @@ export const userMenu = StyleSheet.create({
     }
 });
 
+
 export const macFilter = StyleSheet.create({
-    screen: commons.screen,
-    parent: {
-        flex: 1,
-        justifyContent: "center",
-        padding: "10%",
-        gap: "8%",
-        backgroundColor: "rgba(255, 255, 255, 0.23)"
-    },
+    screen: { ...commons.screen, flex: 1 },
+    parent: { flex: 1, paddingHorizontal: 18, paddingTop: "10%", gap: 14 },
+    segmentedControl: { flexDirection: "row", minHeight: 48, marginBottom: "10%", overflow: "hidden", borderWidth: 1, borderRadius: 9 },
+    segment: { flex: 1, justifyContent: "center", alignItems: "center", paddingHorizontal: 8 },
+    segmentText: { fontSize: 16, fontWeight: "500" },
+    controlSpacing: { marginBottom: "6%" },
     scroll: commons.scroll,
-    list: commons.list,
-    listContent: { paddingBottom: 20 },
-    parentDevProp: commons.parentDevProp,
-    labelProp: commons.labelProp,
-    valueProp: commons.valueProp,
-    connectionOptions: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center", gap: 16 },
-    connectionOption: { flexDirection: "row", alignItems: "center", gap: 8 },
-    radioOuter: {
-        width: 20,
-        height: 20,
-        borderWidth: 2,
-        borderRadius: 10,
-        justifyContent: "center",
-        alignItems: "center"
-    },
-    radioInner: { width: 10, height: 10, borderRadius: 5, backgroundColor: "black" }
+    list: { gap: 16 },
+    listContent: { paddingVertical: 8, paddingBottom: 24 },
+    parentDevProp: { gap: 6 },
+    labelProp: { width: "100%", paddingLeft: "10%", paddingRight: "10%", fontSize: 16, fontWeight: "600" },
+    valueProp: { width: "100%", paddingLeft: "20%", paddingRight: "10%", fontSize: 17, lineHeight: 24 },
+    connectionOptions: { width: "100%", flexDirection: "row", flexWrap: "wrap", gap: 18, paddingLeft: "20%", paddingRight: "10%" },
+    connectionOption: { flexDirection: "row", alignItems: "center", gap: 7 },
+    connectionValue: { fontSize: 17, lineHeight: 24 },
+    radioOuter: { width: 18, height: 18, borderWidth: 1.5, borderRadius: 9, justifyContent: "center", alignItems: "center" },
+    radioInner: { width: 9, height: 9, borderRadius: 5 },
+    dangerButton: { backgroundColor: "#a65f65" }
+});
+
+export const macFilterLight = StyleSheet.create({
+    screen: { backgroundColor: "rgba(251, 249, 255, 0.88)" },
+    segmentedControl: { borderColor: "#d8d3eb", backgroundColor: "rgba(255, 255, 255, 0.84)" },
+    activeSegment: { backgroundColor: "#5145c7" },
+    segmentText: { color: "#30266f" },
+    activeSegmentText: { color: "white" },
+    labelProp: { color: "#30266f" },
+    valueProp: { color: "#30266f" },
+    radioOuter: { borderColor: "#7770a6" },
+    radioInner: { backgroundColor: "#4e43c2" },
+    primaryButton: { backgroundColor: "#378f73" }
+});
+
+export const macFilterDark = StyleSheet.create({
+    screen: { backgroundColor: "rgba(7, 9, 10, 0.9)" },
+    segmentedControl: { borderColor: "#293036", backgroundColor: "#1a1f23" },
+    activeSegment: { backgroundColor: "#247d68" },
+    segmentText: { color: "#c1c6ca" },
+    activeSegmentText: { color: "white" },
+    labelProp: { color: "#b8bdc1" },
+    valueProp: { color: "#f1f3f4" },
+    radioOuter: { borderColor: "#aeb5ba" },
+    radioInner: { backgroundColor: "#65b79f" },
+    primaryButton: { backgroundColor: "#247d68" }
 });
 
 export const macFilterDynamic = {
-    safeArea: (paddingTop: number, paddingBottom: number) => ({ paddingTop, paddingBottom })
+    safeArea: (paddingBottom: number) => ({ paddingBottom })
 };
 
 export const accessRouter = StyleSheet.create({
-    screen: commons.screen,
-    parent: {
-        flexDirection: "row",
-        justifyContent: "center",
-        alignItems: "center",
-        gap: "2%",
-        padding: "4%"
-    },
-    tabInput: {
-        flex: 1,
-        padding: "3%",
-        backgroundColor: "rgba(170, 170, 170, 0.29)",
-        borderRadius: 100
-    }
+    screen: { ...commons.screen, flex: 1, paddingHorizontal: 16, paddingTop: "10%", gap: 12 },
+    addressBar: { minHeight: 48, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 12, borderWidth: 1, borderRadius: 9 },
+    addressInput: { flex: 1, paddingVertical: 10, fontSize: 15 },
+    webViewContainer: { flex: 1, overflow: "hidden", borderWidth: 1, borderRadius: 8 }
 });
+
+export const accessRouterLight = StyleSheet.create({
+    screen: { backgroundColor: "rgba(251, 249, 255, 0.88)" },
+    addressBar: { borderColor: "#d8d3eb", backgroundColor: "rgba(255, 255, 255, 0.9)" },
+    addressInput: { color: "#30266f" },
+    webViewContainer: { borderColor: "#d8d3eb", backgroundColor: "white" }
+});
+
+export const accessRouterDark = StyleSheet.create({
+    screen: { backgroundColor: "rgba(7, 9, 10, 0.9)" },
+    addressBar: { borderColor: "#293036", backgroundColor: "#1a1f23" },
+    addressInput: { color: "#f1f3f4" },
+    webViewContainer: { borderColor: "#293036", backgroundColor: "#111416" }
+});
+
+export const accessRouterPalette = {
+    light: { icon: "#4e43c2" },
+    dark: { icon: "#d8dde0" }
+};

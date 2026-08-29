@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
+import { userMenu } from "@/src/styles/app/style";
 import { Dispatch, PropsWithChildren, SetStateAction, useState } from "react";
-import { Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Modal, Pressable, Text, TextInput, View } from "react-native";
 import { useAppContext } from "@/src/components/app-context-provider";
 import ValidationMessages from "@/src/components/validation-messages";
 import { ValidationErrors } from "@/src/types/ui";
@@ -12,15 +13,15 @@ export function Dialog(props: PropsWithChildren<{ visible: boolean; onCancel: ()
 
     return (
         <Modal animationType="fade" transparent visible={visible} onRequestClose={onCancel}>
-            <View style={styles.dialogBackdrop}>
-                <View style={styles.dialog}>
+            <View style={userMenu.dialogBackdrop}>
+                <View style={userMenu.dialog}>
                     {children}
-                    <View style={styles.dialogActions}>
-                        <Pressable style={[styles.dialogButton, styles.cancelButton]} onPress={onCancel}>
-                            <Text style={styles.cancelButtonText}>Cancelar</Text>
+                    <View style={userMenu.dialogActions}>
+                        <Pressable style={[userMenu.dialogButton, userMenu.cancelButton]} onPress={onCancel}>
+                            <Text style={userMenu.cancelButtonText}>Cancelar</Text>
                         </Pressable>
-                        <Pressable style={[styles.dialogButton, styles.acceptButton]} onPress={onAccept}>
-                            <Text style={styles.acceptButtonText}>Aceptar</Text>
+                        <Pressable style={[userMenu.dialogButton, userMenu.acceptButton]} onPress={onAccept}>
+                            <Text style={userMenu.acceptButtonText}>Aceptar</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -33,11 +34,11 @@ function PasswordInput(props: { value: string; onChangeText: (value: string) => 
     const [isVisible, setIsVisible] = useState(false);
 
     return (
-        <View style={styles.passwordInput}>
+        <View style={userMenu.passwordInput}>
             <TextInput
                 autoCapitalize="none"
                 secureTextEntry={!isVisible}
-                style={styles.passwordTextInput}
+                style={userMenu.passwordTextInput}
                 value={props.value}
                 onChangeText={props.onChangeText}
             />
@@ -78,14 +79,14 @@ function ChangeUsernameMenu(props: { onClose: () => void }) {
 
     return (
         <>
-            <Pressable style={styles.option} onPress={() => setIsVisible(true)}>
-                <Text style={styles.optionText}>Cambiar nombre de usuario</Text>
+            <Pressable style={userMenu.option} onPress={() => setIsVisible(true)}>
+                <Text style={userMenu.optionText}>Cambiar nombre de usuario</Text>
             </Pressable>
             <Dialog visible={isVisible} onCancel={() => closeDialog(setIsVisible, props.onClose)} onAccept={() => void changeUsername()}>
                 <Text>Nuevo nombre de usuario:</Text>
                 <TextInput
                     autoCapitalize="none"
-                    style={styles.textInput}
+                    style={userMenu.textInput}
                     value={newUsername}
                     onChangeText={(value) => {
                         setNewUsername(value);
@@ -120,8 +121,8 @@ function ChangePasswordMenu(props: { onClose: () => void }) {
 
     return (
         <>
-            <Pressable style={styles.option} onPress={() => setIsVisible(true)}>
-                <Text style={styles.optionText}>Cambiar contraseña</Text>
+            <Pressable style={userMenu.option} onPress={() => setIsVisible(true)}>
+                <Text style={userMenu.optionText}>Cambiar contraseña</Text>
             </Pressable>
             <Dialog visible={isVisible} onCancel={() => closeDialog(setIsVisible, props.onClose)} onAccept={() => void changePassword()}>
                 <Text>Contraseña actual:</Text>
@@ -152,20 +153,20 @@ export default function UserMenu() {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <View style={styles.header}>
-            <Text numberOfLines={1} style={styles.username}>
+        <View style={userMenu.header}>
+            <Text numberOfLines={1} style={userMenu.username}>
                 {user?.username}
             </Text>
             <Pressable hitSlop={8} onPress={() => setIsOpen(true)}>
                 <Ionicons color="#4b5563" name="open-outline" size={20} />
             </Pressable>
             <Modal animationType="fade" transparent visible={isOpen} onRequestClose={() => setIsOpen(false)}>
-                <Pressable style={styles.backdrop} onPress={() => setIsOpen(false)}>
-                    <View style={styles.menu}>
+                <Pressable style={userMenu.backdrop} onPress={() => setIsOpen(false)}>
+                    <View style={userMenu.menu}>
                         <ChangeUsernameMenu onClose={() => setIsOpen(false)} />
                         <ChangePasswordMenu onClose={() => setIsOpen(false)} />
-                        <Pressable style={styles.option} onPress={() => void authUtils.logout()}>
-                            <Text style={styles.logoutText}>Cerrar sesión</Text>
+                        <Pressable style={userMenu.option} onPress={() => void authUtils.logout()}>
+                            <Text style={userMenu.logoutText}>Cerrar sesión</Text>
                         </Pressable>
                     </View>
                 </Pressable>
@@ -173,115 +174,3 @@ export default function UserMenu() {
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    dialogBackdrop: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        padding: 24,
-        backgroundColor: "rgba(0, 0, 0, 0.35)"
-    },
-    dialog: {
-        width: "100%",
-        maxWidth: 420,
-        gap: 16,
-        padding: 20,
-        borderRadius: 10,
-        backgroundColor: "white",
-        elevation: 6,
-        shadowColor: "black",
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.2,
-        shadowRadius: 6
-    },
-    dialogActions: {
-        flexDirection: "row",
-        gap: 12
-    },
-    dialogButton: {
-        flex: 1,
-        minHeight: 44,
-        justifyContent: "center",
-        alignItems: "center",
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        borderRadius: 6
-    },
-    cancelButton: {
-        backgroundColor: "#e5e7eb"
-    },
-    acceptButton: {
-        backgroundColor: "#1e88e5"
-    },
-    cancelButtonText: {
-        color: "#111827",
-        fontWeight: "600"
-    },
-    acceptButtonText: {
-        color: "white",
-        fontWeight: "600"
-    },
-    textInput: {
-        minHeight: 42,
-        paddingHorizontal: 4,
-        borderBottomWidth: 1,
-        borderBottomColor: "#6b7280",
-        fontSize: 16
-    },
-    passwordInput: {
-        minHeight: 42,
-        flexDirection: "row",
-        alignItems: "center",
-        borderBottomWidth: 1,
-        borderBottomColor: "#6b7280"
-    },
-    passwordTextInput: {
-        flex: 1,
-        paddingHorizontal: 4,
-        fontSize: 16
-    },
-    header: {
-        maxWidth: 220,
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 8
-    },
-    username: {
-        flexShrink: 1,
-        fontSize: 16,
-        fontWeight: "600"
-    },
-    backdrop: {
-        flex: 1,
-        alignItems: "flex-end",
-        paddingTop: 54,
-        paddingRight: 12,
-        backgroundColor: "rgba(0, 0, 0, 0.15)"
-    },
-    menu: {
-        minWidth: 230,
-        overflow: "hidden",
-        borderRadius: 8,
-        backgroundColor: "white",
-        elevation: 6,
-        shadowColor: "black",
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.2,
-        shadowRadius: 6
-    },
-    option: {
-        paddingHorizontal: 18,
-        paddingVertical: 15,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: "#d1d5db"
-    },
-    optionText: {
-        fontSize: 16,
-        color: "#111827"
-    },
-    logoutText: {
-        fontSize: 16,
-        color: "#dc2626"
-    }
-});

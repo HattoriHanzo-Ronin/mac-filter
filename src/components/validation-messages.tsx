@@ -1,15 +1,10 @@
-import { StyleSheet, Text } from "react-native";
+import { Text } from "react-native";
+import { validationMessages } from "@/src/styles/components/style";
 
 export default function ValidationMessages({ errors }: { errors?: string[] }) {
     if (!errors) {
         return null;
     }
 
-    return <Text style={styles.error}>{errors.join("\n")}</Text>;
+    return <Text style={validationMessages.error}>{errors.join("\n")}</Text>;
 }
-
-const styles = StyleSheet.create({
-    error: {
-        color: "red"
-    }
-});

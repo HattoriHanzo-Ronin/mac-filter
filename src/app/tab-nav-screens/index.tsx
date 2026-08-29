@@ -7,7 +7,7 @@ import UiUtils from "@/src/utils/ui-utils";
 import { Redirect, router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { Button, FlatList, Pressable, Text, View } from "react-native";
-import { index } from "../../styles";
+import { index } from "@/src/styles/tab-nav-screens/style";
 
 export default function Index() {
     const { devices, lastDevice, setDevices, setLastDevice, executeApiRequest, isAuthenticated, isLoading } = useAppContext();
@@ -64,14 +64,14 @@ export default function Index() {
     }
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={index.screen}>
             <View style={index.parent}>
                 <DevicePicker devices={devices} selectedDeviceId={deviceId} onSelect={selectDevice} />
                 <DeviceSearchInput devices={devices} onSelect={selectDevice} />
                 <FlatList
                     key={lastDevice?.id ?? "empty"}
                     style={index.scroll}
-                    contentContainerStyle={[index.list, { paddingBottom: "2%" }]}
+                    contentContainerStyle={[index.list, index.listContent]}
                     data={deviceProperties}
                     extraData={connectionTypeIndex}
                     initialNumToRender={deviceProperties.length}

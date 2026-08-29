@@ -4,6 +4,7 @@ import { Button, TextInput, View } from "react-native";
 import { Device } from "../types/devices";
 import UiUtils from "../utils/ui-utils";
 import { useAppContext } from "./app-context-provider";
+import { commonComponents } from "@/src/styles/components/style";
 
 export const DevicePicker = (props: {
     devices: Device[];
@@ -12,9 +13,9 @@ export const DevicePicker = (props: {
 }) => {
     const { devices, selectedDeviceId, onSelect } = props;
     return (
-        <View style={{ borderWidth: 0.7, borderRadius: 100, borderStyle: "dashed" }}>
+        <View style={commonComponents.pickerContainer}>
             <Picker
-                style={{ color: "black" }}
+                style={commonComponents.picker}
                 selectedValue={selectedDeviceId}
                 onValueChange={(deviceId) => {
                     const item = devices.find((device) => device.id === deviceId);
@@ -25,7 +26,7 @@ export const DevicePicker = (props: {
             >
                 {devices.map((item) => (
                     <Picker.Item
-                        style={{ fontSize: 20, fontWeight: "bold" }}
+                        style={commonComponents.pickerItem}
                         key={item.id}
                         value={item.id}
                         label={UiUtils.makeName(item.name, item.model ?? "")}
@@ -59,15 +60,15 @@ export const DeviceSearchInput = (props: { devices: Device[]; onSelect: (device:
     }
 
     return (
-        <View style={{ flexDirection: "row", gap: "2%" }}>
+        <View style={commonComponents.search}>
             <TextInput
-                style={{ flex: 1, borderWidth: 1, padding: 10 }}
+                style={commonComponents.searchInput}
                 value={text}
                 onChangeText={setText}
                 placeholder="Nombre o Mac"
                 placeholderTextColor="black"
             />
-            <View style={{ width: "30%" }}>
+            <View style={commonComponents.searchButton}>
                 <Button disabled={isLoading} title="Buscar" onPress={search} />
             </View>
         </View>

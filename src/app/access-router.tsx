@@ -3,7 +3,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
 import { Ionicons } from "@expo/vector-icons";
 import { Redirect, router } from "expo-router";
-import { accessRouter } from "../styles";
+import { accessRouter } from "@/src/styles/app/style";
 import { useRef, useState } from "react";
 import { useAppContext } from "../components/app-context-provider";
 
@@ -96,7 +96,7 @@ export default function AccessRouter() {
     }
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={accessRouter.screen}>
             <View style={accessRouter.parent}>
                 <Pressable onPress={() => router.replace("/tab-nav-screens")}>
                     <Ionicons name="arrow-back" size={20} />

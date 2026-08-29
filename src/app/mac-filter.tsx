@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { BackHandler, Button, FlatList, Pressable, Text, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAppContext } from "../components/app-context-provider";
-import { index, macFilter } from "../styles";
+import { macFilter, macFilterDynamic } from "@/src/styles/app/style";
 import { Device } from "../types/devices";
 import { GetFilteredDevicesVersionResponse } from "../types/version";
 import ApiUtils from "../utils/api-utils";
@@ -115,8 +115,8 @@ export default function MacFilter() {
     }
 
     return (
-        <View style={{ flex: 1 }}>
-            <View style={[macFilter.parent, { paddingTop: safeTop, paddingBottom: safeBottom }]}>
+        <View style={macFilter.screen}>
+            <View style={[macFilter.parent, macFilterDynamic.safeArea(safeTop, safeBottom)]}>
                 <Button
                     disabled={isLoading}
                     title={"Cambiar a " + (showAllowed ? "no permitidos" : "permitidos")}
@@ -127,7 +127,7 @@ export default function MacFilter() {
                 <FlatList
                     key={selectedDevice?.id ?? "empty"}
                     style={macFilter.scroll}
-                    contentContainerStyle={[macFilter.list, { paddingBottom: 20 }]}
+                    contentContainerStyle={[macFilter.list, macFilter.listContent]}
                     data={deviceProperties}
                     extraData={connectionTypeIndex}
                     initialNumToRender={deviceProperties.length}
@@ -137,15 +137,15 @@ export default function MacFilter() {
                         <View style={macFilter.parentDevProp}>
                             <Text style={macFilter.labelProp}>{item.label}:</Text>
                             {item.key === "connection_type" ? (
-                                <View style={index.connectionOptions}>
+                                <View style={macFilter.connectionOptions}>
                                     {item.val.map((connectionType, connectionIndex) => (
                                         <Pressable
                                             key={connectionType}
-                                            style={index.connectionOption}
+                                            style={macFilter.connectionOption}
                                             onPress={() => setConnectionTypeIndex(connectionIndex)}
                                         >
-                                            <View style={index.radioOuter}>
-                                                {connectionTypeIndex === connectionIndex && <View style={index.radioInner} />}
+                                            <View style={macFilter.radioOuter}>
+                                                {connectionTypeIndex === connectionIndex && <View style={macFilter.radioInner} />}
                                             </View>
                                             <Text style={macFilter.valueProp}>{connectionType}</Text>
                                         </Pressable>

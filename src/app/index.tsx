@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { login } from "@/src/styles/app/style";
+import { ActivityIndicator, Pressable, Text, TextInput, View } from "react-native";
 import { Redirect } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAppContext } from "../components/app-context-provider";
@@ -33,9 +34,9 @@ export default function Index() {
     }
 
     return (
-        <SafeAreaView style={styles.safeArea}>
-            <View style={styles.form}>
-                <Text style={styles.title}>Iniciar sesión</Text>
+        <SafeAreaView style={login.safeArea}>
+            <View style={login.form}>
+                <Text style={login.title}>Iniciar sesión</Text>
                 <TextInput
                     autoCapitalize="none"
                     autoComplete="username"
@@ -45,7 +46,7 @@ export default function Index() {
                         setValidationErrors((errors) => UiUtils.removeValidationError(errors, "username"));
                     }}
                     placeholder="Usuario"
-                    style={styles.input}
+                    style={login.input}
                     value={username}
                 />
                 {usernameError && <Text>{usernameError.join("\n")}</Text>}
@@ -60,7 +61,7 @@ export default function Index() {
                     onSubmitEditing={isSubmitDisabled ? undefined : handleLogin}
                     placeholder="Contraseña"
                     secureTextEntry
-                    style={styles.input}
+                    style={login.input}
                     value={password}
                 />
                 {passwordError && <Text>{passwordError.join("\n")}</Text>}
@@ -68,58 +69,14 @@ export default function Index() {
                     disabled={isSubmitDisabled}
                     onPress={handleLogin}
                     style={({ pressed }) => [
-                        styles.button,
-                        isSubmitDisabled && styles.buttonDisabled,
-                        pressed && styles.buttonPressed
+                        login.button,
+                        isSubmitDisabled && login.buttonDisabled,
+                        pressed && login.buttonPressed
                     ]}
                 >
-                    {isLoading ? <ActivityIndicator color="white" /> : <Text style={styles.buttonText}>Entrar</Text>}
+                    {isLoading ? <ActivityIndicator color="white" /> : <Text style={login.buttonText}>Entrar</Text>}
                 </Pressable>
             </View>
         </SafeAreaView>
     );
 }
-
-const styles = StyleSheet.create({
-    safeArea: {
-        flex: 1,
-        justifyContent: "center",
-        backgroundColor: "white"
-    },
-    form: {
-        padding: 24,
-        gap: 16
-    },
-    title: {
-        marginBottom: 8,
-        fontSize: 28,
-        fontWeight: "700",
-        textAlign: "center"
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: "#d1d5db",
-        borderRadius: 8,
-        paddingHorizontal: 14,
-        paddingVertical: 12,
-        fontSize: 16
-    },
-    button: {
-        minHeight: 48,
-        alignItems: "center",
-        justifyContent: "center",
-        borderRadius: 8,
-        backgroundColor: "#1e88e5"
-    },
-    buttonDisabled: {
-        opacity: 0.5
-    },
-    buttonPressed: {
-        opacity: 0.8
-    },
-    buttonText: {
-        color: "white",
-        fontSize: 16,
-        fontWeight: "600"
-    }
-});

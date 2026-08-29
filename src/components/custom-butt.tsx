@@ -1,5 +1,6 @@
-import { Pressable, StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
+import { Pressable, StyleProp, Text, View, ViewStyle } from "react-native";
 import { useState } from "react";
+import { customButt, customButtDynamic } from "@/src/styles/components/style";
 
 export default function CustomButt(props: {
     label: string;
@@ -17,7 +18,7 @@ export default function CustomButt(props: {
     return (
         <Pressable
             disabled={props.disable}
-            style={props.style ? props.style : { flex: 1 }}
+            style={props.style ?? customButt.pressable}
             onTouchStart={() => {
                 setColor("green");
                 setOpacity(0.8);
@@ -26,18 +27,9 @@ export default function CustomButt(props: {
             onTouchEnd={noTouch}
             onPress={() => props.onPress()}
         >
-            <View style={[styles.background, { backgroundColor: opacity === 0.8 ? "rgba(13, 158, 177, 0.8)" : "rgba(13, 158, 177, 0.4)" }]}>
-                <Text style={{ color, textAlign: "center", fontSize: 19, fontWeight: "bold" }}>{props.label}</Text>
+            <View style={[customButt.background, customButtDynamic.background(opacity === 0.8)]}>
+                <Text style={[customButt.label, customButtDynamic.label(color)]}>{props.label}</Text>
             </View>
         </Pressable>
     );
 }
-
-const styles = StyleSheet.create({
-    background: {
-        width: "100%",
-        height: 50,
-        justifyContent: "center",
-        alignItems: "center"
-    }
-});

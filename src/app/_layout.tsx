@@ -1,6 +1,7 @@
 import { Stack } from "expo-router";
 import AppContextProvider from "@/src/components/app-context-provider";
 import UserMenu from "./_user-menu";
+import { rootLayout } from "@/src/styles/app/style";
 import { BackHandler, ToastAndroid, View } from "react-native";
 import { useEffect, useRef } from "react";
 
@@ -31,7 +32,7 @@ export default function RootLayout() {
 
     return (
         <AppContextProvider>
-            <View style={{ flex: 1, backgroundColor: "white" }}>
+            <View style={rootLayout.screen}>
                 <Stack>
                     {screens.map(({ name, options }) => (
                         <Stack.Screen

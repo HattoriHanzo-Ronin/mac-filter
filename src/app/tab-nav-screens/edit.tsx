@@ -1,6 +1,6 @@
 import { View, Text } from "react-native";
 import { Redirect } from "expo-router";
-import { edit } from "../../styles";
+import { edit } from "@/src/styles/tab-nav-screens/style";
 import UiUtils from "@/src/utils/ui-utils";
 import { DeviceFormRequest } from "@/src/types/form";
 import { UpdateDeviceRequest } from "@/src/types/devices";
@@ -32,7 +32,7 @@ export default function Edit() {
     }
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={edit.screen}>
             <View style={edit.parent}>
                 <Text style={edit.titleForm}>Editar {UiUtils.makeName(lastDevice.name, lastDevice.model ?? "")}</Text>
                 <DeviceForm onSubmit={updateDevice} device={lastDevice} />

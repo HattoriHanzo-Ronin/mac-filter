@@ -1,6 +1,7 @@
 import { Picker } from "@react-native-picker/picker";
+import { deviceForm } from "@/src/styles/components/style";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
-import { Button, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from "react-native";
+import { Button, Pressable, ScrollView, Switch, Text, TextInput, View } from "react-native";
 import { useEffect, useState } from "react";
 import { ConnectionType, CreateDeviceRequest, Device, DeviceType } from "../types/devices";
 import { DeviceFormProps, DeviceFormRequest, DeviceFormValues } from "../types/form";
@@ -69,7 +70,7 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
     }, [device, reset]);
 
     return (
-        <ScrollView contentContainerStyle={styles.form} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={deviceForm.form} keyboardShouldPersistTaps="handled">
             <FormField label={UiUtils.getDeviceLabel("name")} errors={validationErrors.name}>
                 <Controller
                     control={control}
@@ -82,7 +83,7 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
                                 clearValidationError("name");
                                 onChange(text);
                             }}
-                            style={styles.input}
+                            style={deviceForm.input}
                             value={value}
                         />
                     )}
@@ -93,7 +94,7 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
                     control={control}
                     name="type"
                     render={({ field: { onChange, value } }) => (
-                        <View style={styles.pickerContainer}>
+                        <View style={deviceForm.pickerContainer}>
                             <Picker
                                 selectedValue={value}
                                 onValueChange={(selectedType: DeviceType) => {
@@ -124,7 +125,7 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
                                 clearValidationError("model");
                                 onChange(text);
                             }}
-                            style={styles.input}
+                            style={deviceForm.input}
                             value={value}
                         />
                     )}
@@ -142,7 +143,7 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
                                 clearValidationError("ip");
                                 onChange(text);
                             }}
-                            style={styles.input}
+                            style={deviceForm.input}
                             value={value}
                         />
                     )}
@@ -177,7 +178,7 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
                                         onChange(text);
                                     }}
                                     secureTextEntry
-                                    style={styles.input}
+                                    style={deviceForm.input}
                                     value={value}
                                 />
                             )}
@@ -195,7 +196,7 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
                                         onChange(text);
                                     }}
                                     secureTextEntry
-                                    style={styles.input}
+                                    style={deviceForm.input}
                                     value={value}
                                 />
                             )}
@@ -203,14 +204,14 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
                     </FormField>
                 </>
             )}
-            <View style={styles.connectionsTitle}>
-                <Text style={styles.label}>{UiUtils.getDeviceLabel("connections")}</Text>
+            <View style={deviceForm.connectionsTitle}>
+                <Text style={deviceForm.label}>{UiUtils.getDeviceLabel("connections")}</Text>
                 <Pressable
                     disabled={connections.length === CONNECTION_TYPES.length}
                     onPress={addConnection}
-                    style={styles.addButton}
+                    style={deviceForm.addButton}
                 >
-                    <Text style={styles.addButtonText}>+</Text>
+                    <Text style={deviceForm.addButtonText}>+</Text>
                 </Pressable>
             </View>
             {fields.map((field, index) => {
@@ -221,14 +222,14 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
                         !connections.some((connection) => connection.ctype === connectionType)
                 );
                 return (
-                    <View key={field.id} style={styles.connection}>
-                        <View style={styles.connectionType}>
-                            <Text style={styles.label}>{UiUtils.getDeviceLabel("connection_type")}</Text>
+                    <View key={field.id} style={deviceForm.connection}>
+                        <View style={deviceForm.connectionType}>
+                            <Text style={deviceForm.label}>{UiUtils.getDeviceLabel("connection_type")}</Text>
                             <Controller
                                 control={control}
                                 name={`connections.${index}.ctype`}
                                 render={({ field: { onChange, value } }) => (
-                                    <View style={styles.pickerContainer}>
+                                    <View style={deviceForm.pickerContainer}>
                                         <Picker selectedValue={value} onValueChange={onChange}>
                                             {availableTypes.map((connectionType) => (
                                                 <Picker.Item
@@ -242,8 +243,8 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
                                 )}
                             />
                         </View>
-                        <View style={styles.connectionMac}>
-                            <Text style={styles.label}>{UiUtils.getDeviceLabel("mac")}</Text>
+                        <View style={deviceForm.connectionMac}>
+                            <Text style={deviceForm.label}>{UiUtils.getDeviceLabel("mac")}</Text>
                             <Controller
                                 control={control}
                                 name={`connections.${index}.mac`}
@@ -256,21 +257,21 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
                                             clearValidationError("connections");
                                             onChange(text.replaceAll("-", ":").toUpperCase());
                                         }}
-                                        style={styles.input}
+                                        style={deviceForm.input}
                                         value={value}
                                     />
                                 )}
                             />
                             {errors.connections?.[index]?.mac?.message && (
-                                <Text style={styles.error}>{errors.connections[index]?.mac?.message}</Text>
+                                <Text style={deviceForm.error}>{errors.connections[index]?.mac?.message}</Text>
                             )}
                         </View>
                         <Pressable
                             accessibilityLabel="Eliminar conexión"
                             onPress={() => remove(index)}
-                            style={styles.removeButton}
+                            style={deviceForm.removeButton}
                         >
-                            <Text style={styles.removeButtonText}>−</Text>
+                            <Text style={deviceForm.removeButtonText}>−</Text>
                         </Pressable>
                     </View>
                 );
@@ -314,71 +315,3 @@ function getRequest(values: DeviceFormValues, device?: Device | null): DeviceFor
 
     return device ? { ...request, id: device.id } : request;
 }
-
-const styles = StyleSheet.create({
-    form: {
-        padding: 16,
-        gap: 16
-    },
-    label: {
-        fontSize: 16,
-        fontWeight: "600"
-    },
-    input: {
-        borderWidth: 1,
-        borderRadius: 6,
-        padding: 10
-    },
-    pickerContainer: {
-        borderWidth: 1,
-        borderRadius: 6
-    },
-    connectionsTitle: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between"
-    },
-    addButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: "#1e88e5"
-    },
-    addButtonText: {
-        color: "white",
-        fontSize: 28,
-        lineHeight: 30
-    },
-    removeButton: {
-        width: 40,
-        height: 40,
-        marginTop: 25,
-        borderRadius: 20,
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: "#c62828"
-    },
-    removeButtonText: {
-        color: "white",
-        fontSize: 28,
-        lineHeight: 30
-    },
-    connection: {
-        flexDirection: "row",
-        alignItems: "flex-start",
-        gap: 10
-    },
-    connectionType: {
-        flex: 1,
-        gap: 6
-    },
-    connectionMac: {
-        flex: 2,
-        gap: 6
-    },
-    error: {
-        color: "red"
-    }
-});

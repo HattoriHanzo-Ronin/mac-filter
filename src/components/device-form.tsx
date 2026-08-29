@@ -1,13 +1,14 @@
 import { Picker } from "@react-native-picker/picker";
 import { deviceForm } from "@/src/styles/components/style";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
-import { Button, Pressable, ScrollView, Switch, Text, TextInput, View } from "react-native";
+import { Button, Pressable, ScrollView, Switch, Text, View } from "react-native";
 import { useEffect, useState } from "react";
 import { ConnectionType, CreateDeviceRequest, Device, DeviceType } from "../types/devices";
 import { DeviceFormProps, DeviceFormRequest, DeviceFormValues } from "../types/form";
 import { ValidationErrors } from "../types/ui";
 import UiUtils from "../utils/ui-utils";
 import FormField from "./form-field";
+import FormTextInput from "./form-text-input";
 import ValidationMessages from "./validation-messages";
 
 const CONNECTION_TYPES: ConnectionType[] = ["WAN", "LAN", "WIFI"];
@@ -35,10 +36,6 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
     const { fields, append, remove } = useFieldArray({ control, name: "connections" });
     const type = useWatch({ control, name: "type" });
     const connections = useWatch({ control, name: "connections" });
-
-    function clearValidationError(field: keyof DeviceFormValues): void {
-        setValidationErrors((current) => UiUtils.removeValidationError(current, field));
-    }
 
     async function submitForm(values: DeviceFormValues): Promise<void> {
         const errorResponse = await onSubmit(getRequest(values, device));
@@ -72,21 +69,12 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
     return (
         <ScrollView contentContainerStyle={deviceForm.form} keyboardShouldPersistTaps="handled">
             <FormField label={UiUtils.getDeviceLabel("name")} errors={validationErrors.name}>
-                <Controller
+                <FormTextInput
                     control={control}
                     name="name"
+                    onValueChange={() => UiUtils.clearValidationError(setValidationErrors, "name")}
                     rules={{ required: "Requerido" }}
-                    render={({ field: { onBlur, onChange, value } }) => (
-                        <TextInput
-                            onBlur={onBlur}
-                            onChangeText={(text) => {
-                                clearValidationError("name");
-                                onChange(text);
-                            }}
-                            style={deviceForm.input}
-                            value={value}
-                        />
-                    )}
+                    style={deviceForm.input}
                 />
             </FormField>
             <FormField label={UiUtils.getDeviceLabel("type")} errors={validationErrors.type}>
@@ -98,7 +86,7 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
                             <Picker
                                 selectedValue={value}
                                 onValueChange={(selectedType: DeviceType) => {
-                                    clearValidationError("type");
+                                    UiUtils.clearValidationError(setValidationErrors, "type");
                                     onChange(selectedType);
                                 }}
                             >
@@ -115,38 +103,20 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
                 />
             </FormField>
             <FormField label={UiUtils.getDeviceLabel("model")} errors={validationErrors.model}>
-                <Controller
+                <FormTextInput
                     control={control}
                     name="model"
-                    render={({ field: { onBlur, onChange, value } }) => (
-                        <TextInput
-                            onBlur={onBlur}
-                            onChangeText={(text) => {
-                                clearValidationError("model");
-                                onChange(text);
-                            }}
-                            style={deviceForm.input}
-                            value={value}
-                        />
-                    )}
+                    onValueChange={() => UiUtils.clearValidationError(setValidationErrors, "model")}
+                    style={deviceForm.input}
                 />
             </FormField>
             <FormField label={UiUtils.getDeviceLabel("ip")} errors={validationErrors.ip}>
-                <Controller
+                <FormTextInput
                     control={control}
+                    keyboardType="numeric"
                     name="ip"
-                    render={({ field: { onBlur, onChange, value } }) => (
-                        <TextInput
-                            keyboardType="numeric"
-                            onBlur={onBlur}
-                            onChangeText={(text) => {
-                                clearValidationError("ip");
-                                onChange(text);
-                            }}
-                            style={deviceForm.input}
-                            value={value}
-                        />
-                    )}
+                    onValueChange={() => UiUtils.clearValidationError(setValidationErrors, "ip")}
+                    style={deviceForm.input}
                 />
             </FormField>
             {type === "ROUTER" && (
@@ -158,7 +128,7 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
                             render={({ field: { onChange, value } }) => (
                                 <Switch
                                     onValueChange={(enabled) => {
-                                        clearValidationError("mac_filter");
+                                        UiUtils.clearValidationError(setValidationErrors, "mac_filter");
                                         onChange(enabled);
                                     }}
                                     value={value}
@@ -167,39 +137,21 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
                         />
                     </FormField>
                     <FormField label={UiUtils.getDeviceLabel("wifi_pass")} errors={validationErrors.wifi_pass}>
-                        <Controller
+                        <FormTextInput
                             control={control}
                             name="wifi_pass"
-                            render={({ field: { onBlur, onChange, value } }) => (
-                                <TextInput
-                                    onBlur={onBlur}
-                                    onChangeText={(text) => {
-                                        clearValidationError("wifi_pass");
-                                        onChange(text);
-                                    }}
-                                    secureTextEntry
-                                    style={deviceForm.input}
-                                    value={value}
-                                />
-                            )}
+                            onValueChange={() => UiUtils.clearValidationError(setValidationErrors, "wifi_pass")}
+                            secureTextEntry
+                            style={deviceForm.input}
                         />
                     </FormField>
                     <FormField label={UiUtils.getDeviceLabel("admin_pass")} errors={validationErrors.admin_pass}>
-                        <Controller
+                        <FormTextInput
                             control={control}
                             name="admin_pass"
-                            render={({ field: { onBlur, onChange, value } }) => (
-                                <TextInput
-                                    onBlur={onBlur}
-                                    onChangeText={(text) => {
-                                        clearValidationError("admin_pass");
-                                        onChange(text);
-                                    }}
-                                    secureTextEntry
-                                    style={deviceForm.input}
-                                    value={value}
-                                />
-                            )}
+                            onValueChange={() => UiUtils.clearValidationError(setValidationErrors, "admin_pass")}
+                            secureTextEntry
+                            style={deviceForm.input}
                         />
                     </FormField>
                 </>
@@ -245,22 +197,14 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
                         </View>
                         <View style={deviceForm.connectionMac}>
                             <Text style={deviceForm.label}>{UiUtils.getDeviceLabel("mac")}</Text>
-                            <Controller
+                            <FormTextInput
+                                autoCapitalize="characters"
                                 control={control}
                                 name={`connections.${index}.mac`}
+                                onValueChange={() => UiUtils.clearValidationError(setValidationErrors, "connections")}
                                 rules={{ required: "Requerido" }}
-                                render={({ field: { onBlur, onChange, value } }) => (
-                                    <TextInput
-                                        autoCapitalize="characters"
-                                        onBlur={onBlur}
-                                        onChangeText={(text) => {
-                                            clearValidationError("connections");
-                                            onChange(text.replaceAll("-", ":").toUpperCase());
-                                        }}
-                                        style={deviceForm.input}
-                                        value={value}
-                                    />
-                                )}
+                                style={deviceForm.input}
+                                transformValue={(text) => text.replaceAll("-", ":").toUpperCase()}
                             />
                             {errors.connections?.[index]?.mac?.message && (
                                 <Text style={deviceForm.error}>{errors.connections[index]?.mac?.message}</Text>

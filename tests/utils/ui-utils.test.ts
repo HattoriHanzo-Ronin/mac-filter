@@ -17,6 +17,14 @@ const DEVICE: Device = {
 };
 
 describe("UiUtils", () => {
+    it("clears a field validation error through its state setter", () => {
+        const setValidationErrors = jest.fn();
+        UiUtils.clearValidationError<{ username: string }>(setValidationErrors, "username");
+
+        const updateErrors = setValidationErrors.mock.calls[0][0];
+        expect(updateErrors({ username: ["Invalid username"] })).toEqual({});
+    });
+
     it("maps device properties using the centralized labels", () => {
         expect(UiUtils.mapDeviceProperties(DEVICE)).toEqual([
             { key: "name", label: "Nombre", val: "Router principal" },

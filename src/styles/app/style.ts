@@ -29,6 +29,20 @@ export const login = StyleSheet.create({
         paddingVertical: 12,
         fontSize: 16
     },
+    passwordInput: {
+        flexDirection: "row",
+        alignItems: "center",
+        borderWidth: 1,
+        borderColor: "#d1d5db",
+        borderRadius: 8,
+        paddingRight: 14
+    },
+    passwordTextInput: {
+        flex: 1,
+        paddingHorizontal: 14,
+        paddingVertical: 12,
+        fontSize: 16
+    },
     button: {
         minHeight: 48,
         alignItems: "center",

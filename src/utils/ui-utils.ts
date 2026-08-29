@@ -1,4 +1,5 @@
 import { ToastAndroid } from "react-native";
+import { Dispatch, SetStateAction } from "react";
 import { ApiValidationErrorDetail } from "../types/api-error";
 import { Device } from "../types/devices";
 import {
@@ -89,6 +90,14 @@ export default class UiUtils {
             }
         }
         return validationErrors;
+    }
+
+    /** Clears the validation errors for a form field in state. */
+    static clearValidationError<T extends object>(
+        setValidationErrors: Dispatch<SetStateAction<ValidationErrors<T>>>,
+        field: keyof T
+    ): void {
+        setValidationErrors((current) => this.removeValidationError(current, field));
     }
 
     /**

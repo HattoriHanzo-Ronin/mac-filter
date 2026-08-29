@@ -2,10 +2,12 @@ import DevicePicker from "@/src/components/device-picker";
 import DeviceSearchInput from "@/src/components/device-search-input";
 import { Redirect, router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { BackHandler, Button, FlatList, Pressable, Text, View, useWindowDimensions } from "react-native";
+import { BackHandler, FlatList, Pressable, Text, View, useColorScheme } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAppContext } from "../components/app-context-provider";
-import { macFilter, macFilterDynamic } from "@/src/styles/app/style";
+import { macFilter, macFilterDark, macFilterDynamic, macFilterLight } from "@/src/styles/app/style";
+import CustomButt from "../components/custom-butt";
+import ScreenBackground from "../components/screen-background";
 import { Device } from "../types/devices";
 import { GetFilteredDevicesVersionResponse } from "../types/version";
 import ApiUtils from "../utils/api-utils";
@@ -13,9 +15,9 @@ import UiUtils from "../utils/ui-utils";
 
 export default function MacFilter() {
     const { lastDevice, isAuthenticated, isLoading, executeApiRequest } = useAppContext();
+    const theme = useColorScheme() === "dark" ? macFilterDark : macFilterLight;
     const routerId = lastDevice?.id;
-    const safeTop = useSafeAreaInsets().top + (useWindowDimensions().height * 10) / 100;
-    const safeBottom = useSafeAreaInsets().bottom + (useWindowDimensions().height * 6) / 100;
+    const safeBottom = useSafeAreaInsets().bottom + 12;
     const [showAllowed, setShowAllowed] = useState(true);
     const [devices, setDevices] = useState<Device[]>([]);
     const [selectedDeviceId, setSelectedDeviceId] = useState("");
@@ -116,53 +118,77 @@ export default function MacFilter() {
     }
 
     return (
-        <View style={macFilter.screen}>
-            <View style={[macFilter.parent, macFilterDynamic.safeArea(safeTop, safeBottom)]}>
-                <Button
-                    disabled={isLoading}
-                    title={"Cambiar a " + (showAllowed ? "no permitidos" : "permitidos")}
-                    onPress={() => setShowAllowed((showAllowed) => !showAllowed)}
-                />
-                <DevicePicker devices={devices} selectedDeviceId={selectedDeviceId} onSelect={selectDevice} />
-                <DeviceSearchInput devices={devices} onSelect={selectDevice} />
-                <FlatList
-                    key={selectedDevice?.id ?? "empty"}
-                    style={macFilter.scroll}
-                    contentContainerStyle={[macFilter.list, macFilter.listContent]}
-                    data={deviceProperties}
-                    extraData={connectionTypeIndex}
-                    initialNumToRender={deviceProperties.length}
-                    maxToRenderPerBatch={deviceProperties.length}
-                    removeClippedSubviews={false}
-                    renderItem={({ item }) => (
-                        <View style={macFilter.parentDevProp}>
-                            <Text style={macFilter.labelProp}>{item.label}:</Text>
-                            {item.key === "connection_type" ? (
-                                <View style={macFilter.connectionOptions}>
-                                    {item.val.map((connectionType, connectionIndex) => (
-                                        <Pressable
-                                            key={connectionType}
-                                            style={macFilter.connectionOption}
-                                            onPress={() => setConnectionTypeIndex(connectionIndex)}
-                                        >
-                                            <View style={macFilter.radioOuter}>
-                                                {connectionTypeIndex === connectionIndex && <View style={macFilter.radioInner} />}
-                                            </View>
-                                            <Text style={macFilter.valueProp}>{connectionType}</Text>
-                                        </Pressable>
-                                    ))}
-                                </View>
-                            ) : (
-                                <Text selectable style={macFilter.valueProp}>
-                                    {item.key === "mac" ? item.val[connectionTypeIndex] : item.val}
-                                </Text>
-                            )}
-                        </View>
-                    )}
-                    keyExtractor={(property) => property.key}
-                />
-                <Button disabled={isLoading} title={showAllowed ? "Quitar" : "Añadir"} onPress={handleWhitelistPress} />
+        <ScreenBackground>
+            <View style={[macFilter.screen, theme.screen]}>
+                <View style={[macFilter.parent, macFilterDynamic.safeArea(safeBottom)]}>
+                    <View style={[macFilter.segmentedControl, theme.segmentedControl]}>
+                        <Pressable
+                            disabled={isLoading}
+                            onPress={() => !showAllowed && setShowAllowed(true)}
+                            style={[macFilter.segment, showAllowed && theme.activeSegment]}
+                        >
+                            <Text style={[macFilter.segmentText, theme.segmentText, showAllowed && theme.activeSegmentText]}>
+                                Permitidos
+                            </Text>
+                        </Pressable>
+                        <Pressable
+                            disabled={isLoading}
+                            onPress={() => showAllowed && setShowAllowed(false)}
+                            style={[macFilter.segment, !showAllowed && theme.activeSegment]}
+                        >
+                            <Text style={[macFilter.segmentText, theme.segmentText, !showAllowed && theme.activeSegmentText]}>
+                                No permitidos
+                            </Text>
+                        </Pressable>
+                    </View>
+                    <DevicePicker devices={devices} selectedDeviceId={selectedDeviceId} onSelect={selectDevice} style={macFilter.controlSpacing} />
+                    <DeviceSearchInput devices={devices} onSelect={selectDevice} style={macFilter.controlSpacing} />
+                    <FlatList
+                        key={selectedDevice?.id ?? "empty"}
+                        style={macFilter.scroll}
+                        contentContainerStyle={[macFilter.list, macFilter.listContent]}
+                        data={deviceProperties}
+                        extraData={connectionTypeIndex}
+                        initialNumToRender={deviceProperties.length}
+                        maxToRenderPerBatch={deviceProperties.length}
+                        removeClippedSubviews={false}
+                        renderItem={({ item }) => (
+                            <View style={macFilter.parentDevProp}>
+                                <Text style={[macFilter.labelProp, theme.labelProp]}>{item.label}:</Text>
+                                {item.key === "connection_type" ? (
+                                    <View style={macFilter.connectionOptions}>
+                                        {item.val.map((connectionType, connectionIndex) => (
+                                            <Pressable
+                                                key={connectionType}
+                                                style={macFilter.connectionOption}
+                                                onPress={() => setConnectionTypeIndex(connectionIndex)}
+                                            >
+                                                <View style={[macFilter.radioOuter, theme.radioOuter]}>
+                                                    {connectionTypeIndex === connectionIndex && (
+                                                        <View style={[macFilter.radioInner, theme.radioInner]} />
+                                                    )}
+                                                </View>
+                                                <Text style={[macFilter.connectionValue, theme.valueProp]}>{connectionType}</Text>
+                                            </Pressable>
+                                        ))}
+                                    </View>
+                                ) : (
+                                    <Text selectable style={[macFilter.valueProp, theme.valueProp]}>
+                                        {item.key === "mac" ? item.val[connectionTypeIndex] : item.val}
+                                    </Text>
+                                )}
+                            </View>
+                        )}
+                        keyExtractor={(property) => property.key}
+                    />
+                    <CustomButt
+                        buttonStyle={showAllowed ? macFilter.dangerButton : theme.primaryButton}
+                        disabled={isLoading || !selectedDevice}
+                        label={showAllowed ? "Quitar" : "Añadir"}
+                        onPress={handleWhitelistPress}
+                    />
+                </View>
             </View>
-        </View>
+        </ScreenBackground>
     );
 }

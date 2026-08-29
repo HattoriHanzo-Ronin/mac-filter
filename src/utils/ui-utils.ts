@@ -143,16 +143,6 @@ export default class UiUtils {
 
         this.addDeviceProperty(properties, "ip", this.getDeviceLabel("ip"), device.ip);
         this.addDeviceProperty(properties, "wifi_pass", this.getDeviceLabel("wifi_pass"), device.wifi_pass);
-        this.addDeviceProperty(
-            properties,
-            "mac_filter",
-            this.getDeviceLabel("mac_filter"),
-            device.mac_filter === null || device.mac_filter === undefined
-                ? undefined
-                : device.mac_filter
-                  ? "Activado"
-                  : "Desactivado"
-        );
         return properties;
     }
 

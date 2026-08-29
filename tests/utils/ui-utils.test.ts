@@ -33,8 +33,7 @@ describe("UiUtils", () => {
             { key: "connection_type", label: "Tipo de conexión", val: ["Wan", "Wifi"] },
             { key: "mac", label: "MAC", val: ["AA:BB:CC:DD:EE:01", "AA:BB:CC:DD:EE:02"] },
             { key: "ip", label: "IP", val: "192.168.1.1" },
-            { key: "wifi_pass", label: "Contraseña Wi-Fi", val: "secret" },
-            { key: "mac_filter", label: "Filtro MAC", val: "Activado" }
+            { key: "wifi_pass", label: "Contraseña Wi-Fi", val: "secret" }
         ]);
     });
 

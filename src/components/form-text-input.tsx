@@ -1,12 +1,6 @@
-import { Control, Controller, FieldPath, FieldValues } from "react-hook-form";
-import { TextInput, TextInputProps } from "react-native";
-
-type FormTextInputProps<T extends FieldValues> = Omit<TextInputProps, "onBlur" | "onChangeText" | "value"> & {
-    control: Control<T>;
-    name: FieldPath<T>;
-    onValueChange?: () => void;
-    transformValue?: (value: string) => string;
-};
+import { Controller, FieldValues } from "react-hook-form";
+import { TextInput } from "react-native";
+import type { FormTextInputProps } from "../types/form";
 
 export default function FormTextInput<T extends FieldValues>(props: FormTextInputProps<T>) {
     const { control, name, onValueChange, transformValue, ...textInputProps } = props;

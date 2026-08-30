@@ -1,3 +1,5 @@
+import type { StyleProp, ViewStyle } from "react-native";
+
 export type DeviceType = "CLIENT" | "ROUTER" | "SERVER";
 export type ConnectionType = "WAN" | "LAN" | "WIFI";
 
@@ -37,6 +39,25 @@ export interface CreateDeviceRequest extends DeviceFields {
 export interface UpdateDeviceRequest extends Partial<DeviceFields>, DeviceId {
     type?: DeviceType;
 }
+
+export type DevicePickerProps = {
+    devices: Device[];
+    selectedDeviceId: string;
+    onSelect: (device: Device) => void;
+    style?: StyleProp<ViewStyle>;
+};
+
+export type DeviceSearchInputProps = {
+    devices: Device[];
+    onSelect: (device: Device) => void;
+    style?: StyleProp<ViewStyle>;
+};
+
+export type WifiPasswordDialogProps = {
+    password: string;
+    visible: boolean;
+    onClose: () => void;
+};
 
 export type GetDevicesResponse = Device[];
 export type GetDeviceResponse = Device;

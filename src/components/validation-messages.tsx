@@ -1,7 +1,8 @@
 import { Text } from "react-native";
 import { validationMessages } from "@/src/styles/components/style";
+import type { ValidationMessagesProps } from "../types/ui";
 
-export default function ValidationMessages({ errors }: { errors?: string[] }) {
+export default function ValidationMessages({ errors }: ValidationMessagesProps) {
     if (!errors) {
         return null;
     }

@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
-import { Control, Controller, FieldPath, FieldValues, RegisterOptions } from "react-hook-form";
+import { Control, Controller, FieldPath, FieldValues } from "react-hook-form";
 import { Pressable, StyleProp, TextInput, TextInputProps, TextStyle, View, ViewStyle } from "react-native";
 import { passwordInput } from "@/src/styles/components/style";
 
@@ -41,17 +41,15 @@ type FormPasswordInputProps<T extends FieldValues> = Omit<
     control: Control<T>;
     name: FieldPath<T>;
     onValueChange?: () => void;
-    rules?: RegisterOptions<T, FieldPath<T>>;
 };
 
 export function FormPasswordInput<T extends FieldValues>(props: FormPasswordInputProps<T>) {
-    const { control, name, onValueChange, rules, ...passwordInputProps } = props;
+    const { control, name, onValueChange, ...passwordInputProps } = props;
 
     return (
         <Controller
             control={control}
             name={name}
-            rules={rules}
             render={({ field: { onBlur, onChange, value } }) => (
                 <PasswordInput
                     {...passwordInputProps}

@@ -123,7 +123,37 @@ export default function Index() {
                     data={deviceProperties}
                     extraData={connectionTypeIndex}
                     initialNumToRender={deviceProperties.length}
-                    ListFooterComponent={<View style={index.listFooter} />}
+                    ListFooterComponent={
+                        <View style={index.listActions}>
+                            <View style={index.parentButt}>
+                                <CustomButt
+                                    buttonStyle={index.dangerButton}
+                                    disabled={isLoading}
+                                    label="Borrar"
+                                    onPress={deleteDevice}
+                                    style={index.actionButton}
+                                />
+                                {lastDevice?.mac_filter && (
+                                    <CustomButt
+                                        buttonStyle={theme.primaryButton}
+                                        disabled={isLoading}
+                                        label="Filtro MAC"
+                                        onPress={() => router.push("/mac-filter")}
+                                        style={index.actionButton}
+                                    />
+                                )}
+                                {lastDevice?.type === "ROUTER" && (
+                                    <CustomButt
+                                        buttonStyle={theme.primaryButton}
+                                        disabled={isLoading}
+                                        label="Administrar"
+                                        onPress={() => router.push("/access-router")}
+                                        style={index.actionButton}
+                                    />
+                                )}
+                            </View>
+                        </View>
+                    }
                     maxToRenderPerBatch={deviceProperties.length}
                     removeClippedSubviews={false}
                     renderItem={({ item }) => (
@@ -160,33 +190,6 @@ export default function Index() {
                     )}
                     keyExtractor={(property) => property.key}
                 />
-                <View style={index.parentButt}>
-                    <CustomButt
-                        buttonStyle={index.dangerButton}
-                        disabled={isLoading}
-                        label="Borrar"
-                        onPress={deleteDevice}
-                        style={index.actionButton}
-                    />
-                    {lastDevice?.mac_filter && (
-                        <CustomButt
-                            buttonStyle={theme.primaryButton}
-                            disabled={isLoading}
-                            label="Filtro MAC"
-                            onPress={() => router.push("/mac-filter")}
-                            style={index.actionButton}
-                        />
-                    )}
-                    {lastDevice?.type === "ROUTER" && (
-                        <CustomButt
-                            buttonStyle={theme.primaryButton}
-                            disabled={isLoading}
-                            label="Administrar"
-                            onPress={() => router.push("/access-router")}
-                            style={index.actionButton}
-                        />
-                    )}
-                </View>
             </View>
             </View>
             <LoadingWindow />

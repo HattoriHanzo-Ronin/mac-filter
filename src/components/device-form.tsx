@@ -45,7 +45,7 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
         control,
         handleSubmit,
         reset,
-        formState: { errors, isSubmitting }
+        formState: { isSubmitting }
     } = useForm<DeviceFormValues>({ defaultValues: device ? getDeviceValues(device) : DEFAULT_VALUES });
     const { fields, append, remove } = useFieldArray({ control, name: "connections" });
     const type = useWatch({ control, name: "type" });
@@ -91,7 +91,6 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
                     control={control}
                     name="name"
                     onValueChange={() => UiUtils.clearValidationError(setValidationErrors, "name")}
-                    rules={{ required: "Requerido" }}
                     style={[deviceForm.input, theme.input]}
                 />
             </FormField>
@@ -113,7 +112,7 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
                                 {DEVICE_TYPES.map((deviceType) => (
                                     <Picker.Item
                                         key={deviceType}
-                                        label={UiUtils.firstToUpper(deviceType)}
+                                        label={UiUtils.getDeviceTypeLabel(deviceType)}
                                         value={deviceType}
                                     />
                                 ))}
@@ -204,16 +203,22 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
                         !connections.some((connection) => connection.ctype === connectionType)
                 );
                 return (
-                    <View key={field.id} style={deviceForm.connection}>
+                    <View
+                        key={field.id}
+                        style={[
+                            deviceForm.connection,
+                            index < fields.length - 1 && theme.connectionSeparator
+                        ]}
+                    >
                         <View style={deviceForm.connectionType}>
-                            <Text style={[deviceForm.label, deviceForm.connectionLabel, theme.label]}>
+                            <Text style={[deviceForm.label, deviceForm.connectionTypeLabel, theme.label]}>
                                 {UiUtils.getDeviceLabel("connection_type")}
                             </Text>
                             <Controller
                                 control={control}
                                 name={`connections.${index}.ctype`}
                                 render={({ field: { onChange, value } }) => (
-                                    <View style={[deviceForm.pickerContainer, theme.pickerContainer]}>
+                                    <View style={[deviceForm.pickerContainer, deviceForm.connectionTypeValue, theme.pickerContainer]}>
                                         <Picker
                                             dropdownIconColor={palette.picker}
                                             selectedValue={value}
@@ -233,21 +238,19 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
                             />
                         </View>
                         <View style={deviceForm.connectionMac}>
-                            <Text style={[deviceForm.label, deviceForm.connectionLabel, theme.label]}>
+                            <Text style={[deviceForm.label, deviceForm.connectionMacLabel, theme.label]}>
                                 {UiUtils.getDeviceLabel("mac")}
                             </Text>
-                            <FormTextInput
-                                autoCapitalize="characters"
-                                control={control}
-                                name={`connections.${index}.mac`}
-                                onValueChange={() => UiUtils.clearValidationError(setValidationErrors, "connections")}
-                                rules={{ required: "Requerido" }}
-                                style={[deviceForm.input, theme.input]}
-                                transformValue={(text) => text.replaceAll("-", ":").toUpperCase()}
-                            />
-                            {errors.connections?.[index]?.mac?.message && (
-                                <Text style={deviceForm.error}>{errors.connections[index]?.mac?.message}</Text>
-                            )}
+                            <View style={deviceForm.connectionMacValue}>
+                                <FormTextInput
+                                    autoCapitalize="characters"
+                                    control={control}
+                                    name={`connections.${index}.mac`}
+                                    onValueChange={() => UiUtils.clearValidationError(setValidationErrors, "connections")}
+                                    style={[deviceForm.input, theme.input]}
+                                    transformValue={(text) => text.replaceAll("-", ":").toUpperCase()}
+                                />
+                            </View>
                         </View>
                         <Pressable
                             accessibilityLabel="Eliminar conexión"

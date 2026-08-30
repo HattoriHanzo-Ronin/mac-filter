@@ -19,7 +19,10 @@ export const deviceForm = StyleSheet.create({
     screen: { flex: 1 },
     form: { paddingHorizontal: 22, paddingTop: "15%", paddingBottom: 40, gap: 14 },
     label: { ...commons.label, fontSize: 17 },
-    connectionLabel: { minHeight: 42, textAlignVertical: "bottom" },
+    connectionTypeLabel: { width: "32%", lineHeight: 21 },
+    connectionTypeValue: { flex: 1 },
+    connectionMacLabel: { width: 48, paddingTop: 14 },
+    connectionMacValue: { flex: 1, gap: 6 },
     input: { minHeight: 50, borderWidth: 1, borderRadius: 9, paddingHorizontal: 12, fontSize: 17 },
     passwordInput: { minHeight: 50, borderWidth: 1, borderRadius: 9, paddingHorizontal: 12 },
     passwordTextInput: { fontSize: 17 },
@@ -27,10 +30,10 @@ export const deviceForm = StyleSheet.create({
     connectionsTitle: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
     addRowButton: { flexDirection: "row", alignItems: "center", alignSelf: "center", gap: 7, padding: 8 },
     addRowText: { fontSize: 16, fontWeight: "600" },
-    removeButton: { width: 34, height: 50, justifyContent: "center", alignItems: "center", marginTop: 48 },
-    connection: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
-    connectionType: { flex: 1, minWidth: 105, gap: 6 },
-    connectionMac: { flex: 2, minWidth: 150, gap: 6 },
+    removeButton: { position: "absolute", top: 28, right: 0, width: 36, height: 36, justifyContent: "center", alignItems: "center" },
+    connection: { position: "relative", width: "100%", gap: 12, paddingVertical: 14 },
+    connectionType: { width: "100%", flexDirection: "row", alignItems: "center", gap: 6, paddingRight: 42 },
+    connectionMac: { width: "100%", flexDirection: "row", alignItems: "flex-start", gap: 10 },
     error: commons.error
 });
 
@@ -44,6 +47,7 @@ export const deviceFormLight = StyleSheet.create({
     passwordTextInput: { color: "#27205f" },
     input: { color: "#27205f", borderColor: "#d8d3eb", backgroundColor: "rgba(255, 255, 255, 0.9)" },
     pickerContainer: { borderColor: "#d8d3eb", backgroundColor: "rgba(255, 255, 255, 0.9)" },
+    connectionSeparator: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "rgba(78, 67, 194, 0.3)" },
     accentText: { color: "#4e43c2" },
     primaryButton: { backgroundColor: "#378f73" }
 });
@@ -54,6 +58,7 @@ export const deviceFormDark = StyleSheet.create({
     passwordTextInput: { color: "#f1f3f4" },
     input: { color: "#f1f3f4", borderColor: "#293036", backgroundColor: "#1a1f23" },
     pickerContainer: { borderColor: "#293036", backgroundColor: "#1a1f23" },
+    connectionSeparator: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "rgba(101, 183, 159, 0.3)" },
     accentText: { color: "#65b79f" },
     primaryButton: { backgroundColor: "#247d68" }
 });

@@ -142,6 +142,16 @@ export default function MacFilter() {
                         data={deviceProperties}
                         extraData={connectionTypeIndex}
                         initialNumToRender={deviceProperties.length}
+                        ListFooterComponent={
+                            <View style={macFilter.listActions}>
+                                <CustomButt
+                                    buttonStyle={showAllowed ? macFilter.dangerButton : theme.primaryButton}
+                                    disabled={isLoading || !selectedDevice}
+                                    label={showAllowed ? "Quitar" : "Añadir"}
+                                    onPress={handleWhitelistPress}
+                                />
+                            </View>
+                        }
                         maxToRenderPerBatch={deviceProperties.length}
                         removeClippedSubviews={false}
                         renderItem={({ item }) => (
@@ -172,12 +182,6 @@ export default function MacFilter() {
                             </View>
                         )}
                         keyExtractor={(property) => property.key}
-                    />
-                    <CustomButt
-                        buttonStyle={showAllowed ? macFilter.dangerButton : theme.primaryButton}
-                        disabled={isLoading || !selectedDevice}
-                        label={showAllowed ? "Quitar" : "Añadir"}
-                        onPress={handleWhitelistPress}
                     />
                 </View>
             </View>

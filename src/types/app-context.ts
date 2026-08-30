@@ -16,6 +16,7 @@ export interface AppContextValue {
     user: AuthUser | null;
     setUser: Dispatch<SetStateAction<AuthUser | null>>;
     isLoading: boolean;
+    loadingStartedAt: number | null;
     authUtils: AuthUtils;
     loadingUtils: LoadingUtils;
     executeApiRequest: ExecuteApiRequest;

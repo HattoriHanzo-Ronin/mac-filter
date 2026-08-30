@@ -8,6 +8,7 @@ import { useAppContext } from "../components/app-context-provider";
 import { macFilter, macFilterDark, macFilterDynamic, macFilterLight } from "@/src/styles/app/style";
 import CustomButt from "../components/custom-butt";
 import ScreenBackground from "../components/screen-background";
+import LoadingWindow from "../components/loading-window";
 import { Device } from "../types/devices";
 import { GetFilteredDevicesVersionResponse } from "../types/version";
 import ApiUtils from "../utils/api-utils";
@@ -189,6 +190,7 @@ export default function MacFilter() {
                     />
                 </View>
             </View>
+            <LoadingWindow />
         </ScreenBackground>
     );
 }

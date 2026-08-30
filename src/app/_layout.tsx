@@ -1,15 +1,27 @@
 import { Stack } from "expo-router";
 import AppContextProvider from "@/src/components/app-context-provider";
 import UserMenu from "./_user-menu";
-import { rootLayout } from "@/src/styles/app/style";
-import { BackHandler, ToastAndroid, View } from "react-native";
+import { rootLayout, rootLayoutDark, rootLayoutLight } from "@/src/styles/app/style";
+import { BackHandler, ToastAndroid, View, useColorScheme } from "react-native";
 import { useEffect, useRef } from "react";
 
 export default function RootLayout() {
     const lastTouch = useRef(0);
+    const isDark = useColorScheme() === "dark";
+    const navigationTheme = isDark ? rootLayoutDark : rootLayoutLight;
+    const defaultScreenOptions = {
+        headerTitle: "",
+        headerShadowVisible: false,
+        headerStyle: navigationTheme.header,
+        headerTintColor: navigationTheme.headerTint.color,
+        headerTitleStyle: { color: navigationTheme.headerTint.color },
+        statusBarStyle: isDark ? ("light" as const) : ("dark" as const),
+        statusBarBackgroundColor: navigationTheme.header.backgroundColor,
+        headerRight: () => <UserMenu />
+    };
     const screens = [
         { name: "index", options: { headerShown: false } },
-        { name: "tab-nav-screens" },
+        { name: "tab-nav-screens", options: { headerBackVisible: false } },
         { name: "mac-filter" },
         { name: "access-router" }
     ];
@@ -38,9 +50,7 @@ export default function RootLayout() {
                         <Stack.Screen
                             key={name}
                             name={name}
-                            options={
-                                options ?? { headerTitle: "", headerShadowVisible: false, headerRight: () => <UserMenu /> }
-                            }
+                            options={{ ...defaultScreenOptions, ...options }}
                         />
                     ))}
                 </Stack>

@@ -5,6 +5,15 @@ export const rootLayout = StyleSheet.create({
     screen: commons.rootScreen
 });
 
+export const rootLayoutLight = StyleSheet.create({
+    header: { backgroundColor: "#fbf9ff" },
+    headerTint: { color: "#30266f" }
+});
+
+export const rootLayoutDark = StyleSheet.create({
+    header: { backgroundColor: "#0d1012" },
+    headerTint: { color: "#f1f3f4" }
+});
 
 export const login = StyleSheet.create({
     background: {
@@ -195,6 +204,10 @@ export const userMenu = StyleSheet.create({
     }
 });
 
+export const userMenuPalette = {
+    light: { headerText: "#27205f", headerIcon: "#4e43c2" },
+    dark: { headerText: "#f1f3f4", headerIcon: "#d8dde0" }
+};
 
 export const macFilter = StyleSheet.create({
     screen: { ...commons.screen, flex: 1 },

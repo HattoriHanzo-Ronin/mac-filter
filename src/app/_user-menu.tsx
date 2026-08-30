@@ -1,15 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
 import { userMenu, userMenuPalette } from "@/src/styles/app/style";
-import { Dispatch, PropsWithChildren, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { Modal, Pressable, Text, TextInput, View, useColorScheme } from "react-native";
 import { useAppContext } from "@/src/components/app-context-provider";
 import PasswordInput from "@/src/components/password-input";
 import ValidationMessages from "@/src/components/validation-messages";
 import { ValidationErrors } from "@/src/types/ui";
-import { UpdatePasswordRequest, UpdateUsernameRequest } from "@/src/types/users";
+import { DialogProps, UpdatePasswordRequest, UpdateUsernameRequest, UserMenuSectionProps } from "@/src/types/users";
 import UiUtils from "@/src/utils/ui-utils";
 
-export function Dialog(props: PropsWithChildren<{ visible: boolean; onCancel: () => void; onAccept: () => void }>) {
+export function Dialog(props: DialogProps) {
     const { children, visible, onCancel, onAccept } = props;
 
     return (
@@ -36,7 +36,7 @@ function closeDialog(setIsVisible: Dispatch<SetStateAction<boolean>>, onClose: (
     onClose();
 }
 
-function ChangeUsernameMenu(props: { onClose: () => void }) {
+function ChangeUsernameMenu(props: UserMenuSectionProps) {
     const { user, setUser, executeApiRequest } = useAppContext();
     const [isVisible, setIsVisible] = useState(false);
     const [newUsername, setNewUsername] = useState("");
@@ -81,7 +81,7 @@ function ChangeUsernameMenu(props: { onClose: () => void }) {
     );
 }
 
-function ChangePasswordMenu(props: { onClose: () => void }) {
+function ChangePasswordMenu(props: UserMenuSectionProps) {
     const { authUtils, executeApiRequest } = useAppContext();
     const [isVisible, setIsVisible] = useState(false);
     const [currentPassword, setCurrentPassword] = useState("");

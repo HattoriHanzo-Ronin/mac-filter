@@ -1,3 +1,17 @@
+import type { StyleProp, TextStyle, ViewStyle } from "react-native";
+
+export type CustomButtProps = {
+    label: string;
+    onPress: () => void;
+    disabled?: boolean;
+    loading?: boolean;
+    style?: StyleProp<ViewStyle>;
+    buttonStyle?: StyleProp<ViewStyle>;
+    textStyle?: StyleProp<TextStyle>;
+};
+
+export type ValidationMessagesProps = { errors?: string[] };
+
 export type DeviceLabelKey =
     | "name"
     | "type"

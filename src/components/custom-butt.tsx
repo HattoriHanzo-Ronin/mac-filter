@@ -1,15 +1,6 @@
-import { ActivityIndicator, Pressable, StyleProp, Text, TextStyle, View, ViewStyle } from "react-native";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { customButt } from "@/src/styles/components/style";
-
-type CustomButtProps = {
-    label: string;
-    onPress: () => void;
-    disabled?: boolean;
-    loading?: boolean;
-    style?: StyleProp<ViewStyle>;
-    buttonStyle?: StyleProp<ViewStyle>;
-    textStyle?: StyleProp<TextStyle>;
-};
+import type { CustomButtProps } from "../types/ui";
 
 export default function CustomButt(props: CustomButtProps) {
     const { label, onPress, disabled = false, loading = false, style, buttonStyle, textStyle } = props;

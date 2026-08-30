@@ -1,7 +1,7 @@
 import { useAppContext } from "@/src/components/app-context-provider";
 import DevicePicker from "@/src/components/device-picker";
 import DeviceSearchInput from "@/src/components/device-search-input";
-import { Device } from "@/src/types/devices";
+import { Device, WifiPasswordDialogProps } from "@/src/types/devices";
 import { GetDevicesVersionResponse } from "@/src/types/version";
 import ApiUtils from "@/src/utils/api-utils";
 import UiUtils from "@/src/utils/ui-utils";
@@ -14,12 +14,6 @@ import { index, indexDark, indexLight } from "@/src/styles/tab-nav-screens/style
 import CustomButt from "@/src/components/custom-butt";
 import ScreenBackground from "@/src/components/screen-background";
 import LoadingWindow from "@/src/components/loading-window";
-
-type WifiPasswordDialogProps = {
-    password: string;
-    visible: boolean;
-    onClose: () => void;
-};
 
 function WifiPasswordDialog({ password, visible, onClose }: WifiPasswordDialogProps) {
     const theme = useColorScheme() === "dark" ? indexDark : indexLight;

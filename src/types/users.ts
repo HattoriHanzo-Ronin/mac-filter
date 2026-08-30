@@ -1,3 +1,13 @@
+import type { PropsWithChildren } from "react";
+
+export type DialogProps = PropsWithChildren<{
+    visible: boolean;
+    onCancel: () => void;
+    onAccept: () => void;
+}>;
+
+export type UserMenuSectionProps = { onClose: () => void };
+
 interface Username {
     username: string;
 }

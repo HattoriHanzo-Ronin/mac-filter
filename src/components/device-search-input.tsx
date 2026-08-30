@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { StyleProp, TextInput, View, ViewStyle, useColorScheme } from "react-native";
-import { Device } from "../types/devices";
+import { TextInput, View, useColorScheme } from "react-native";
+import type { DeviceSearchInputProps } from "../types/devices";
 import UiUtils from "../utils/ui-utils";
 import { useAppContext } from "./app-context-provider";
 import CustomButt from "./custom-butt";
@@ -11,11 +11,6 @@ import {
     commonComponentsPalette
 } from "@/src/styles/components/style";
 
-type DeviceSearchInputProps = {
-    devices: Device[];
-    onSelect: (device: Device) => void;
-    style?: StyleProp<ViewStyle>;
-};
 
 export default function DeviceSearchInput({ devices, onSelect, style }: DeviceSearchInputProps) {
     const isDark = useColorScheme() === "dark";

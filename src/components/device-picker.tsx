@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { FlatList, Modal, Pressable, StyleProp, Text, View, ViewStyle, useColorScheme } from "react-native";
-import { Device } from "../types/devices";
+import { FlatList, Modal, Pressable, Text, View, useColorScheme } from "react-native";
+import type { Device, DevicePickerProps } from "../types/devices";
 import UiUtils from "../utils/ui-utils";
 import {
     commonComponents,
@@ -10,12 +10,6 @@ import {
 } from "@/src/styles/components/style";
 import { useState } from "react";
 
-type DevicePickerProps = {
-    devices: Device[];
-    selectedDeviceId: string;
-    onSelect: (device: Device) => void;
-    style?: StyleProp<ViewStyle>;
-};
 
 export default function DevicePicker({ devices, selectedDeviceId, onSelect, style }: DevicePickerProps) {
     const [isOpen, setIsOpen] = useState(false);

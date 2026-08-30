@@ -1,9 +1,9 @@
-import { PropsWithChildren } from "react";
-import { StyleProp, Text, TextStyle, View } from "react-native";
+import { Text, View } from "react-native";
 import { formField } from "@/src/styles/components/style";
 import ValidationMessages from "./validation-messages";
+import type { FormFieldProps } from "../types/form";
 
-export default function FormField(props: PropsWithChildren<{ errors?: string[]; horizontal?: boolean; label: string; labelStyle?: StyleProp<TextStyle> }>) {
+export default function FormField(props: FormFieldProps) {
     return (
         <View style={[formField.field, props.horizontal && formField.horizontal]}>
             <Text style={[formField.label, props.labelStyle]}>{props.label}</Text>

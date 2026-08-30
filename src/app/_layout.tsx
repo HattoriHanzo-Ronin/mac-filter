@@ -29,7 +29,7 @@ export default function RootLayout() {
     useEffect(() => {
         const sub = BackHandler.addEventListener("hardwareBackPress", () => {
             const now = Date.now();
-            if (lastTouch.current && now - lastTouch.current < 300) {
+            if (lastTouch.current && now - lastTouch.current < 1000) {
                 BackHandler.exitApp();
                 return true;
             }

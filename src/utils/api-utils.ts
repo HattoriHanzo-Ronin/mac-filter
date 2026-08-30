@@ -1,7 +1,7 @@
-import { LoginRequest, LoginResponse, LogoutRequest, RefreshTokenRequest, RefreshTokenResponse } from "../types/auth";
+import type { LoginRequest, LoginResponse, LogoutRequest, RefreshTokenRequest, RefreshTokenResponse } from "../types/auth";
 import axios, { isAxiosError } from "axios";
-import { ApiError } from "../types/api-error";
-import { ApiResponse } from "../types/api-response";
+import type { ApiError } from "../types/api-error";
+import type { ApiResponse } from "../types/api-response";
 import {
     CreateDeviceRequest,
     CreateDeviceResponse,
@@ -18,7 +18,7 @@ import {
     DeleteWhitelistRequest,
     DeleteWhitelistResponse
 } from "../types/whitelist";
-import { UpdatePasswordRequest, UpdateUsernameRequest, UpdateUsernameResponse } from "../types/users";
+import type { UpdatePasswordRequest, UpdateUsernameRequest, UpdateUsernameResponse } from "../types/users";
 
 /**
  * API client
@@ -222,7 +222,7 @@ export default class ApiUtils {
         });
     }
 
-    private static buildUrl(entity: string) {
+    private static buildUrl(entity: string): string {
         return `${process.env.EXPO_PUBLIC_API_URL}/${entity}`;
     }
 

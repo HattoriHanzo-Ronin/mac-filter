@@ -1,7 +1,7 @@
 import { ToastAndroid } from "react-native";
-import { Dispatch, SetStateAction } from "react";
-import { ApiValidationErrorDetail } from "../types/api-error";
-import { Device } from "../types/devices";
+import type { Dispatch, SetStateAction } from "react";
+import type { ApiValidationErrorDetail } from "../types/api-error";
+import type { Device } from "../types/devices";
 import {
     DeviceDisplayProperty,
     DeviceLabelKey,
@@ -41,8 +41,8 @@ export default class UiUtils {
      * @param type Device type
      * @returns Device display name
      */
-    static makeName(name: string, type: string): string {
-        return `${name} ${type !== "" ? `( ${type} )` : ""}`;
+    static getDeviceDisplayName(name: string, model: string): string {
+        return `${name} ${model !== "" ? `( ${model} )` : ""}`;
     }
 
     /**
@@ -129,20 +129,20 @@ export default class UiUtils {
      */
     static mapDeviceProperties(device: Device): DeviceDisplayProperty[] {
         const properties: DeviceDisplayProperty[] = [
-            { key: "name", label: this.getDeviceLabel("name"), val: device.name },
-            { key: "type", label: this.getDeviceLabel("type"), val: this.DEVICE_TYPE_LABELS[device.type] }
+            { key: "name", label: this.getDeviceLabel("name"), value: device.name },
+            { key: "type", label: this.getDeviceLabel("type"), value: this.DEVICE_TYPE_LABELS[device.type] }
         ];
         this.addDeviceProperty(properties, "model", this.getDeviceLabel("model"), device.model);
         if (device.connections.length > 0) {
             properties.push({
                 key: "connection_type",
                 label: this.getDeviceLabel("connection_type"),
-                val: device.connections.map((connection) => this.firstToUpper(connection.ctype))
+                value: device.connections.map((connection) => this.firstToUpper(connection.ctype))
             });
             properties.push({
                 key: "mac",
                 label: this.getDeviceLabel("mac"),
-                val: device.connections.map((connection) => connection.mac)
+                value: device.connections.map((connection) => connection.mac)
             });
         }
 
@@ -155,10 +155,10 @@ export default class UiUtils {
         properties: DeviceDisplayProperty[],
         key: DeviceScalarPropertyKey,
         label: string,
-        val?: string | null
+        value?: string | null
     ): void {
-        if (val !== null && val !== undefined) {
-            properties.push({ key, label, val });
+        if (value !== null && value !== undefined) {
+            properties.push({ key, label, value });
         }
     }
 }

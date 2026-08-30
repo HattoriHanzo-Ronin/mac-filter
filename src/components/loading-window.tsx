@@ -7,22 +7,27 @@ const DISPLAY_DELAY_MS = 1500;
 
 export default function LoadingWindow() {
     const { isLoading, loadingStartedAt } = useAppContext();
-    const [isVisible, setIsVisible] = useState(false);
+    const [visibleForStart, setVisibleForStart] = useState<number | null>(null);
     const theme = useColorScheme() === "dark" ? loadingWindowDark : loadingWindowLight;
 
     useEffect(() => {
         if (!isLoading || loadingStartedAt === null) {
-            setIsVisible(false);
-            return;
+            return undefined;
         }
 
         const remainingDelay = Math.max(0, DISPLAY_DELAY_MS - (Date.now() - loadingStartedAt));
-        const timeout = setTimeout(() => setIsVisible(true), remainingDelay);
+        const timeout = setTimeout(() => setVisibleForStart(loadingStartedAt), remainingDelay);
         return () => clearTimeout(timeout);
     }, [isLoading, loadingStartedAt]);
 
     return (
-        <Modal animationType="fade" onRequestClose={() => undefined} statusBarTranslucent transparent visible={isVisible}>
+        <Modal
+            animationType="fade"
+            onRequestClose={() => undefined}
+            statusBarTranslucent
+            transparent
+            visible={isLoading && visibleForStart === loadingStartedAt}
+        >
             <View style={[loadingWindow.backdrop, theme.backdrop]}>
                 <View style={[loadingWindow.window, theme.window]}>
                     <ActivityIndicator color={theme.indicator.color} size="large" />

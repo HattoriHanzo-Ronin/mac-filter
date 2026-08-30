@@ -1,6 +1,6 @@
 import type { StyleProp, TextStyle, ViewStyle } from "react-native";
 
-export type CustomButtProps = {
+export type CustomButtonProps = {
     label: string;
     onPress: () => void;
     disabled?: boolean;
@@ -30,12 +30,12 @@ export type DeviceDisplayProperty =
     | {
           key: "connection_type" | "mac";
           label: string;
-          val: string[];
+          value: string[];
       }
     | {
           key: DeviceScalarPropertyKey;
           label: string;
-          val: string;
+          value: string;
       };
 
 export type MessageDuration = "LONG" | "SHORT";

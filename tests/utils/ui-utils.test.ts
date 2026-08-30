@@ -27,21 +27,21 @@ describe("UiUtils", () => {
 
     it("maps device properties using the centralized labels", () => {
         expect(UiUtils.mapDeviceProperties(DEVICE)).toEqual([
-            { key: "name", label: "Nombre", val: "Router principal" },
-            { key: "type", label: "Tipo", val: "Router" },
-            { key: "model", label: "Modelo", val: "AX3000" },
-            { key: "connection_type", label: "Tipo de conexión", val: ["Wan", "Wifi"] },
-            { key: "mac", label: "MAC", val: ["AA:BB:CC:DD:EE:01", "AA:BB:CC:DD:EE:02"] },
-            { key: "ip", label: "IP", val: "192.168.1.1" },
-            { key: "wifi_pass", label: "Contraseña Wi-Fi", val: "secret" }
+            { key: "name", label: "Nombre", value: "Router principal" },
+            { key: "type", label: "Tipo", value: "Router" },
+            { key: "model", label: "Modelo", value: "AX3000" },
+            { key: "connection_type", label: "Tipo de conexión", value: ["Wan", "Wifi"] },
+            { key: "mac", label: "MAC", value: ["AA:BB:CC:DD:EE:01", "AA:BB:CC:DD:EE:02"] },
+            { key: "ip", label: "IP", value: "192.168.1.1" },
+            { key: "wifi_pass", label: "Contraseña Wi-Fi", value: "secret" }
         ]);
     });
 
     it("omits unavailable optional properties", () => {
         const device: Device = { id: "device-2", name: "Cliente", type: "CLIENT", connections: [] };
         expect(UiUtils.mapDeviceProperties(device)).toEqual([
-            { key: "name", label: "Nombre", val: "Cliente" },
-            { key: "type", label: "Tipo", val: "Cliente" }
+            { key: "name", label: "Nombre", value: "Cliente" },
+            { key: "type", label: "Tipo", value: "Cliente" }
         ]);
     });
 });

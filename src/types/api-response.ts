@@ -1,4 +1,4 @@
-import { ApiError } from "./api-error";
+import type { ApiError } from "./api-error";
 
 /**
  * Successful API response

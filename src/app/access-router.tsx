@@ -16,8 +16,8 @@ export default function AccessRouter() {
     const hasAutofilledLogin = useRef(false);
     const webViewRef = useRef<WebView>(null);
     const initialUri = `http://${lastDevice?.ip}`;
-    const [uri, setUri] = useState(initialUri);
-    const [address, setAddress] = useState(initialUri);
+    const [uri, setUri] = useState<string>(initialUri);
+    const [address, setAddress] = useState<string>(initialUri);
 
     function autofillLogin(): void {
         const password = lastDevice?.admin_pass;

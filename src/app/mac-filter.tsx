@@ -6,11 +6,11 @@ import { FlatList, Pressable, Text, View, useColorScheme } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAppContext } from "../components/app-context-provider";
 import { macFilter, macFilterDark, macFilterDynamic, macFilterLight } from "@/src/styles/app/style";
-import CustomButt from "../components/custom-butt";
+import CustomButton from "../components/custom-button";
 import ScreenBackground from "../components/screen-background";
 import LoadingWindow from "../components/loading-window";
-import { Device } from "../types/devices";
-import { GetFilteredDevicesVersionResponse } from "../types/version";
+import type { Device } from "../types/devices";
+import type { GetFilteredDevicesVersionResponse } from "../types/version";
 import ApiUtils from "../utils/api-utils";
 import UiUtils from "../utils/ui-utils";
 
@@ -19,11 +19,11 @@ export default function MacFilter() {
     const theme = useColorScheme() === "dark" ? macFilterDark : macFilterLight;
     const routerId = lastDevice?.id;
     const safeBottom = useSafeAreaInsets().bottom + 12;
-    const [showAllowed, setShowAllowed] = useState(true);
+    const [showAllowed, setShowAllowed] = useState<boolean>(true);
     const [devices, setDevices] = useState<Device[]>([]);
-    const [selectedDeviceId, setSelectedDeviceId] = useState("");
-    const [selectedDevice, setSelectedDevice] = useState<Device>();
-    const [connectionTypeIndex, setConnectionTypeIndex] = useState(0);
+    const [selectedDeviceId, setSelectedDeviceId] = useState<string>("");
+    const [selectedDevice, setSelectedDevice] = useState<Device | undefined>(undefined);
+    const [connectionTypeIndex, setConnectionTypeIndex] = useState<number>(0);
     const deviceProperties = selectedDevice
         ? UiUtils.mapDeviceProperties(selectedDevice).filter((property) =>
               ["name", "connection_type", "mac"].includes(property.key)
@@ -80,7 +80,8 @@ export default function MacFilter() {
     }
 
     useEffect(() => {
-        void loadDevices();
+        const timeout = setTimeout(() => void loadDevices(), 0);
+        return () => clearTimeout(timeout);
     }, [loadDevices]);
 
     useEffect(() => {
@@ -144,7 +145,7 @@ export default function MacFilter() {
                         initialNumToRender={deviceProperties.length}
                         ListFooterComponent={
                             <View style={macFilter.listActions}>
-                                <CustomButt
+                                <CustomButton
                                     buttonStyle={showAllowed ? macFilter.dangerButton : theme.primaryButton}
                                     disabled={isLoading || !selectedDevice}
                                     label={showAllowed ? "Quitar" : "Añadir"}
@@ -159,7 +160,7 @@ export default function MacFilter() {
                                 <Text style={[macFilter.labelProp, theme.labelProp]}>{item.label}:</Text>
                                 {item.key === "connection_type" ? (
                                     <View style={macFilter.connectionOptions}>
-                                        {item.val.map((connectionType, connectionIndex) => (
+                                        {item.value.map((connectionType, connectionIndex) => (
                                             <Pressable
                                                 key={connectionType}
                                                 style={macFilter.connectionOption}
@@ -176,7 +177,7 @@ export default function MacFilter() {
                                     </View>
                                 ) : (
                                     <Text selectable style={[macFilter.valueProp, theme.valueProp]}>
-                                        {item.key === "mac" ? item.val[connectionTypeIndex] : item.val}
+                                        {item.key === "mac" ? item.value[connectionTypeIndex] : item.value}
                                     </Text>
                                 )}
                             </View>

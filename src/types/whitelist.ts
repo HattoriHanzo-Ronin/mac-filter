@@ -1,4 +1,4 @@
-import { DeviceId } from "./devices";
+import type { DeviceId } from "./devices";
 
 interface AllowedDevice extends DeviceId {
     mac: string;

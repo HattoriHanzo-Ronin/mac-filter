@@ -1,10 +1,10 @@
 import { Redirect } from "expo-router";
 import DeviceForm from "@/src/components/device-form";
 import ScreenBackground from "@/src/components/screen-background";
-import { CreateDeviceRequest } from "@/src/types/devices";
-import { DeviceFormRequest } from "@/src/types/form";
+import type { CreateDeviceRequest } from "@/src/types/devices";
+import type { DeviceFormRequest } from "@/src/types/form";
 import { useAppContext } from "@/src/components/app-context-provider";
-import { ApiErrorResponse } from "@/src/types/api-response";
+import type { ApiErrorResponse } from "@/src/types/api-response";
 import LoadingWindow from "@/src/components/loading-window";
 
 export default function Add() {

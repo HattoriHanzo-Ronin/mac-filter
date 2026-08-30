@@ -1,8 +1,8 @@
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
-import { customButt } from "@/src/styles/components/style";
-import type { CustomButtProps } from "../types/ui";
+import { customButton } from "@/src/styles/components/style";
+import type { CustomButtonProps } from "../types/ui";
 
-export default function CustomButt(props: CustomButtProps) {
+export default function CustomButton(props: CustomButtonProps) {
     const { label, onPress, disabled = false, loading = false, style, buttonStyle, textStyle } = props;
     const isDisabled = disabled || loading;
 
@@ -11,17 +11,17 @@ export default function CustomButt(props: CustomButtProps) {
             disabled={isDisabled}
             onPress={onPress}
             style={({ pressed }) => [
-                customButt.pressable,
+                customButton.pressable,
                 style,
-                isDisabled && customButt.disabled,
-                pressed && customButt.pressed
+                isDisabled && customButton.disabled,
+                pressed && customButton.pressed
             ]}
         >
-            <View style={[customButt.background, buttonStyle]}>
+            <View style={[customButton.background, buttonStyle]}>
                 {loading ? (
                     <ActivityIndicator color="white" />
                 ) : (
-                    <Text style={[customButt.label, textStyle]}>{label}</Text>
+                    <Text style={[customButton.label, textStyle]}>{label}</Text>
                 )}
             </View>
         </Pressable>

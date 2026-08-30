@@ -3,7 +3,7 @@ import { TextInput, View, useColorScheme } from "react-native";
 import type { DeviceSearchInputProps } from "../types/devices";
 import UiUtils from "../utils/ui-utils";
 import { useAppContext } from "./app-context-provider";
-import CustomButt from "./custom-butt";
+import CustomButton from "./custom-button";
 import {
     commonComponents,
     commonComponentsDark,
@@ -17,7 +17,7 @@ export default function DeviceSearchInput({ devices, onSelect, style }: DeviceSe
     const theme = isDark ? commonComponentsDark : commonComponentsLight;
     const palette = isDark ? commonComponentsPalette.dark : commonComponentsPalette.light;
     const { isLoading } = useAppContext();
-    const [text, setText] = useState("");
+    const [text, setText] = useState<string>("");
 
     function search(): void {
         const normalize = (value: string) => value.toUpperCase();
@@ -45,7 +45,7 @@ export default function DeviceSearchInput({ devices, onSelect, style }: DeviceSe
                 value={text}
             />
             <View style={commonComponents.searchButton}>
-                <CustomButt disabled={isLoading} label="Buscar" onPress={search} />
+                <CustomButton disabled={isLoading} label="Buscar" onPress={search} />
             </View>
         </View>
     );

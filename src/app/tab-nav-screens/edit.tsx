@@ -1,10 +1,10 @@
 import { Redirect } from "expo-router";
-import { DeviceFormRequest } from "@/src/types/form";
-import { UpdateDeviceRequest } from "@/src/types/devices";
+import type { DeviceFormRequest } from "@/src/types/form";
+import type { UpdateDeviceRequest } from "@/src/types/devices";
 import { useAppContext } from "@/src/components/app-context-provider";
 import DeviceForm from "@/src/components/device-form";
 import ScreenBackground from "@/src/components/screen-background";
-import { ApiErrorResponse } from "@/src/types/api-response";
+import type { ApiErrorResponse } from "@/src/types/api-response";
 import LoadingWindow from "@/src/components/loading-window";
 
 export default function Edit() {

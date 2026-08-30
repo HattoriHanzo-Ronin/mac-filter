@@ -3,26 +3,26 @@ import AuthUtils from "../utils/auth-utils";
 import LoadingUtils from "../utils/loading-utils";
 import SecureStoreUtils from "../utils/storage/secure-store-utils";
 import ApiUtils from "../utils/api-utils";
-import { AppContextValue } from "../types/app-context";
-import { ApiResponse } from "../types/api-response";
-import { AuthUser } from "../types/auth";
-import { Device } from "../types/devices";
+import type { AppContextValue } from "../types/app-context";
+import type { ApiResponse } from "../types/api-response";
+import type { AuthUser } from "../types/auth";
+import type { Device } from "../types/devices";
 import UiUtils from "../utils/ui-utils";
 
 const AppContext = createContext<AppContextValue>({} as AppContextValue);
 
 export default function AppContextProvider(props: PropsWithChildren) {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [user, setUser] = useState<AuthUser | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [loadingStartedAt, setLoadingStartedAt] = useState<number | null>(null);
     const setLoadingState = useCallback((loading: boolean): void => {
         setIsLoading(loading);
         setLoadingStartedAt(loading ? Date.now() : null);
     }, []);
-    const [storage] = useState(() => new SecureStoreUtils());
-    const [authUtils] = useState(() => new AuthUtils(setIsAuthenticated, setUser, storage));
-    const [loadingUtils] = useState(() => new LoadingUtils(setLoadingState));
+    const [storage] = useState<SecureStoreUtils>(() => new SecureStoreUtils());
+    const [authUtils] = useState<AuthUtils>(() => new AuthUtils(setIsAuthenticated, setUser, storage));
+    const [loadingUtils] = useState<LoadingUtils>(() => new LoadingUtils(setLoadingState));
     const [lastDevice, setLastDevice] = useState<Device | null>(null);
     const [devices, setDevices] = useState<Device[]>([]);
 
@@ -72,4 +72,4 @@ export default function AppContextProvider(props: PropsWithChildren) {
     return <AppContext.Provider value={contextValue}>{props.children}</AppContext.Provider>;
 }
 
-export const useAppContext = () => useContext(AppContext);
+export const useAppContext = (): AppContextValue => useContext(AppContext);

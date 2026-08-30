@@ -5,8 +5,8 @@ import { Modal, Pressable, Text, TextInput, View, useColorScheme } from "react-n
 import { useAppContext } from "@/src/components/app-context-provider";
 import PasswordInput from "@/src/components/password-input";
 import ValidationMessages from "@/src/components/validation-messages";
-import { ValidationErrors } from "@/src/types/ui";
-import { DialogProps, UpdatePasswordRequest, UpdateUsernameRequest, UserMenuSectionProps } from "@/src/types/users";
+import type { ValidationErrors } from "@/src/types/ui";
+import type { DialogProps, UpdatePasswordRequest, UpdateUsernameRequest, UserMenuSectionProps } from "@/src/types/users";
 import UiUtils from "@/src/utils/ui-utils";
 
 export function Dialog(props: DialogProps) {
@@ -38,8 +38,8 @@ function closeDialog(setIsVisible: Dispatch<SetStateAction<boolean>>, onClose: (
 
 function ChangeUsernameMenu(props: UserMenuSectionProps) {
     const { user, setUser, executeApiRequest } = useAppContext();
-    const [isVisible, setIsVisible] = useState(false);
-    const [newUsername, setNewUsername] = useState("");
+    const [isVisible, setIsVisible] = useState<boolean>(false);
+    const [newUsername, setNewUsername] = useState<string>("");
     const [validationErrors, setValidationErrors] = useState<ValidationErrors<UpdateUsernameRequest>>({});
 
     async function changeUsername(): Promise<void> {
@@ -83,9 +83,9 @@ function ChangeUsernameMenu(props: UserMenuSectionProps) {
 
 function ChangePasswordMenu(props: UserMenuSectionProps) {
     const { authUtils, executeApiRequest } = useAppContext();
-    const [isVisible, setIsVisible] = useState(false);
-    const [currentPassword, setCurrentPassword] = useState("");
-    const [newPassword, setNewPassword] = useState("");
+    const [isVisible, setIsVisible] = useState<boolean>(false);
+    const [currentPassword, setCurrentPassword] = useState<string>("");
+    const [newPassword, setNewPassword] = useState<string>("");
     const [validationErrors, setValidationErrors] = useState<ValidationErrors<UpdatePasswordRequest>>({});
 
     async function changePassword(): Promise<void> {
@@ -141,7 +141,7 @@ function ChangePasswordMenu(props: UserMenuSectionProps) {
 export default function UserMenu() {
     const { user, authUtils } = useAppContext();
     const palette = useColorScheme() === "dark" ? userMenuPalette.dark : userMenuPalette.light;
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState<boolean>(false);
 
     return (
         <View style={userMenu.header}>

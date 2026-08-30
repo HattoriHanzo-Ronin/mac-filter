@@ -11,11 +11,11 @@ import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { Pressable, ScrollView, Switch, Text, View, useColorScheme } from "react-native";
 import { useEffect, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ConnectionType, CreateDeviceRequest, Device, DeviceType } from "../types/devices";
-import { DeviceFormProps, DeviceFormRequest, DeviceFormValues } from "../types/form";
-import { ValidationErrors } from "../types/ui";
+import type { ConnectionType, CreateDeviceRequest, Device, DeviceType } from "../types/devices";
+import type { DeviceFormProps, DeviceFormRequest, DeviceFormValues } from "../types/form";
+import type { ValidationErrors } from "../types/ui";
 import UiUtils from "../utils/ui-utils";
-import CustomButt from "./custom-butt";
+import CustomButton from "./custom-button";
 import FormField from "./form-field";
 import FormTextInput from "./form-text-input";
 import { FormPasswordInput } from "./password-input";
@@ -263,7 +263,7 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
                 );
             })}
             <ValidationMessages errors={validationErrors.connections} />
-            <CustomButt
+            <CustomButton
                 buttonStyle={theme.primaryButton}
                 disabled={isSubmitting}
                 label={device ? "Guardar cambios" : "Guardar dispositivo"}

@@ -146,7 +146,7 @@ export const commonComponentsPalette = {
     dark: { placeholder: "#8e959a", picker: "#f1f3f4" }
 };
 
-export const customButt = StyleSheet.create({
+export const customButton = StyleSheet.create({
     pressable: {
         width: "100%"
     },

@@ -1,10 +1,10 @@
-import { ApiResponse } from "../types/api-response";
-import { AuthUser, LoginRequest, LoginResponse, RefreshTokenRequest } from "../types/auth";
+import type { ApiResponse } from "../types/api-response";
+import type { AuthUser, LoginRequest, LoginResponse, RefreshTokenRequest } from "../types/auth";
 import axios from "axios";
 import ApiUtils from "./api-utils";
-import { Storage } from "./storage/storage";
+import type { Storage } from "./storage/storage";
 import UiUtils from "./ui-utils";
-import { ApiValidationErrorDetail } from "../types/api-error";
+import type { ApiValidationErrorDetail } from "../types/api-error";
 
 /**
  * Authentication manager

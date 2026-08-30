@@ -1,8 +1,8 @@
 import type { PropsWithChildren } from "react";
 import type { Control, FieldPath, FieldValues } from "react-hook-form";
 import type { StyleProp, TextInputProps, TextStyle, ViewStyle } from "react-native";
-import { ApiErrorResponse } from "./api-response";
-import { CreateDeviceRequest, Device, UpdateDeviceRequest } from "./devices";
+import type { ApiErrorResponse } from "./api-response";
+import type { CreateDeviceRequest, Device, UpdateDeviceRequest } from "./devices";
 
 export type FormTextInputProps<T extends FieldValues> = Omit<
     TextInputProps,

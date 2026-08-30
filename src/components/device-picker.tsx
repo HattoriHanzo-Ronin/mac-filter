@@ -12,7 +12,7 @@ import { useState } from "react";
 
 
 export default function DevicePicker({ devices, selectedDeviceId, onSelect, style }: DevicePickerProps) {
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState<boolean>(false);
     const isDark = useColorScheme() === "dark";
     const theme = isDark ? commonComponentsDark : commonComponentsLight;
     const palette = isDark ? commonComponentsPalette.dark : commonComponentsPalette.light;
@@ -32,7 +32,7 @@ export default function DevicePicker({ devices, selectedDeviceId, onSelect, styl
                 style={[commonComponents.pickerContainer, theme.pickerContainer, style]}
             >
                 <Text numberOfLines={1} style={[commonComponents.picker, theme.picker]}>
-                    {selectedDevice ? UiUtils.makeName(selectedDevice.name, selectedDevice.model ?? "") : "Sin dispositivos"}
+                    {selectedDevice ? UiUtils.getDeviceDisplayName(selectedDevice.name, selectedDevice.model ?? "") : "Sin dispositivos"}
                 </Text>
                 <Ionicons color={palette.picker} name="chevron-down" size={18} />
             </Pressable>
@@ -53,7 +53,7 @@ export default function DevicePicker({ devices, selectedDeviceId, onSelect, styl
                                     ]}
                                 >
                                     <Text numberOfLines={2} style={[commonComponents.pickerItem, theme.picker]}>
-                                        {UiUtils.makeName(item.name, item.model ?? "")}
+                                        {UiUtils.getDeviceDisplayName(item.name, item.model ?? "")}
                                     </Text>
                                     {item.id === selectedDeviceId && (
                                         <Ionicons color={palette.picker} name="checkmark" size={20} />

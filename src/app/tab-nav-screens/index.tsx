@@ -1,8 +1,8 @@
 import { useAppContext } from "@/src/components/app-context-provider";
 import DevicePicker from "@/src/components/device-picker";
 import DeviceSearchInput from "@/src/components/device-search-input";
-import { Device, WifiPasswordDialogProps } from "@/src/types/devices";
-import { GetDevicesVersionResponse } from "@/src/types/version";
+import type { Device, WifiPasswordDialogProps } from "@/src/types/devices";
+import type { GetDevicesVersionResponse } from "@/src/types/version";
 import ApiUtils from "@/src/utils/api-utils";
 import UiUtils from "@/src/utils/ui-utils";
 import { Redirect, router } from "expo-router";
@@ -11,7 +11,7 @@ import { FlatList, Modal, Pressable, Text, View, useColorScheme } from "react-na
 import * as Clipboard from "expo-clipboard";
 import QRCode from "react-native-qrcode-svg";
 import { index, indexDark, indexLight } from "@/src/styles/tab-nav-screens/style";
-import CustomButt from "@/src/components/custom-butt";
+import CustomButton from "@/src/components/custom-button";
 import ScreenBackground from "@/src/components/screen-background";
 import LoadingWindow from "@/src/components/loading-window";
 
@@ -34,8 +34,8 @@ function WifiPasswordDialog({ password, visible, onClose }: WifiPasswordDialogPr
                         {password ? <QRCode backgroundColor="white" color="black" size={210} value={password} /> : null}
                     </View>
                     <View style={index.qrActions}>
-                        <CustomButt buttonStyle={theme.qrCloseButton} label="Cerrar" onPress={onClose} style={index.qrAction} />
-                        <CustomButt
+                        <CustomButton buttonStyle={theme.qrCloseButton} label="Cerrar" onPress={onClose} style={index.qrAction} />
+                        <CustomButton
                             buttonStyle={theme.primaryButton}
                             label="Copiar"
                             onPress={() => void copyPassword()}
@@ -51,9 +51,9 @@ function WifiPasswordDialog({ password, visible, onClose }: WifiPasswordDialogPr
 export default function Index() {
     const theme = useColorScheme() === "dark" ? indexDark : indexLight;
     const { devices, lastDevice, setDevices, setLastDevice, executeApiRequest, isAuthenticated, isLoading } = useAppContext();
-    const [deviceId, setDeviceId] = useState("");
-    const [connectionTypeIndex, setConnectionTypeIndex] = useState(0);
-    const [isWifiPasswordVisible, setIsWifiPasswordVisible] = useState(false);
+    const [deviceId, setDeviceId] = useState<string>("");
+    const [connectionTypeIndex, setConnectionTypeIndex] = useState<number>(0);
+    const [isWifiPasswordVisible, setIsWifiPasswordVisible] = useState<boolean>(false);
     const deviceProperties = lastDevice ? UiUtils.mapDeviceProperties(lastDevice) : [];
     const selectDevice = useCallback((device?: Device): void => {
         setLastDevice(device ?? null);
@@ -82,7 +82,8 @@ export default function Index() {
     }
 
     useEffect(() => {
-        void loadDevices();
+        const timeout = setTimeout(() => void loadDevices(), 0);
+        return () => clearTimeout(timeout);
     }, [loadDevices]);
 
     useEffect(() => {
@@ -120,7 +121,7 @@ export default function Index() {
                     ListFooterComponent={
                         <View style={index.listActions}>
                             <View style={index.parentButt}>
-                                <CustomButt
+                                <CustomButton
                                     buttonStyle={index.dangerButton}
                                     disabled={isLoading}
                                     label="Borrar"
@@ -128,7 +129,7 @@ export default function Index() {
                                     style={index.actionButton}
                                 />
                                 {lastDevice?.mac_filter && (
-                                    <CustomButt
+                                    <CustomButton
                                         buttonStyle={theme.primaryButton}
                                         disabled={isLoading}
                                         label="Filtro MAC"
@@ -137,7 +138,7 @@ export default function Index() {
                                     />
                                 )}
                                 {lastDevice?.type === "ROUTER" && (
-                                    <CustomButt
+                                    <CustomButton
                                         buttonStyle={theme.primaryButton}
                                         disabled={isLoading}
                                         label="Administrar"
@@ -155,7 +156,7 @@ export default function Index() {
                             <Text style={[index.labelProp, theme.labelProp]}>{item.label}:</Text>
                             {item.key === "connection_type" ? (
                                 <View style={index.connectionOptions}>
-                                    {item.val.map((connectionType, connectionIndex) => (
+                                    {item.value.map((connectionType, connectionIndex) => (
                                         <Pressable
                                             key={connectionType}
                                             style={index.connectionOption}
@@ -171,7 +172,7 @@ export default function Index() {
                             ) : (
                                 <View style={index.valueGroup}>
                                     <Text selectable style={[index.valueProp, theme.valueProp]}>
-                                        {item.key === "mac" ? item.val[connectionTypeIndex] : item.val}
+                                        {item.key === "mac" ? item.value[connectionTypeIndex] : item.value}
                                     </Text>
                                     {item.key === "wifi_pass" && (
                                         <Pressable hitSlop={8} onPress={() => setIsWifiPasswordVisible(true)}>

@@ -7,7 +7,7 @@ import type { FormPasswordInputProps, PasswordInputProps } from "../types/form";
 
 export default function PasswordInput(props: PasswordInputProps) {
     const { containerStyle, iconColor, inputStyle, leftIcon, style, ...textInputProps } = props;
-    const [isVisible, setIsVisible] = useState(false);
+    const [isVisible, setIsVisible] = useState<boolean>(false);
 
     return (
         <View style={[passwordInput.container, containerStyle]}>

@@ -35,7 +35,8 @@ const DEFAULT_VALUES: DeviceFormValues = {
     mac_filter: false
 };
 
-export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
+export default function DeviceForm(props: DeviceFormProps) {
+    const { device, onSubmit } = props;
     const isDark = useColorScheme() === "dark";
     const safeBottom = useSafeAreaInsets().bottom;
     const theme = isDark ? deviceFormDark : deviceFormLight;

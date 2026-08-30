@@ -15,7 +15,8 @@ import CustomButton from "@/src/components/custom-button";
 import ScreenBackground from "@/src/components/screen-background";
 import LoadingWindow from "@/src/components/loading-window";
 
-function WifiPasswordDialog({ password, visible, onClose }: WifiPasswordDialogProps) {
+function WifiPasswordDialog(props: WifiPasswordDialogProps) {
+    const { password, visible, onClose } = props;
     const theme = useColorScheme() === "dark" ? indexDark : indexLight;
 
     async function copyPassword(): Promise<void> {

@@ -38,6 +38,7 @@ function closeDialog(setIsVisible: Dispatch<SetStateAction<boolean>>, onClose: (
 }
 
 function ChangeUsernameMenu(props: UserMenuSectionProps) {
+    const { onClose } = props;
     const { user, setUser, executeApiRequest } = useAppContext();
     const [isVisible, setIsVisible] = useState<boolean>(false);
     const [newUsername, setNewUsername] = useState<string>("");
@@ -52,7 +53,7 @@ function ChangeUsernameMenu(props: UserMenuSectionProps) {
             const { username } = result.data;
             setValidationErrors({});
             setIsVisible(false);
-            props.onClose();
+            onClose();
             setUser((user) => (user ? { ...user, username } : null));
             return;
         }
@@ -66,7 +67,7 @@ function ChangeUsernameMenu(props: UserMenuSectionProps) {
             <Pressable style={[userMenu.option, theme.option]} onPress={() => setIsVisible(true)}>
                 <Text style={[userMenu.optionText, theme.optionText]}>Cambiar nombre de usuario</Text>
             </Pressable>
-            <Dialog visible={isVisible} onCancel={() => closeDialog(setIsVisible, props.onClose)} onAccept={() => void changeUsername()}>
+            <Dialog visible={isVisible} onCancel={() => closeDialog(setIsVisible, onClose)} onAccept={() => void changeUsername()}>
                 <Text style={theme.dialogLabel}>Nuevo nombre de usuario:</Text>
                 <TextInput
                     accessibilityLabel="Nuevo nombre de usuario"

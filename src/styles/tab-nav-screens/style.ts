@@ -1,6 +1,20 @@
 import { StyleSheet } from "react-native";
 import { commons } from "@/src/styles/style";
 
+export const tabLayoutLight = StyleSheet.create({
+    bar: { backgroundColor: "#fbf9ff", elevation: 0, shadowOpacity: 0, borderBottomColor: "#e3deef", borderBottomWidth: StyleSheet.hairlineWidth },
+    activeLabel: { color: "#378f73" },
+    inactiveLabel: { color: "#9b94d6" },
+    indicator: { backgroundColor: "#378f73", height: 2 }
+});
+
+export const tabLayoutDark = StyleSheet.create({
+    bar: { backgroundColor: "#0d1012", elevation: 0, shadowOpacity: 0, borderBottomColor: "#293036", borderBottomWidth: StyleSheet.hairlineWidth },
+    activeLabel: { color: "#65b79f" },
+    inactiveLabel: { color: "#858d92" },
+    indicator: { backgroundColor: "#65b79f", height: 2 }
+});
+
 export const index = StyleSheet.create({
     screen: commons.screen,
     parent: { flex: 1, paddingHorizontal: 18, paddingTop: "10%", paddingBottom: 18, gap: 14 },

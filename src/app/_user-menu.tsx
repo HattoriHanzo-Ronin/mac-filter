@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
-import { userMenu } from "@/src/styles/app/style";
+import { userMenu, userMenuPalette } from "@/src/styles/app/style";
 import { Dispatch, PropsWithChildren, SetStateAction, useState } from "react";
-import { Modal, Pressable, Text, TextInput, View } from "react-native";
+import { Modal, Pressable, Text, TextInput, View, useColorScheme } from "react-native";
 import { useAppContext } from "@/src/components/app-context-provider";
 import PasswordInput from "@/src/components/password-input";
 import ValidationMessages from "@/src/components/validation-messages";
@@ -140,15 +140,16 @@ function ChangePasswordMenu(props: { onClose: () => void }) {
 
 export default function UserMenu() {
     const { user, authUtils } = useAppContext();
+    const palette = useColorScheme() === "dark" ? userMenuPalette.dark : userMenuPalette.light;
     const [isOpen, setIsOpen] = useState(false);
 
     return (
         <View style={userMenu.header}>
-            <Text numberOfLines={1} style={userMenu.username}>
+            <Text numberOfLines={1} style={[userMenu.username, { color: palette.headerText }]}>
                 {user?.username}
             </Text>
             <Pressable hitSlop={8} onPress={() => setIsOpen(true)}>
-                <Ionicons color="#4b5563" name="open-outline" size={20} />
+                <Ionicons color={palette.headerIcon} name="open-outline" size={20} />
             </Pressable>
             <Modal animationType="fade" transparent visible={isOpen} onRequestClose={() => setIsOpen(false)}>
                 <Pressable style={userMenu.backdrop} onPress={() => setIsOpen(false)}>

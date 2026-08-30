@@ -1,9 +1,12 @@
 import { withLayoutContext } from "expo-router";
 import { createMaterialTopTabNavigator } from "expo-router/js-top-tabs";
+import { useColorScheme } from "react-native";
+import { tabLayoutDark, tabLayoutLight } from "@/src/styles/tab-nav-screens/style";
 
 const Tab = withLayoutContext(createMaterialTopTabNavigator().Navigator);
 
 export default function Layout() {
+    const theme = useColorScheme() === "dark" ? tabLayoutDark : tabLayoutLight;
     const tabs = [
         { name: "Agregar", path: "add" },
         { name: "Lista", path: "index" },
@@ -14,8 +17,10 @@ export default function Layout() {
         <Tab
             initialRouteName="index"
             screenOptions={{
-                tabBarActiveTintColor: "rgba(13, 134, 9, 0.99)",
-                tabBarInactiveTintColor: "rgba(31, 44, 219, 0.42)"
+                tabBarActiveTintColor: theme.activeLabel.color,
+                tabBarInactiveTintColor: theme.inactiveLabel.color,
+                tabBarIndicatorStyle: theme.indicator,
+                tabBarStyle: theme.bar
             }}
         >
             {tabs.map(({ name, path }) => (

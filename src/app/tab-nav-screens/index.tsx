@@ -7,17 +7,59 @@ import ApiUtils from "@/src/utils/api-utils";
 import UiUtils from "@/src/utils/ui-utils";
 import { Redirect, router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { FlatList, Pressable, Text, View, useColorScheme } from "react-native";
+import { FlatList, Modal, Pressable, Text, View, useColorScheme } from "react-native";
+import * as Clipboard from "expo-clipboard";
+import QRCode from "react-native-qrcode-svg";
 import { index, indexDark, indexLight } from "@/src/styles/tab-nav-screens/style";
 import CustomButt from "@/src/components/custom-butt";
 import ScreenBackground from "@/src/components/screen-background";
 import LoadingWindow from "@/src/components/loading-window";
+
+type WifiPasswordDialogProps = {
+    password: string;
+    visible: boolean;
+    onClose: () => void;
+};
+
+function WifiPasswordDialog({ password, visible, onClose }: WifiPasswordDialogProps) {
+    const theme = useColorScheme() === "dark" ? indexDark : indexLight;
+
+    async function copyPassword(): Promise<void> {
+        await Clipboard.setStringAsync(password);
+        UiUtils.showMessage("Contraseña copiada");
+    }
+
+    return (
+        <Modal animationType="fade" onRequestClose={onClose} statusBarTranslucent transparent visible={visible}>
+            <View style={index.qrBackdrop}>
+                <View style={[index.qrDialog, theme.qrDialog]}>
+                    <Text style={[index.qrHelperText, theme.valueProp]}>
+                        Escanea el código para obtener la contraseña Wi-Fi.
+                    </Text>
+                    <View style={index.qrContainer}>
+                        {password ? <QRCode backgroundColor="white" color="black" size={210} value={password} /> : null}
+                    </View>
+                    <View style={index.qrActions}>
+                        <CustomButt buttonStyle={theme.qrCloseButton} label="Cerrar" onPress={onClose} style={index.qrAction} />
+                        <CustomButt
+                            buttonStyle={theme.primaryButton}
+                            label="Copiar"
+                            onPress={() => void copyPassword()}
+                            style={index.qrAction}
+                        />
+                    </View>
+                </View>
+            </View>
+        </Modal>
+    );
+}
 
 export default function Index() {
     const theme = useColorScheme() === "dark" ? indexDark : indexLight;
     const { devices, lastDevice, setDevices, setLastDevice, executeApiRequest, isAuthenticated, isLoading } = useAppContext();
     const [deviceId, setDeviceId] = useState("");
     const [connectionTypeIndex, setConnectionTypeIndex] = useState(0);
+    const [isWifiPasswordVisible, setIsWifiPasswordVisible] = useState(false);
     const deviceProperties = lastDevice ? UiUtils.mapDeviceProperties(lastDevice) : [];
     const selectDevice = useCallback((device?: Device): void => {
         setLastDevice(device ?? null);
@@ -103,9 +145,16 @@ export default function Index() {
                                     ))}
                                 </View>
                             ) : (
-                                <Text selectable style={[index.valueProp, theme.valueProp]}>
-                                    {item.key === "mac" ? item.val[connectionTypeIndex] : item.val}
-                                </Text>
+                                <View style={index.valueGroup}>
+                                    <Text selectable style={[index.valueProp, theme.valueProp]}>
+                                        {item.key === "mac" ? item.val[connectionTypeIndex] : item.val}
+                                    </Text>
+                                    {item.key === "wifi_pass" && (
+                                        <Pressable hitSlop={8} onPress={() => setIsWifiPasswordVisible(true)}>
+                                            <Text style={[index.qrLink, theme.qrLink]}>Mostrar QR</Text>
+                                        </Pressable>
+                                    )}
+                                </View>
                             )}
                         </View>
                     )}
@@ -141,6 +190,11 @@ export default function Index() {
             </View>
             </View>
             <LoadingWindow />
+            <WifiPasswordDialog
+                onClose={() => setIsWifiPasswordVisible(false)}
+                password={lastDevice?.wifi_pass ?? ""}
+                visible={isWifiPasswordVisible}
+            />
         </ScreenBackground>
     );
 }

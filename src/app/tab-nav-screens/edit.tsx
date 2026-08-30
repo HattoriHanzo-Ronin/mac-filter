@@ -5,6 +5,7 @@ import { useAppContext } from "@/src/components/app-context-provider";
 import DeviceForm from "@/src/components/device-form";
 import ScreenBackground from "@/src/components/screen-background";
 import { ApiErrorResponse } from "@/src/types/api-response";
+import LoadingWindow from "@/src/components/loading-window";
 
 export default function Edit() {
     const { lastDevice, setDevices, setLastDevice, executeApiRequest, isAuthenticated } = useAppContext();
@@ -32,6 +33,7 @@ export default function Edit() {
     return (
         <ScreenBackground>
             <DeviceForm onSubmit={updateDevice} device={lastDevice} />
+            <LoadingWindow />
         </ScreenBackground>
     );
 }

@@ -15,9 +15,14 @@ export default function AppContextProvider(props: PropsWithChildren) {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [user, setUser] = useState<AuthUser | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [loadingStartedAt, setLoadingStartedAt] = useState<number | null>(null);
+    const setLoadingState = useCallback((loading: boolean): void => {
+        setIsLoading(loading);
+        setLoadingStartedAt(loading ? Date.now() : null);
+    }, []);
     const [storage] = useState(() => new SecureStoreUtils());
     const [authUtils] = useState(() => new AuthUtils(setIsAuthenticated, setUser, storage));
-    const [loadingUtils] = useState(() => new LoadingUtils(setIsLoading));
+    const [loadingUtils] = useState(() => new LoadingUtils(setLoadingState));
     const [lastDevice, setLastDevice] = useState<Device | null>(null);
     const [devices, setDevices] = useState<Device[]>([]);
 
@@ -54,6 +59,7 @@ export default function AppContextProvider(props: PropsWithChildren) {
         user,
         setUser,
         isLoading,
+        loadingStartedAt,
         authUtils,
         loadingUtils,
         executeApiRequest,

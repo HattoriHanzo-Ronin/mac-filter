@@ -11,6 +11,7 @@ import { FlatList, Pressable, Text, View, useColorScheme } from "react-native";
 import { index, indexDark, indexLight } from "@/src/styles/tab-nav-screens/style";
 import CustomButt from "@/src/components/custom-butt";
 import ScreenBackground from "@/src/components/screen-background";
+import LoadingWindow from "@/src/components/loading-window";
 
 export default function Index() {
     const theme = useColorScheme() === "dark" ? indexDark : indexLight;
@@ -139,6 +140,7 @@ export default function Index() {
                 </View>
             </View>
             </View>
+            <LoadingWindow />
         </ScreenBackground>
     );
 }

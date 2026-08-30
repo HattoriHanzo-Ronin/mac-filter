@@ -63,6 +63,26 @@ export const deviceFormPalette = {
     dark: { icon: "#65b79f", picker: "#f1f3f4", switch: "#247d68", remove: "#c47a7e" }
 };
 
+export const loadingWindow = StyleSheet.create({
+    backdrop: { flex: 1, justifyContent: "center", alignItems: "center", padding: 24 },
+    window: { minWidth: 180, alignItems: "center", gap: 16, paddingHorizontal: 28, paddingVertical: 24, borderWidth: 1, borderRadius: 14, elevation: 8, shadowColor: "black", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.22, shadowRadius: 8 },
+    text: { fontSize: 17, fontWeight: "600" }
+});
+
+export const loadingWindowLight = StyleSheet.create({
+    backdrop: { backgroundColor: "rgba(25, 20, 50, 0.14)" },
+    window: { borderColor: "#d8d3eb", backgroundColor: "#fbf9ff" },
+    text: { color: "#30266f" },
+    indicator: { color: "#378f73" }
+});
+
+export const loadingWindowDark = StyleSheet.create({
+    backdrop: { backgroundColor: "rgba(0, 0, 0, 0.24)" },
+    window: { borderColor: "#394148", backgroundColor: "#15191c" },
+    text: { color: "#f1f3f4" },
+    indicator: { color: "#65b79f" }
+});
+
 export const passwordInput = StyleSheet.create({
     container: { flexDirection: "row", alignItems: "center", gap: 12 },
     input: { flex: 1 }

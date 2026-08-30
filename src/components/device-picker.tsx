@@ -11,7 +11,8 @@ import {
 import { useState } from "react";
 
 
-export default function DevicePicker({ devices, selectedDeviceId, onSelect, style }: DevicePickerProps) {
+export default function DevicePicker(props: DevicePickerProps) {
+    const { devices, selectedDeviceId, onSelect, style } = props;
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const isDark = useColorScheme() === "dark";
     const theme = isDark ? commonComponentsDark : commonComponentsLight;

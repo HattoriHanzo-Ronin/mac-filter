@@ -12,7 +12,8 @@ import {
 } from "@/src/styles/components/style";
 
 
-export default function DeviceSearchInput({ devices, onSelect, style }: DeviceSearchInputProps) {
+export default function DeviceSearchInput(props: DeviceSearchInputProps) {
+    const { devices, onSelect, style } = props;
     const isDark = useColorScheme() === "dark";
     const theme = isDark ? commonComponentsDark : commonComponentsLight;
     const palette = isDark ? commonComponentsPalette.dark : commonComponentsPalette.light;

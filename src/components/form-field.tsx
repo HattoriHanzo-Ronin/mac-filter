@@ -4,11 +4,13 @@ import ValidationMessages from "./validation-messages";
 import type { FormFieldProps } from "../types/form";
 
 export default function FormField(props: FormFieldProps) {
+    const { children, errors, horizontal, label, labelStyle } = props;
+
     return (
-        <View style={[formField.field, props.horizontal && formField.horizontal]}>
-            <Text style={[formField.label, props.labelStyle]}>{props.label}</Text>
-            {props.children}
-            <ValidationMessages errors={props.errors} />
+        <View style={[formField.field, horizontal && formField.horizontal]}>
+            <Text style={[formField.label, labelStyle]}>{label}</Text>
+            {children}
+            <ValidationMessages errors={errors} />
         </View>
     );
 }

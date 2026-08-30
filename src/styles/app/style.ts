@@ -106,7 +106,6 @@ export const userMenu = StyleSheet.create({
         gap: 16,
         padding: 20,
         borderRadius: 10,
-        backgroundColor: "white",
         elevation: 6,
         shadowColor: "black",
         shadowOffset: { width: 0, height: 3 },
@@ -126,16 +125,10 @@ export const userMenu = StyleSheet.create({
         paddingVertical: 10,
         borderRadius: 6
     },
-    cancelButton: {
-        backgroundColor: "#e5e7eb"
-    },
     acceptButton: {
         backgroundColor: "#2f8f75"
     },
-    cancelButtonText: {
-        color: "#111827",
-        fontWeight: "600"
-    },
+    cancelButtonText: { fontWeight: "600" },
     acceptButtonText: {
         color: "white",
         fontWeight: "600"
@@ -144,15 +137,13 @@ export const userMenu = StyleSheet.create({
         minHeight: 42,
         paddingHorizontal: 4,
         borderBottomWidth: 1,
-        borderBottomColor: "#6b7280",
         fontSize: 16
     },
     passwordInput: {
         minHeight: 42,
         flexDirection: "row",
         alignItems: "center",
-        borderBottomWidth: 1,
-        borderBottomColor: "#6b7280"
+        borderBottomWidth: 1
     },
     passwordTextInput: {
         flex: 1,
@@ -181,7 +172,6 @@ export const userMenu = StyleSheet.create({
         minWidth: 230,
         overflow: "hidden",
         borderRadius: 8,
-        backgroundColor: "white",
         elevation: 6,
         shadowColor: "black",
         shadowOffset: { width: 0, height: 3 },
@@ -191,22 +181,43 @@ export const userMenu = StyleSheet.create({
     option: {
         paddingHorizontal: 18,
         paddingVertical: 15,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: "#d1d5db"
+        borderBottomWidth: StyleSheet.hairlineWidth
     },
-    optionText: {
-        fontSize: 16,
-        color: "#111827"
-    },
-    logoutText: {
-        fontSize: 16,
-        color: "#dc2626"
-    }
+    optionText: { fontSize: 16 },
+    logoutText: { fontSize: 16 }
+});
+
+export const userMenuLight = StyleSheet.create({
+    dialog: { backgroundColor: "#ffffff" },
+    dialogLabel: { color: "#27205f" },
+    textInput: { color: "#30266f", borderBottomColor: "#8b85ad" },
+    passwordInput: { borderBottomColor: "#8b85ad" },
+    passwordTextInput: { color: "#30266f" },
+    cancelButton: { backgroundColor: "#e8e6f0" },
+    cancelButtonText: { color: "#27205f" },
+    menu: { backgroundColor: "#ffffff" },
+    option: { borderBottomColor: "#d8d3eb" },
+    optionText: { color: "#27205f" },
+    logoutText: { color: "#a94f57" }
+});
+
+export const userMenuDark = StyleSheet.create({
+    dialog: { backgroundColor: "#171b1e", borderWidth: 1, borderColor: "#343b40" },
+    dialogLabel: { color: "#f1f3f4" },
+    textInput: { color: "#f1f3f4", borderBottomColor: "#697178" },
+    passwordInput: { borderBottomColor: "#697178" },
+    passwordTextInput: { color: "#f1f3f4" },
+    cancelButton: { backgroundColor: "#343b40" },
+    cancelButtonText: { color: "#f1f3f4" },
+    menu: { backgroundColor: "#171b1e", borderWidth: 1, borderColor: "#343b40" },
+    option: { borderBottomColor: "#343b40" },
+    optionText: { color: "#f1f3f4" },
+    logoutText: { color: "#d98289" }
 });
 
 export const userMenuPalette = {
-    light: { headerText: "#27205f", headerIcon: "#4e43c2" },
-    dark: { headerText: "#f1f3f4", headerIcon: "#d8dde0" }
+    light: { headerText: "#27205f", headerIcon: "#4e43c2", dialogIcon: "#4e43c2" },
+    dark: { headerText: "#f1f3f4", headerIcon: "#d8dde0", dialogIcon: "#d8dde0" }
 };
 
 export const macFilter = StyleSheet.create({

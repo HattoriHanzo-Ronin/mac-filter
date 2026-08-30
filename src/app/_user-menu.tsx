@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { userMenu, userMenuPalette } from "@/src/styles/app/style";
+import { userMenu, userMenuDark, userMenuLight, userMenuPalette } from "@/src/styles/app/style";
 import { Dispatch, SetStateAction, useState } from "react";
 import { Modal, Pressable, Text, TextInput, View, useColorScheme } from "react-native";
 import { useAppContext } from "@/src/components/app-context-provider";
@@ -11,15 +11,16 @@ import UiUtils from "@/src/utils/ui-utils";
 
 export function Dialog(props: DialogProps) {
     const { children, visible, onCancel, onAccept } = props;
+    const theme = useColorScheme() === "dark" ? userMenuDark : userMenuLight;
 
     return (
         <Modal animationType="fade" transparent visible={visible} onRequestClose={onCancel}>
             <View style={userMenu.dialogBackdrop}>
-                <View style={userMenu.dialog}>
+                <View style={[userMenu.dialog, theme.dialog]}>
                     {children}
                     <View style={userMenu.dialogActions}>
-                        <Pressable style={[userMenu.dialogButton, userMenu.cancelButton]} onPress={onCancel}>
-                            <Text style={userMenu.cancelButtonText}>Cancelar</Text>
+                        <Pressable style={[userMenu.dialogButton, theme.cancelButton]} onPress={onCancel}>
+                            <Text style={[userMenu.cancelButtonText, theme.cancelButtonText]}>Cancelar</Text>
                         </Pressable>
                         <Pressable style={[userMenu.dialogButton, userMenu.acceptButton]} onPress={onAccept}>
                             <Text style={userMenu.acceptButtonText}>Aceptar</Text>
@@ -41,6 +42,7 @@ function ChangeUsernameMenu(props: UserMenuSectionProps) {
     const [isVisible, setIsVisible] = useState<boolean>(false);
     const [newUsername, setNewUsername] = useState<string>("");
     const [validationErrors, setValidationErrors] = useState<ValidationErrors<UpdateUsernameRequest>>({});
+    const theme = useColorScheme() === "dark" ? userMenuDark : userMenuLight;
 
     async function changeUsername(): Promise<void> {
         const result = await executeApiRequest((apiUtils) =>
@@ -61,14 +63,14 @@ function ChangeUsernameMenu(props: UserMenuSectionProps) {
 
     return (
         <>
-            <Pressable style={userMenu.option} onPress={() => setIsVisible(true)}>
-                <Text style={userMenu.optionText}>Cambiar nombre de usuario</Text>
+            <Pressable style={[userMenu.option, theme.option]} onPress={() => setIsVisible(true)}>
+                <Text style={[userMenu.optionText, theme.optionText]}>Cambiar nombre de usuario</Text>
             </Pressable>
             <Dialog visible={isVisible} onCancel={() => closeDialog(setIsVisible, props.onClose)} onAccept={() => void changeUsername()}>
-                <Text>Nuevo nombre de usuario:</Text>
+                <Text style={theme.dialogLabel}>Nuevo nombre de usuario:</Text>
                 <TextInput
                     autoCapitalize="none"
-                    style={userMenu.textInput}
+                    style={[userMenu.textInput, theme.textInput]}
                     value={newUsername}
                     onChangeText={(value) => {
                         setNewUsername(value);
@@ -87,6 +89,9 @@ function ChangePasswordMenu(props: UserMenuSectionProps) {
     const [currentPassword, setCurrentPassword] = useState<string>("");
     const [newPassword, setNewPassword] = useState<string>("");
     const [validationErrors, setValidationErrors] = useState<ValidationErrors<UpdatePasswordRequest>>({});
+    const isDark = useColorScheme() === "dark";
+    const theme = isDark ? userMenuDark : userMenuLight;
+    const palette = isDark ? userMenuPalette.dark : userMenuPalette.light;
 
     async function changePassword(): Promise<void> {
         const result = await executeApiRequest((apiUtils) => apiUtils.updatePassword({ currentPassword, newPassword }));
@@ -103,16 +108,16 @@ function ChangePasswordMenu(props: UserMenuSectionProps) {
 
     return (
         <>
-            <Pressable style={userMenu.option} onPress={() => setIsVisible(true)}>
-                <Text style={userMenu.optionText}>Cambiar contraseña</Text>
+            <Pressable style={[userMenu.option, theme.option]} onPress={() => setIsVisible(true)}>
+                <Text style={[userMenu.optionText, theme.optionText]}>Cambiar contraseña</Text>
             </Pressable>
             <Dialog visible={isVisible} onCancel={() => closeDialog(setIsVisible, props.onClose)} onAccept={() => void changePassword()}>
-                <Text>Contraseña actual:</Text>
+                <Text style={theme.dialogLabel}>Contraseña actual:</Text>
                 <PasswordInput
                     autoCapitalize="none"
-                    containerStyle={userMenu.passwordInput}
-                    iconColor="#4b5563"
-                    inputStyle={userMenu.passwordTextInput}
+                    containerStyle={[userMenu.passwordInput, theme.passwordInput]}
+                    iconColor={palette.dialogIcon}
+                    inputStyle={[userMenu.passwordTextInput, theme.passwordTextInput]}
                     value={currentPassword}
                     onChangeText={(value) => {
                         setCurrentPassword(value);
@@ -120,12 +125,12 @@ function ChangePasswordMenu(props: UserMenuSectionProps) {
                     }}
                 />
                 <ValidationMessages errors={validationErrors.currentPassword} />
-                <Text>Nueva contraseña:</Text>
+                <Text style={theme.dialogLabel}>Nueva contraseña:</Text>
                 <PasswordInput
                     autoCapitalize="none"
-                    containerStyle={userMenu.passwordInput}
-                    iconColor="#4b5563"
-                    inputStyle={userMenu.passwordTextInput}
+                    containerStyle={[userMenu.passwordInput, theme.passwordInput]}
+                    iconColor={palette.dialogIcon}
+                    inputStyle={[userMenu.passwordTextInput, theme.passwordTextInput]}
                     value={newPassword}
                     onChangeText={(value) => {
                         setNewPassword(value);
@@ -140,7 +145,9 @@ function ChangePasswordMenu(props: UserMenuSectionProps) {
 
 export default function UserMenu() {
     const { user, authUtils } = useAppContext();
-    const palette = useColorScheme() === "dark" ? userMenuPalette.dark : userMenuPalette.light;
+    const isDark = useColorScheme() === "dark";
+    const palette = isDark ? userMenuPalette.dark : userMenuPalette.light;
+    const theme = isDark ? userMenuDark : userMenuLight;
     const [isOpen, setIsOpen] = useState<boolean>(false);
 
     return (
@@ -153,11 +160,11 @@ export default function UserMenu() {
             </Pressable>
             <Modal animationType="fade" transparent visible={isOpen} onRequestClose={() => setIsOpen(false)}>
                 <Pressable style={userMenu.backdrop} onPress={() => setIsOpen(false)}>
-                    <View style={userMenu.menu}>
+                    <View style={[userMenu.menu, theme.menu]}>
                         <ChangeUsernameMenu onClose={() => setIsOpen(false)} />
                         <ChangePasswordMenu onClose={() => setIsOpen(false)} />
-                        <Pressable style={userMenu.option} onPress={() => void authUtils.logout()}>
-                            <Text style={userMenu.logoutText}>Cerrar sesión</Text>
+                        <Pressable style={[userMenu.option, theme.option]} onPress={() => void authUtils.logout()}>
+                            <Text style={[userMenu.logoutText, theme.logoutText]}>Cerrar sesión</Text>
                         </Pressable>
                     </View>
                 </Pressable>

@@ -8,6 +8,7 @@ export default function CustomButton(props: CustomButtonProps) {
 
     return (
         <Pressable
+            accessibilityRole="button"
             disabled={isDisabled}
             onPress={onPress}
             style={({ pressed }) => [

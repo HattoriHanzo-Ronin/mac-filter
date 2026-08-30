@@ -45,9 +45,10 @@ describe("ApiUtils", () => {
     });
 
     it("updates the current username", async () => {
-        const request = { username: "new-username" };
-        jest.mocked(axios.put).mockResolvedValue({ data: request });
-        expect(await ApiUtils.updateUsername(request)).toEqual({ success: true, data: request });
+        const request = { id: "user-1", username: "new-username" };
+        const response = { username: "new-username" };
+        jest.mocked(axios.put).mockResolvedValue({ data: response });
+        expect(await ApiUtils.updateUsername(request)).toEqual({ success: true, data: response });
         expect(axios.put).toHaveBeenCalledWith(`${API_URL}/users`, request);
     });
 

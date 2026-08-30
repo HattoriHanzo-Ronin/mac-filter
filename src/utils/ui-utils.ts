@@ -65,6 +65,11 @@ export default class UiUtils {
         return this.DEVICE_LABELS[key];
     }
 
+    /** Returns the translated display label for a device type. */
+    static getDeviceTypeLabel(type: Device["type"]): string {
+        return this.DEVICE_TYPE_LABELS[type];
+    }
+
     /**
      * Displays a message
      *

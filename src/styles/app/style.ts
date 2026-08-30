@@ -219,6 +219,7 @@ export const macFilter = StyleSheet.create({
     scroll: commons.scroll,
     list: { gap: 16 },
     listContent: { paddingVertical: 8, paddingBottom: 24 },
+    listActions: { marginTop: "20%" },
     parentDevProp: { gap: 6 },
     labelProp: { width: "100%", paddingLeft: "10%", paddingRight: "10%", fontSize: 16, fontWeight: "600" },
     valueProp: { width: "100%", paddingLeft: "20%", paddingRight: "10%", fontSize: 17, lineHeight: 24 },

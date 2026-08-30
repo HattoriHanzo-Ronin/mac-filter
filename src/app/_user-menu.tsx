@@ -69,6 +69,7 @@ function ChangeUsernameMenu(props: UserMenuSectionProps) {
             <Dialog visible={isVisible} onCancel={() => closeDialog(setIsVisible, props.onClose)} onAccept={() => void changeUsername()}>
                 <Text style={theme.dialogLabel}>Nuevo nombre de usuario:</Text>
                 <TextInput
+                    accessibilityLabel="Nuevo nombre de usuario"
                     autoCapitalize="none"
                     style={[userMenu.textInput, theme.textInput]}
                     value={newUsername}
@@ -114,6 +115,7 @@ function ChangePasswordMenu(props: UserMenuSectionProps) {
             <Dialog visible={isVisible} onCancel={() => closeDialog(setIsVisible, props.onClose)} onAccept={() => void changePassword()}>
                 <Text style={theme.dialogLabel}>Contraseña actual:</Text>
                 <PasswordInput
+                    accessibilityLabel="Contraseña actual"
                     autoCapitalize="none"
                     containerStyle={[userMenu.passwordInput, theme.passwordInput]}
                     iconColor={palette.dialogIcon}
@@ -127,6 +129,7 @@ function ChangePasswordMenu(props: UserMenuSectionProps) {
                 <ValidationMessages errors={validationErrors.currentPassword} />
                 <Text style={theme.dialogLabel}>Nueva contraseña:</Text>
                 <PasswordInput
+                    accessibilityLabel="Nueva contraseña"
                     autoCapitalize="none"
                     containerStyle={[userMenu.passwordInput, theme.passwordInput]}
                     iconColor={palette.dialogIcon}
@@ -155,7 +158,7 @@ export default function UserMenu() {
             <Text numberOfLines={1} style={[userMenu.username, { color: palette.headerText }]}>
                 {user?.username}
             </Text>
-            <Pressable hitSlop={8} onPress={() => setIsOpen(true)}>
+            <Pressable accessibilityLabel="Abrir menú de usuario" hitSlop={8} onPress={() => setIsOpen(true)}>
                 <Ionicons color={palette.headerIcon} name="open-outline" size={20} />
             </Pressable>
             <Modal animationType="fade" transparent visible={isOpen} onRequestClose={() => setIsOpen(false)}>

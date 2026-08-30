@@ -38,6 +38,7 @@ export default function DeviceSearchInput({ devices, onSelect, style }: DeviceSe
     return (
         <View style={[commonComponents.search, style]}>
             <TextInput
+                accessibilityLabel="Buscar por nombre o MAC"
                 onChangeText={setText}
                 placeholder="Nombre o MAC"
                 placeholderTextColor={palette.placeholder}

@@ -88,6 +88,7 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
         >
             <FormField labelStyle={theme.label} label={UiUtils.getDeviceLabel("name")} errors={validationErrors.name}>
                 <FormTextInput
+                    accessibilityLabel="Nombre"
                     control={control}
                     name="name"
                     onValueChange={() => UiUtils.clearValidationError(setValidationErrors, "name")}
@@ -123,6 +124,7 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
             </FormField>
             <FormField labelStyle={theme.label} label={UiUtils.getDeviceLabel("model")} errors={validationErrors.model}>
                 <FormTextInput
+                    accessibilityLabel="Modelo"
                     control={control}
                     name="model"
                     onValueChange={() => UiUtils.clearValidationError(setValidationErrors, "model")}
@@ -131,6 +133,7 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
             </FormField>
             <FormField labelStyle={theme.label} label={UiUtils.getDeviceLabel("ip")} errors={validationErrors.ip}>
                 <FormTextInput
+                    accessibilityLabel="IP"
                     control={control}
                     keyboardType="numeric"
                     name="ip"
@@ -164,6 +167,7 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
                     </FormField>
                     <FormField labelStyle={theme.label} label={UiUtils.getDeviceLabel("wifi_pass")} errors={validationErrors.wifi_pass}>
                         <FormPasswordInput
+                            accessibilityLabel="Contraseña Wi-Fi"
                             containerStyle={[deviceForm.passwordInput, theme.input]}
                             control={control}
                             iconColor={palette.icon}
@@ -174,6 +178,7 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
                     </FormField>
                     <FormField labelStyle={theme.label} label={UiUtils.getDeviceLabel("admin_pass")} errors={validationErrors.admin_pass}>
                         <FormPasswordInput
+                            accessibilityLabel="Contraseña de administración"
                             containerStyle={[deviceForm.passwordInput, theme.input]}
                             control={control}
                             iconColor={palette.icon}
@@ -243,6 +248,7 @@ export default function DeviceForm({ device, onSubmit }: DeviceFormProps) {
                             </Text>
                             <View style={deviceForm.connectionMacValue}>
                                 <FormTextInput
+                                    accessibilityLabel={`MAC de conexión ${index + 1}`}
                                     autoCapitalize="characters"
                                     control={control}
                                     name={`connections.${index}.mac`}

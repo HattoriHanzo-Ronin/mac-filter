@@ -59,6 +59,7 @@ export default function Index() {
                         <View style={[login.inputContainer, theme.inputContainer]}>
                             <Ionicons color={palette.icon} name="person-outline" size={20} />
                             <FormTextInput
+                                accessibilityLabel="Usuario"
                                 autoCapitalize="none"
                                 autoComplete="username"
                                 control={control}
@@ -73,6 +74,7 @@ export default function Index() {
                     </FormField>
                     <FormField label="Contraseña" labelStyle={theme.label} errors={validationErrors.password}>
                         <FormPasswordInput
+                            accessibilityLabel="Contraseña"
                             autoCapitalize="none"
                             autoComplete="password"
                             containerStyle={[login.inputContainer, theme.inputContainer]}

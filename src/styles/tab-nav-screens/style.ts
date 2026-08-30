@@ -33,7 +33,15 @@ export const index = StyleSheet.create({
     listContent: { paddingVertical: 8, paddingBottom: 24 },
     parentDevProp: { gap: 6 },
     labelProp: { width: "100%", paddingLeft: "10%", paddingRight: "10%", fontSize: 16, fontWeight: "600" },
-    valueProp: { width: "100%", paddingLeft: "20%", paddingRight: "10%", fontSize: 17, lineHeight: 24 }
+    valueGroup: { width: "100%", gap: 6 },
+    valueProp: { width: "100%", paddingLeft: "20%", paddingRight: "10%", fontSize: 17, lineHeight: 24 },
+    qrLink: { alignSelf: "center", paddingVertical: 4, fontSize: 15, fontWeight: "600" },
+    qrBackdrop: { flex: 1, justifyContent: "center", alignItems: "center", padding: 24, backgroundColor: "rgba(0, 0, 0, 0.38)" },
+    qrDialog: { width: "100%", maxWidth: 360, alignItems: "center", gap: 20, padding: 22, borderWidth: 1, borderRadius: 14, elevation: 8, shadowColor: "black", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.22, shadowRadius: 8 },
+    qrHelperText: { fontSize: 16, lineHeight: 22, textAlign: "center" },
+    qrContainer: { padding: 14, borderRadius: 10, backgroundColor: "white" },
+    qrActions: { width: "100%", flexDirection: "row", gap: 12 },
+    qrAction: { flex: 1 }
 });
 
 export const indexLight = StyleSheet.create({
@@ -41,6 +49,9 @@ export const indexLight = StyleSheet.create({
     parentDevProp: { flexDirection: "column", alignItems: "flex-start" },
     labelProp: { color: "#30266f" },
     valueProp: { color: "#30266f" },
+    qrLink: { color: "#4e43c2" },
+    qrDialog: { borderColor: "#d8d3eb", backgroundColor: "#fbf9ff" },
+    qrCloseButton: { backgroundColor: "#77718d" },
     radioOuter: { borderColor: "#7770a6" },
     radioInner: { backgroundColor: "#4e43c2" },
     primaryButton: { backgroundColor: "#378f73" }
@@ -51,6 +62,9 @@ export const indexDark = StyleSheet.create({
     parentDevProp: { flexDirection: "column" },
     labelProp: { color: "#b8bdc1" },
     valueProp: { color: "#f1f3f4" },
+    qrLink: { color: "#65b79f" },
+    qrDialog: { borderColor: "#394148", backgroundColor: "#15191c" },
+    qrCloseButton: { backgroundColor: "#4b5359" },
     radioOuter: { borderColor: "#aeb5ba" },
     radioInner: { backgroundColor: "#65b79f" },
     primaryButton: { backgroundColor: "#247d68" }

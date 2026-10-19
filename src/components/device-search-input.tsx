@@ -21,7 +21,7 @@ export default function DeviceSearchInput(props: DeviceSearchInputProps) {
     const [text, setText] = useState<string>("");
 
     function search(): void {
-        const normalize = (value: string) => value.toUpperCase();
+        const normalize = (value: string) => value.toUpperCase().replaceAll("-", ":");
         const normalizedText = normalize(text);
         const matchingDevice = devices.find(
             ({ name, connections }) =>

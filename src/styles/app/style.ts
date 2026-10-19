@@ -1,19 +1,21 @@
 import { StyleSheet } from "react-native";
-import { commons } from "@/src/styles/style";
+import { commons, darkTheme, lightTheme, type ThemeColors, type ThemeMode } from "@/src/styles/style";
 
 export const rootLayout = StyleSheet.create({
     screen: commons.rootScreen
 });
 
-export const rootLayoutLight = StyleSheet.create({
-    header: { backgroundColor: "#fbf9ff" },
-    headerTint: { color: "#30266f" }
-});
+function createRootLayoutStyles(theme: ThemeColors) {
+    return StyleSheet.create({
+        header: { backgroundColor: theme.header },
+        headerTint: { color: theme.text }
+    });
+}
 
-export const rootLayoutDark = StyleSheet.create({
-    header: { backgroundColor: "#0d1012" },
-    headerTint: { color: "#f1f3f4" }
-});
+export const rootLayoutStyles = {
+    dark: createRootLayoutStyles(darkTheme),
+    light: createRootLayoutStyles(lightTheme)
+};
 
 export const login = StyleSheet.create({
     background: {
@@ -43,49 +45,25 @@ export const login = StyleSheet.create({
     }
 });
 
-export const loginLight = StyleSheet.create({
-    background: {
-        backgroundColor: "#f7f4ef"
-    },
-    backgroundImage: {
-        opacity: 0.2
-    },
-    label: {
-        color: "#27205f"
-    },
-    inputContainer: {
-        borderColor: "#d7d2e5",
-        backgroundColor: "rgba(250, 249, 255, 0.92)"
-    },
-    input: {
-        color: "#181433"
-    },
-    button: {
-        backgroundColor: "#378f73"
-    }
-});
+function createLoginStyles(theme: ThemeColors, mode: ThemeMode) {
+    const isDark = mode === "dark";
+    return StyleSheet.create({
+        background: { backgroundColor: isDark ? "#050607" : "#f7f4ef" },
+        backgroundImage: { opacity: isDark ? 0.34 : 0.2 },
+        label: { color: isDark ? "#b9bdc2" : "#27205f" },
+        inputContainer: {
+            borderColor: isDark ? "#2d343a" : "#d7d2e5",
+            backgroundColor: isDark ? "rgba(25, 30, 34, 0.94)" : "rgba(250, 249, 255, 0.92)"
+        },
+        input: { color: isDark ? "#f5f7f8" : "#181433" },
+        button: { backgroundColor: theme.accent }
+    });
+}
 
-export const loginDark = StyleSheet.create({
-    background: {
-        backgroundColor: "#050607"
-    },
-    backgroundImage: {
-        opacity: 0.34
-    },
-    label: {
-        color: "#b9bdc2"
-    },
-    inputContainer: {
-        borderColor: "#2d343a",
-        backgroundColor: "rgba(25, 30, 34, 0.94)"
-    },
-    input: {
-        color: "#f5f7f8"
-    },
-    button: {
-        backgroundColor: "#247d68"
-    }
-});
+export const loginStyles = {
+    dark: createLoginStyles(darkTheme, "dark"),
+    light: createLoginStyles(lightTheme, "light")
+};
 
 export const loginPalette = {
     light: { icon: "#4f43bd", placeholder: "#746f8f" },
@@ -187,33 +165,28 @@ export const userMenu = StyleSheet.create({
     logoutText: { fontSize: 16 }
 });
 
-export const userMenuLight = StyleSheet.create({
-    dialog: { backgroundColor: "#ffffff" },
-    dialogLabel: { color: "#27205f" },
-    textInput: { color: "#30266f", borderBottomColor: "#8b85ad" },
-    passwordInput: { borderBottomColor: "#8b85ad" },
-    passwordTextInput: { color: "#30266f" },
-    cancelButton: { backgroundColor: "#e8e6f0" },
-    cancelButtonText: { color: "#27205f" },
-    menu: { backgroundColor: "#ffffff" },
-    option: { borderBottomColor: "#d8d3eb" },
-    optionText: { color: "#27205f" },
-    logoutText: { color: "#a94f57" }
-});
+function createUserMenuStyles(theme: ThemeColors, mode: ThemeMode) {
+    const isDark = mode === "dark";
+    const outlinedSurface = isDark ? { borderWidth: 1, borderColor: "#343b40" } : {};
+    return StyleSheet.create({
+        dialog: { backgroundColor: isDark ? "#171b1e" : theme.surface, ...outlinedSurface },
+        dialogLabel: { color: isDark ? theme.text : "#27205f" },
+        textInput: { color: theme.text, borderBottomColor: isDark ? "#697178" : "#8b85ad" },
+        passwordInput: { borderBottomColor: isDark ? "#697178" : "#8b85ad" },
+        passwordTextInput: { color: theme.text },
+        cancelButton: { backgroundColor: isDark ? "#343b40" : "#e8e6f0" },
+        cancelButtonText: { color: isDark ? theme.text : "#27205f" },
+        menu: { backgroundColor: isDark ? "#171b1e" : theme.surface, ...outlinedSurface },
+        option: { borderBottomColor: isDark ? "#343b40" : theme.border },
+        optionText: { color: isDark ? theme.text : "#27205f" },
+        logoutText: { color: isDark ? "#d98289" : "#a94f57" }
+    });
+}
 
-export const userMenuDark = StyleSheet.create({
-    dialog: { backgroundColor: "#171b1e", borderWidth: 1, borderColor: "#343b40" },
-    dialogLabel: { color: "#f1f3f4" },
-    textInput: { color: "#f1f3f4", borderBottomColor: "#697178" },
-    passwordInput: { borderBottomColor: "#697178" },
-    passwordTextInput: { color: "#f1f3f4" },
-    cancelButton: { backgroundColor: "#343b40" },
-    cancelButtonText: { color: "#f1f3f4" },
-    menu: { backgroundColor: "#171b1e", borderWidth: 1, borderColor: "#343b40" },
-    option: { borderBottomColor: "#343b40" },
-    optionText: { color: "#f1f3f4" },
-    logoutText: { color: "#d98289" }
-});
+export const userMenuStyles = {
+    dark: createUserMenuStyles(darkTheme, "dark"),
+    light: createUserMenuStyles(lightTheme, "light")
+};
 
 export const userMenuPalette = {
     light: { headerText: "#27205f", headerIcon: "#4e43c2", dialogIcon: "#4e43c2" },
@@ -242,31 +215,26 @@ export const macFilter = StyleSheet.create({
     dangerButton: { backgroundColor: "#a65f65" }
 });
 
-export const macFilterLight = StyleSheet.create({
-    screen: { backgroundColor: "rgba(251, 249, 255, 0.88)" },
-    segmentedControl: { borderColor: "#d8d3eb", backgroundColor: "rgba(255, 255, 255, 0.84)" },
-    activeSegment: { backgroundColor: "#5145c7" },
-    segmentText: { color: "#30266f" },
-    activeSegmentText: { color: "white" },
-    labelProp: { color: "#30266f" },
-    valueProp: { color: "#30266f" },
-    radioOuter: { borderColor: "#7770a6" },
-    radioInner: { backgroundColor: "#4e43c2" },
-    primaryButton: { backgroundColor: "#378f73" }
-});
+function createMacFilterStyles(theme: ThemeColors, mode: ThemeMode) {
+    const isDark = mode === "dark";
+    return StyleSheet.create({
+        screen: { backgroundColor: isDark ? "rgba(7, 9, 10, 0.9)" : "rgba(251, 249, 255, 0.88)" },
+        segmentedControl: { borderColor: isDark ? "#293036" : theme.border, backgroundColor: isDark ? theme.surfaceMuted : "rgba(255, 255, 255, 0.84)" },
+        activeSegment: { backgroundColor: isDark ? theme.accent : "#5145c7" },
+        segmentText: { color: isDark ? "#c1c6ca" : theme.text },
+        activeSegmentText: { color: "white" },
+        labelProp: { color: isDark ? theme.textMuted : theme.text },
+        valueProp: { color: theme.text },
+        radioOuter: { borderColor: isDark ? "#aeb5ba" : "#7770a6" },
+        radioInner: { backgroundColor: isDark ? "#65b79f" : "#4e43c2" },
+        primaryButton: { backgroundColor: theme.accent }
+    });
+}
 
-export const macFilterDark = StyleSheet.create({
-    screen: { backgroundColor: "rgba(7, 9, 10, 0.9)" },
-    segmentedControl: { borderColor: "#293036", backgroundColor: "#1a1f23" },
-    activeSegment: { backgroundColor: "#247d68" },
-    segmentText: { color: "#c1c6ca" },
-    activeSegmentText: { color: "white" },
-    labelProp: { color: "#b8bdc1" },
-    valueProp: { color: "#f1f3f4" },
-    radioOuter: { borderColor: "#aeb5ba" },
-    radioInner: { backgroundColor: "#65b79f" },
-    primaryButton: { backgroundColor: "#247d68" }
-});
+export const macFilterStyles = {
+    dark: createMacFilterStyles(darkTheme, "dark"),
+    light: createMacFilterStyles(lightTheme, "light")
+};
 
 export const macFilterDynamic = {
     safeArea: (paddingBottom: number) => ({ paddingBottom })
@@ -279,19 +247,20 @@ export const accessRouter = StyleSheet.create({
     webViewContainer: { flex: 1, overflow: "hidden", borderWidth: 1, borderRadius: 8 }
 });
 
-export const accessRouterLight = StyleSheet.create({
-    screen: { backgroundColor: "rgba(251, 249, 255, 0.88)" },
-    addressBar: { borderColor: "#d8d3eb", backgroundColor: "rgba(255, 255, 255, 0.9)" },
-    addressInput: { color: "#30266f" },
-    webViewContainer: { borderColor: "#d8d3eb", backgroundColor: "white" }
-});
+function createAccessRouterStyles(theme: ThemeColors, mode: ThemeMode) {
+    const isDark = mode === "dark";
+    return StyleSheet.create({
+        screen: { backgroundColor: isDark ? "rgba(7, 9, 10, 0.9)" : "rgba(251, 249, 255, 0.88)" },
+        addressBar: { borderColor: isDark ? "#293036" : theme.border, backgroundColor: theme.surfaceMuted },
+        addressInput: { color: theme.text },
+        webViewContainer: { borderColor: isDark ? "#293036" : theme.border, backgroundColor: isDark ? "#111416" : "white" }
+    });
+}
 
-export const accessRouterDark = StyleSheet.create({
-    screen: { backgroundColor: "rgba(7, 9, 10, 0.9)" },
-    addressBar: { borderColor: "#293036", backgroundColor: "#1a1f23" },
-    addressInput: { color: "#f1f3f4" },
-    webViewContainer: { borderColor: "#293036", backgroundColor: "#111416" }
-});
+export const accessRouterStyles = {
+    dark: createAccessRouterStyles(darkTheme, "dark"),
+    light: createAccessRouterStyles(lightTheme, "light")
+};
 
 export const accessRouterPalette = {
     light: { icon: "#4e43c2" },

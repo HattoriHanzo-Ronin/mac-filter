@@ -2,10 +2,11 @@ import DevicePicker from "@/src/components/device-picker";
 import DeviceSearchInput from "@/src/components/device-search-input";
 import { Redirect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { FlatList, Pressable, Text, View, useColorScheme } from "react-native";
+import { FlatList, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAppContext } from "../components/app-context-provider";
-import { macFilter, macFilterDark, macFilterDynamic, macFilterLight } from "@/src/styles/app/style";
+import { macFilter, macFilterDynamic, macFilterStyles } from "@/src/styles/app/style";
+import { useTheme } from "@/src/components/theme-provider";
 import CustomButton from "../components/custom-button";
 import ScreenBackground from "../components/screen-background";
 import LoadingWindow from "../components/loading-window";
@@ -16,7 +17,8 @@ import UiUtils from "../utils/ui-utils";
 
 export default function MacFilter() {
     const { lastDevice, isAuthenticated, isLoading, executeApiRequest } = useAppContext();
-    const theme = useColorScheme() === "dark" ? macFilterDark : macFilterLight;
+    const { mode } = useTheme();
+    const theme = macFilterStyles[mode];
     const routerId = lastDevice?.id;
     const safeBottom = useSafeAreaInsets().bottom + 12;
     const [showAllowed, setShowAllowed] = useState<boolean>(true);

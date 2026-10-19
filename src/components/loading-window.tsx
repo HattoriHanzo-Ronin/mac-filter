@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Modal, Text, View, useColorScheme } from "react-native";
+import { ActivityIndicator, Modal, Text, View } from "react-native";
 import { useAppContext } from "./app-context-provider";
-import { loadingWindow, loadingWindowDark, loadingWindowLight } from "@/src/styles/components/style";
+import { loadingWindow, loadingWindowStyles } from "@/src/styles/components/style";
+import { useTheme } from "./theme-provider";
 
 const DISPLAY_DELAY_MS = 1500;
 
 export default function LoadingWindow() {
     const { isLoading, loadingStartedAt } = useAppContext();
     const [visibleForStart, setVisibleForStart] = useState<number | null>(null);
-    const theme = useColorScheme() === "dark" ? loadingWindowDark : loadingWindowLight;
+    const { mode } = useTheme();
+    const theme = loadingWindowStyles[mode];
 
     useEffect(() => {
         if (!isLoading || loadingStartedAt === null) {

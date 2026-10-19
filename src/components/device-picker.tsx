@@ -1,22 +1,22 @@
 import { Ionicons } from "@expo/vector-icons";
-import { FlatList, Modal, Pressable, Text, View, useColorScheme } from "react-native";
+import { FlatList, Modal, Pressable, Text, View } from "react-native";
 import type { Device, DevicePickerProps } from "../types/devices";
 import UiUtils from "../utils/ui-utils";
 import {
     commonComponents,
-    commonComponentsDark,
-    commonComponentsLight,
+    commonComponentStyles,
     commonComponentsPalette
 } from "@/src/styles/components/style";
 import { useState } from "react";
+import { useTheme } from "./theme-provider";
 
 
 export default function DevicePicker(props: DevicePickerProps) {
     const { devices, selectedDeviceId, onSelect, style } = props;
     const [isOpen, setIsOpen] = useState<boolean>(false);
-    const isDark = useColorScheme() === "dark";
-    const theme = isDark ? commonComponentsDark : commonComponentsLight;
-    const palette = isDark ? commonComponentsPalette.dark : commonComponentsPalette.light;
+    const { mode } = useTheme();
+    const theme = commonComponentStyles[mode];
+    const palette = commonComponentsPalette[mode];
     const selectedDevice = devices.find(({ id }) => id === selectedDeviceId);
 
     function selectDevice(device: Device): void {

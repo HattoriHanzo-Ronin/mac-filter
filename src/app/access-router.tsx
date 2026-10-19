@@ -1,18 +1,19 @@
-import { Pressable, TextInput, View, useColorScheme } from "react-native";
+import { Pressable, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
 import { Ionicons } from "@expo/vector-icons";
 import { Redirect } from "expo-router";
-import { accessRouter, accessRouterDark, accessRouterLight, accessRouterPalette } from "@/src/styles/app/style";
+import { accessRouter, accessRouterPalette, accessRouterStyles } from "@/src/styles/app/style";
 import ScreenBackground from "@/src/components/screen-background";
+import { useTheme } from "@/src/components/theme-provider";
 import { useRef, useState } from "react";
 import { useAppContext } from "../components/app-context-provider";
 
 export default function AccessRouter() {
     const { lastDevice } = useAppContext();
-    const isDark = useColorScheme() === "dark";
-    const theme = isDark ? accessRouterDark : accessRouterLight;
-    const palette = isDark ? accessRouterPalette.dark : accessRouterPalette.light;
+    const { mode } = useTheme();
+    const theme = accessRouterStyles[mode];
+    const palette = accessRouterPalette[mode];
     const hasAutofilledLogin = useRef(false);
     const webViewRef = useRef<WebView>(null);
     const initialUri = `http://${lastDevice?.ip}`;

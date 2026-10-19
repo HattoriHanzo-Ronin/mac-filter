@@ -1,8 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
-import { userMenu, userMenuDark, userMenuLight, userMenuPalette } from "@/src/styles/app/style";
+import { userMenu, userMenuPalette, userMenuStyles } from "@/src/styles/app/style";
 import { Dispatch, SetStateAction, useState } from "react";
-import { Modal, Pressable, Text, TextInput, View, useColorScheme } from "react-native";
+import { Modal, Pressable, Text, TextInput, View } from "react-native";
 import { useAppContext } from "@/src/components/app-context-provider";
+import { useTheme } from "@/src/components/theme-provider";
 import PasswordInput from "@/src/components/password-input";
 import ValidationMessages from "@/src/components/validation-messages";
 import type { ValidationErrors } from "@/src/types/ui";
@@ -11,7 +12,8 @@ import UiUtils from "@/src/utils/ui-utils";
 
 export function Dialog(props: DialogProps) {
     const { children, visible, onCancel, onAccept } = props;
-    const theme = useColorScheme() === "dark" ? userMenuDark : userMenuLight;
+    const { mode } = useTheme();
+    const theme = userMenuStyles[mode];
 
     return (
         <Modal animationType="fade" transparent visible={visible} onRequestClose={onCancel}>
@@ -43,7 +45,8 @@ function ChangeUsernameMenu(props: UserMenuSectionProps) {
     const [isVisible, setIsVisible] = useState<boolean>(false);
     const [newUsername, setNewUsername] = useState<string>("");
     const [validationErrors, setValidationErrors] = useState<ValidationErrors<UpdateUsernameRequest>>({});
-    const theme = useColorScheme() === "dark" ? userMenuDark : userMenuLight;
+    const { mode } = useTheme();
+    const theme = userMenuStyles[mode];
 
     async function changeUsername(): Promise<void> {
         const result = await executeApiRequest((apiUtils) =>
@@ -91,9 +94,9 @@ function ChangePasswordMenu(props: UserMenuSectionProps) {
     const [currentPassword, setCurrentPassword] = useState<string>("");
     const [newPassword, setNewPassword] = useState<string>("");
     const [validationErrors, setValidationErrors] = useState<ValidationErrors<UpdatePasswordRequest>>({});
-    const isDark = useColorScheme() === "dark";
-    const theme = isDark ? userMenuDark : userMenuLight;
-    const palette = isDark ? userMenuPalette.dark : userMenuPalette.light;
+    const { mode } = useTheme();
+    const theme = userMenuStyles[mode];
+    const palette = userMenuPalette[mode];
 
     async function changePassword(): Promise<void> {
         const result = await executeApiRequest((apiUtils) => apiUtils.updatePassword({ currentPassword, newPassword }));
@@ -149,9 +152,9 @@ function ChangePasswordMenu(props: UserMenuSectionProps) {
 
 export default function UserMenu() {
     const { user, authUtils } = useAppContext();
-    const isDark = useColorScheme() === "dark";
-    const palette = isDark ? userMenuPalette.dark : userMenuPalette.light;
-    const theme = isDark ? userMenuDark : userMenuLight;
+    const { mode } = useTheme();
+    const palette = userMenuPalette[mode];
+    const theme = userMenuStyles[mode];
     const [isOpen, setIsOpen] = useState<boolean>(false);
 
     return (

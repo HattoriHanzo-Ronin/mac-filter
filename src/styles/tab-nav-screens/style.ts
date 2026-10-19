@@ -1,19 +1,20 @@
 import { StyleSheet } from "react-native";
-import { commons } from "@/src/styles/style";
+import { commons, darkTheme, lightTheme, type ThemeColors, type ThemeMode } from "@/src/styles/style";
 
-export const tabLayoutLight = StyleSheet.create({
-    bar: { backgroundColor: "#fbf9ff", elevation: 0, shadowOpacity: 0, borderBottomColor: "#e3deef", borderBottomWidth: StyleSheet.hairlineWidth },
-    activeLabel: { color: "#378f73" },
-    inactiveLabel: { color: "#9b94d6" },
-    indicator: { backgroundColor: "#378f73", height: 2 }
-});
+function createTabLayoutStyles(theme: ThemeColors, mode: ThemeMode) {
+    const isDark = mode === "dark";
+    return StyleSheet.create({
+        bar: { backgroundColor: theme.header, elevation: 0, shadowOpacity: 0, borderBottomColor: isDark ? "#293036" : "#e3deef", borderBottomWidth: StyleSheet.hairlineWidth },
+        activeLabel: { color: isDark ? "#65b79f" : theme.accent },
+        inactiveLabel: { color: isDark ? "#858d92" : "#9b94d6" },
+        indicator: { backgroundColor: isDark ? "#65b79f" : theme.accent, height: 2 }
+    });
+}
 
-export const tabLayoutDark = StyleSheet.create({
-    bar: { backgroundColor: "#0d1012", elevation: 0, shadowOpacity: 0, borderBottomColor: "#293036", borderBottomWidth: StyleSheet.hairlineWidth },
-    activeLabel: { color: "#65b79f" },
-    inactiveLabel: { color: "#858d92" },
-    indicator: { backgroundColor: "#65b79f", height: 2 }
-});
+export const tabLayoutStyles = {
+    dark: createTabLayoutStyles(darkTheme, "dark"),
+    light: createTabLayoutStyles(lightTheme, "light")
+};
 
 export const index = StyleSheet.create({
     screen: commons.screen,
@@ -44,31 +45,26 @@ export const index = StyleSheet.create({
     qrAction: { flex: 1 }
 });
 
-export const indexLight = StyleSheet.create({
-    screen: { backgroundColor: "rgba(251, 249, 255, 0.88)" },
-    parentDevProp: { flexDirection: "column", alignItems: "flex-start" },
-    labelProp: { color: "#30266f" },
-    valueProp: { color: "#30266f" },
-    qrLink: { color: "#4e43c2" },
-    qrDialog: { borderColor: "#d8d3eb", backgroundColor: "#fbf9ff" },
-    qrCloseButton: { backgroundColor: "#77718d" },
-    radioOuter: { borderColor: "#7770a6" },
-    radioInner: { backgroundColor: "#4e43c2" },
-    primaryButton: { backgroundColor: "#378f73" }
-});
+function createIndexStyles(theme: ThemeColors, mode: ThemeMode) {
+    const isDark = mode === "dark";
+    return StyleSheet.create({
+        screen: { backgroundColor: isDark ? "rgba(7, 9, 10, 0.9)" : "rgba(251, 249, 255, 0.88)" },
+        parentDevProp: { flexDirection: "column", ...(isDark ? {} : { alignItems: "flex-start" as const }) },
+        labelProp: { color: isDark ? theme.textMuted : theme.text },
+        valueProp: { color: theme.text },
+        qrLink: { color: isDark ? "#65b79f" : "#4e43c2" },
+        qrDialog: { borderColor: theme.border, backgroundColor: isDark ? theme.surface : theme.background },
+        qrCloseButton: { backgroundColor: isDark ? "#4b5359" : theme.textMuted },
+        radioOuter: { borderColor: isDark ? "#aeb5ba" : "#7770a6" },
+        radioInner: { backgroundColor: isDark ? "#65b79f" : "#4e43c2" },
+        primaryButton: { backgroundColor: theme.accent }
+    });
+}
 
-export const indexDark = StyleSheet.create({
-    screen: { backgroundColor: "rgba(7, 9, 10, 0.9)" },
-    parentDevProp: { flexDirection: "column" },
-    labelProp: { color: "#b8bdc1" },
-    valueProp: { color: "#f1f3f4" },
-    qrLink: { color: "#65b79f" },
-    qrDialog: { borderColor: "#394148", backgroundColor: "#15191c" },
-    qrCloseButton: { backgroundColor: "#4b5359" },
-    radioOuter: { borderColor: "#aeb5ba" },
-    radioInner: { backgroundColor: "#65b79f" },
-    primaryButton: { backgroundColor: "#247d68" }
-});
+export const indexStyles = {
+    dark: createIndexStyles(darkTheme, "dark"),
+    light: createIndexStyles(lightTheme, "light")
+};
 
 export const edit = StyleSheet.create({
     screen: commons.screen,

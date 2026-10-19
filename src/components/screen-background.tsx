@@ -1,9 +1,11 @@
 import type { PropsWithChildren } from "react";
-import { ImageBackground, useColorScheme } from "react-native";
-import { screenBackground, screenBackgroundDark, screenBackgroundLight } from "@/src/styles/components/style";
+import { ImageBackground } from "react-native";
+import { screenBackground, screenBackgroundStyles } from "@/src/styles/components/style";
+import { useTheme } from "./theme-provider";
 
 export default function ScreenBackground(props: PropsWithChildren) {
-    const theme = useColorScheme() === "dark" ? screenBackgroundDark : screenBackgroundLight;
+    const { mode } = useTheme();
+    const theme = screenBackgroundStyles[mode];
 
     return (
         <ImageBackground

@@ -1,21 +1,30 @@
 import { Stack } from "expo-router";
 import AppContextProvider from "@/src/components/app-context-provider";
+import ThemeProvider, { useTheme } from "@/src/components/theme-provider";
 import UserMenu from "./_user-menu";
-import { rootLayout, rootLayoutDark, rootLayoutLight } from "@/src/styles/app/style";
-import { BackHandler, ToastAndroid, View, useColorScheme } from "react-native";
+import { rootLayout, rootLayoutStyles } from "@/src/styles/app/style";
+import { BackHandler, ToastAndroid, View } from "react-native";
 import { useEffect, useRef } from "react";
 
 export default function RootLayout() {
+    return (
+        <ThemeProvider>
+            <ThemedRootLayout />
+        </ThemeProvider>
+    );
+}
+
+function ThemedRootLayout() {
     const lastTouch = useRef(0);
-    const isDark = useColorScheme() === "dark";
-    const navigationTheme = isDark ? rootLayoutDark : rootLayoutLight;
+    const { mode } = useTheme();
+    const navigationTheme = rootLayoutStyles[mode];
     const defaultScreenOptions = {
         headerTitle: "",
         headerShadowVisible: false,
         headerStyle: navigationTheme.header,
         headerTintColor: navigationTheme.headerTint.color,
         headerTitleStyle: { color: navigationTheme.headerTint.color },
-        statusBarStyle: isDark ? ("light" as const) : ("dark" as const),
+        statusBarStyle: mode === "dark" ? ("light" as const) : ("dark" as const),
         statusBarBackgroundColor: navigationTheme.header.backgroundColor,
         headerRight: () => <UserMenu />
     };

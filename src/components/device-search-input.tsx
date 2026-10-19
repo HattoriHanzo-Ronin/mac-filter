@@ -1,22 +1,22 @@
 import { useState } from "react";
-import { TextInput, View, useColorScheme } from "react-native";
+import { TextInput, View } from "react-native";
 import type { DeviceSearchInputProps } from "../types/devices";
 import UiUtils from "../utils/ui-utils";
 import { useAppContext } from "./app-context-provider";
 import CustomButton from "./custom-button";
 import {
     commonComponents,
-    commonComponentsDark,
-    commonComponentsLight,
+    commonComponentStyles,
     commonComponentsPalette
 } from "@/src/styles/components/style";
+import { useTheme } from "./theme-provider";
 
 
 export default function DeviceSearchInput(props: DeviceSearchInputProps) {
     const { devices, onSelect, style } = props;
-    const isDark = useColorScheme() === "dark";
-    const theme = isDark ? commonComponentsDark : commonComponentsLight;
-    const palette = isDark ? commonComponentsPalette.dark : commonComponentsPalette.light;
+    const { mode } = useTheme();
+    const theme = commonComponentStyles[mode];
+    const palette = commonComponentsPalette[mode];
     const { isLoading } = useAppContext();
     const [text, setText] = useState<string>("");
 

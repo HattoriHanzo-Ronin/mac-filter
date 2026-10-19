@@ -2,13 +2,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import {
     deviceForm,
-    deviceFormDark,
     deviceFormDynamic,
-    deviceFormLight,
-    deviceFormPalette
+    deviceFormPalette,
+    deviceFormStyles
 } from "@/src/styles/components/style";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
-import { Pressable, ScrollView, Switch, Text, View, useColorScheme } from "react-native";
+import { Pressable, ScrollView, Switch, Text, View } from "react-native";
+import { useTheme } from "./theme-provider";
 import { useEffect, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { ConnectionType, CreateDeviceRequest, Device, DeviceType } from "../types/devices";
@@ -37,10 +37,10 @@ const DEFAULT_VALUES: DeviceFormValues = {
 
 export default function DeviceForm(props: DeviceFormProps) {
     const { device, onSubmit } = props;
-    const isDark = useColorScheme() === "dark";
+    const { mode } = useTheme();
     const safeBottom = useSafeAreaInsets().bottom;
-    const theme = isDark ? deviceFormDark : deviceFormLight;
-    const palette = isDark ? deviceFormPalette.dark : deviceFormPalette.light;
+    const theme = deviceFormStyles[mode];
+    const palette = deviceFormPalette[mode];
     const [validationErrors, setValidationErrors] = useState<ValidationErrors<DeviceFormValues>>({});
     const {
         control,

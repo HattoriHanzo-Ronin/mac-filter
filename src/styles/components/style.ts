@@ -1,19 +1,21 @@
 import { StyleSheet } from "react-native";
-import { commons } from "@/src/styles/style";
+import { commons, darkTheme, lightTheme, type ThemeColors, type ThemeMode } from "@/src/styles/style";
 
 export const screenBackground = StyleSheet.create({
     container: { flex: 1 }
 });
 
-export const screenBackgroundLight = StyleSheet.create({
-    container: { backgroundColor: "#fbf9ff" },
-    image: { opacity: 0.1 }
-});
+function createScreenBackgroundStyles(theme: ThemeColors, mode: ThemeMode) {
+    return StyleSheet.create({
+        container: { backgroundColor: theme.background },
+        image: { opacity: mode === "dark" ? 0.16 : 0.1 }
+    });
+}
 
-export const screenBackgroundDark = StyleSheet.create({
-    container: { backgroundColor: "#07090a" },
-    image: { opacity: 0.16 }
-});
+export const screenBackgroundStyles = {
+    dark: createScreenBackgroundStyles(darkTheme, "dark"),
+    light: createScreenBackgroundStyles(lightTheme, "light")
+};
 
 export const deviceForm = StyleSheet.create({
     screen: { flex: 1 },
@@ -41,27 +43,24 @@ export const deviceFormDynamic = {
     form: (safeBottom: number) => ({ paddingBottom: safeBottom + 72 })
 };
 
-export const deviceFormLight = StyleSheet.create({
-    screen: { backgroundColor: "rgba(251, 249, 255, 0.88)" },
-    label: { color: "#30266f" },
-    passwordTextInput: { color: "#27205f" },
-    input: { color: "#27205f", borderColor: "#d8d3eb", backgroundColor: "rgba(255, 255, 255, 0.9)" },
-    pickerContainer: { borderColor: "#d8d3eb", backgroundColor: "rgba(255, 255, 255, 0.9)" },
-    connectionSeparator: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "rgba(78, 67, 194, 0.3)" },
-    accentText: { color: "#4e43c2" },
-    primaryButton: { backgroundColor: "#378f73" }
-});
+function createDeviceFormStyles(theme: ThemeColors, mode: ThemeMode) {
+    const isDark = mode === "dark";
+    return StyleSheet.create({
+        screen: { backgroundColor: isDark ? "rgba(7, 9, 10, 0.9)" : "rgba(251, 249, 255, 0.88)" },
+        label: { color: isDark ? theme.textMuted : theme.text },
+        passwordTextInput: { color: isDark ? theme.text : "#27205f" },
+        input: { color: isDark ? theme.text : "#27205f", borderColor: isDark ? "#293036" : theme.border, backgroundColor: theme.surfaceMuted },
+        pickerContainer: { borderColor: isDark ? "#293036" : theme.border, backgroundColor: theme.surfaceMuted },
+        connectionSeparator: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: isDark ? "rgba(101, 183, 159, 0.3)" : "rgba(78, 67, 194, 0.3)" },
+        accentText: { color: isDark ? "#65b79f" : "#4e43c2" },
+        primaryButton: { backgroundColor: theme.accent }
+    });
+}
 
-export const deviceFormDark = StyleSheet.create({
-    screen: { backgroundColor: "rgba(7, 9, 10, 0.9)" },
-    label: { color: "#b8bdc1" },
-    passwordTextInput: { color: "#f1f3f4" },
-    input: { color: "#f1f3f4", borderColor: "#293036", backgroundColor: "#1a1f23" },
-    pickerContainer: { borderColor: "#293036", backgroundColor: "#1a1f23" },
-    connectionSeparator: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "rgba(101, 183, 159, 0.3)" },
-    accentText: { color: "#65b79f" },
-    primaryButton: { backgroundColor: "#247d68" }
-});
+export const deviceFormStyles = {
+    dark: createDeviceFormStyles(darkTheme, "dark"),
+    light: createDeviceFormStyles(lightTheme, "light")
+};
 
 export const deviceFormPalette = {
     light: { icon: "#4e43c2", picker: "#30266f", switch: "#378f73", remove: "#a65f65" },
@@ -74,19 +73,20 @@ export const loadingWindow = StyleSheet.create({
     text: { fontSize: 17, fontWeight: "600" }
 });
 
-export const loadingWindowLight = StyleSheet.create({
-    backdrop: { backgroundColor: "rgba(25, 20, 50, 0.14)" },
-    window: { borderColor: "#d8d3eb", backgroundColor: "#fbf9ff" },
-    text: { color: "#30266f" },
-    indicator: { color: "#378f73" }
-});
+function createLoadingWindowStyles(theme: ThemeColors, mode: ThemeMode) {
+    const isDark = mode === "dark";
+    return StyleSheet.create({
+        backdrop: { backgroundColor: isDark ? "rgba(0, 0, 0, 0.24)" : "rgba(25, 20, 50, 0.14)" },
+        window: { borderColor: theme.border, backgroundColor: isDark ? theme.surface : theme.background },
+        text: { color: theme.text },
+        indicator: { color: isDark ? "#65b79f" : theme.accent }
+    });
+}
 
-export const loadingWindowDark = StyleSheet.create({
-    backdrop: { backgroundColor: "rgba(0, 0, 0, 0.24)" },
-    window: { borderColor: "#394148", backgroundColor: "#15191c" },
-    text: { color: "#f1f3f4" },
-    indicator: { color: "#65b79f" }
-});
+export const loadingWindowStyles = {
+    dark: createLoadingWindowStyles(darkTheme, "dark"),
+    light: createLoadingWindowStyles(lightTheme, "light")
+};
 
 export const passwordInput = StyleSheet.create({
     container: { flexDirection: "row", alignItems: "center", gap: 12 },
@@ -123,23 +123,22 @@ export const commonComponents = StyleSheet.create({
     searchButton: { width: 100 }
 });
 
-export const commonComponentsLight = StyleSheet.create({
-    pickerContainer: { borderColor: "#d8d3eb", backgroundColor: "rgba(255, 255, 255, 0.9)" },
-    pickerDialog: { borderColor: "#d8d3eb", backgroundColor: "#fbf9ff" },
-    pickerOption: { borderBottomColor: "#ded9ed" },
-    selectedPickerOption: { backgroundColor: "#ece9fb" },
-    picker: { color: "#30266f" },
-    searchInput: { color: "#27205f", borderColor: "#d8d3eb", backgroundColor: "rgba(255, 255, 255, 0.9)" }
-});
+function createCommonComponentStyles(theme: ThemeColors, mode: ThemeMode) {
+    const isDark = mode === "dark";
+    return StyleSheet.create({
+        pickerContainer: { borderColor: theme.border, backgroundColor: theme.surfaceMuted },
+        pickerDialog: { borderColor: theme.border, backgroundColor: isDark ? "#111416" : theme.background },
+        pickerOption: { borderBottomColor: isDark ? "#30373d" : "#ded9ed" },
+        selectedPickerOption: { backgroundColor: theme.accentMuted },
+        picker: { color: theme.text },
+        searchInput: { color: isDark ? theme.text : "#27205f", borderColor: theme.border, backgroundColor: isDark ? theme.surface : theme.surfaceMuted }
+    });
+}
 
-export const commonComponentsDark = StyleSheet.create({
-    pickerContainer: { borderColor: "#394148", backgroundColor: "#1a1f23" },
-    pickerDialog: { borderColor: "#394148", backgroundColor: "#111416" },
-    pickerOption: { borderBottomColor: "#30373d" },
-    selectedPickerOption: { backgroundColor: "#203c35" },
-    picker: { color: "#f1f3f4" },
-    searchInput: { color: "#f1f3f4", borderColor: "#394148", backgroundColor: "#15191c" }
-});
+export const commonComponentStyles = {
+    dark: createCommonComponentStyles(darkTheme, "dark"),
+    light: createCommonComponentStyles(lightTheme, "light")
+};
 
 export const commonComponentsPalette = {
     light: { placeholder: "#77718d", picker: "#30266f" },

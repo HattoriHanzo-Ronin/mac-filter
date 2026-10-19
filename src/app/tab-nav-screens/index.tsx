@@ -7,17 +7,19 @@ import ApiUtils from "@/src/utils/api-utils";
 import UiUtils from "@/src/utils/ui-utils";
 import { Redirect, router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { FlatList, Modal, Pressable, Text, View, useColorScheme } from "react-native";
+import { FlatList, Modal, Pressable, Text, View } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import QRCode from "react-native-qrcode-svg";
-import { index, indexDark, indexLight } from "@/src/styles/tab-nav-screens/style";
+import { index, indexStyles } from "@/src/styles/tab-nav-screens/style";
+import { useTheme } from "@/src/components/theme-provider";
 import CustomButton from "@/src/components/custom-button";
 import ScreenBackground from "@/src/components/screen-background";
 import LoadingWindow from "@/src/components/loading-window";
 
 function WifiPasswordDialog(props: WifiPasswordDialogProps) {
     const { password, visible, onClose } = props;
-    const theme = useColorScheme() === "dark" ? indexDark : indexLight;
+    const { mode } = useTheme();
+    const theme = indexStyles[mode];
 
     async function copyPassword(): Promise<void> {
         await Clipboard.setStringAsync(password);
@@ -50,7 +52,8 @@ function WifiPasswordDialog(props: WifiPasswordDialogProps) {
 }
 
 export default function Index() {
-    const theme = useColorScheme() === "dark" ? indexDark : indexLight;
+    const { mode } = useTheme();
+    const theme = indexStyles[mode];
     const { devices, lastDevice, setDevices, setLastDevice, executeApiRequest, isAuthenticated, isLoading } = useAppContext();
     const [deviceId, setDeviceId] = useState<string>("");
     const [connectionTypeIndex, setConnectionTypeIndex] = useState<number>(0);

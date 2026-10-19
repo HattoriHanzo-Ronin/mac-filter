@@ -2,14 +2,15 @@ import { Ionicons } from "@expo/vector-icons";
 import { Redirect } from "expo-router";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { ImageBackground, View, useColorScheme } from "react-native";
+import { ImageBackground, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomButton from "../components/custom-button";
 import FormField from "../components/form-field";
 import FormTextInput from "../components/form-text-input";
 import { FormPasswordInput } from "../components/password-input";
 import { useAppContext } from "../components/app-context-provider";
-import { login, loginDark, loginLight, loginPalette } from "@/src/styles/app/style";
+import { useTheme } from "../components/theme-provider";
+import { login, loginPalette, loginStyles } from "@/src/styles/app/style";
 import type { LoginRequest } from "../types/auth";
 import type { ValidationErrors } from "../types/ui";
 import UiUtils from "../utils/ui-utils";
@@ -18,9 +19,9 @@ const DEFAULT_VALUES: LoginRequest = { username: "", password: "" };
 
 export default function Index() {
     const { authUtils, loadingUtils, isAuthenticated, isLoading } = useAppContext();
-    const isDark = useColorScheme() === "dark";
-    const theme = isDark ? loginDark : loginLight;
-    const palette = isDark ? loginPalette.dark : loginPalette.light;
+    const { mode } = useTheme();
+    const theme = loginStyles[mode];
+    const palette = loginPalette[mode];
     const [validationErrors, setValidationErrors] = useState<ValidationErrors<LoginRequest>>({});
     const {
         control,

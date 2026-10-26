@@ -242,17 +242,15 @@ export const macFilterDynamic = {
 
 export const accessRouter = StyleSheet.create({
     screen: { ...commons.screen, flex: 1, paddingHorizontal: 16, paddingTop: "10%", gap: 12 },
-    addressBar: { minHeight: 48, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 12, borderWidth: 1, borderRadius: 9 },
-    addressInput: { flex: 1, paddingVertical: 10, fontSize: 15 },
-    webViewContainer: { flex: 1, overflow: "hidden", borderWidth: 1, borderRadius: 8 }
+    webViewContainer: { flex: 1, overflow: "hidden", borderWidth: 1, borderRadius: 8 },
+    actions: { flexDirection: "row", alignSelf: "center", gap: 18 },
+    action: { padding: 10 }
 });
 
 function createAccessRouterStyles(theme: ThemeColors, mode: ThemeMode) {
     const isDark = mode === "dark";
     return StyleSheet.create({
         screen: { backgroundColor: isDark ? "rgba(7, 9, 10, 0.9)" : "rgba(251, 249, 255, 0.88)" },
-        addressBar: { borderColor: isDark ? "#293036" : theme.border, backgroundColor: theme.surfaceMuted },
-        addressInput: { color: theme.text },
         webViewContainer: { borderColor: isDark ? "#293036" : theme.border, backgroundColor: isDark ? "#111416" : "white" }
     });
 }

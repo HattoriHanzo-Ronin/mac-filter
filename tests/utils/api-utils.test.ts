@@ -114,6 +114,29 @@ describe("ApiUtils", () => {
         expect(axios.delete).toHaveBeenCalledWith(`${API_URL}/devices/${DEVICE.id}`);
     });
 
+    it("creates a mobile router control panel session", async () => {
+        const session = { id: "session-1", url: "https://cpanel.example/viewer", expiresAt: "2026-10-26T17:30:00.000Z" };
+        jest.mocked(axios.post).mockResolvedValue({ data: session });
+        expect(await ApiUtils.createRouterCpanelSession("router-1", "dark")).toEqual({ success: true, data: session });
+        expect(axios.post).toHaveBeenCalledWith(`${API_URL}/devices/router-1/cpanel`, {
+            clientType: "mobile",
+            language: "es-ES",
+            theme: "dark"
+        });
+    });
+
+    it("navigates within a router control panel session", async () => {
+        jest.mocked(axios.post).mockResolvedValue({ data: undefined });
+        expect(await ApiUtils.navigateRouterCpanelSession("session-1", "back")).toEqual({ success: true, data: undefined });
+        expect(axios.post).toHaveBeenCalledWith(`${API_URL}/devices/cpanel/session-1/navigation`, { action: "back" });
+    });
+
+    it("closes a router control panel session", async () => {
+        jest.mocked(axios.delete).mockResolvedValue({ data: undefined });
+        expect(await ApiUtils.closeRouterCpanelSession("session-1")).toEqual({ success: true, data: undefined });
+        expect(axios.delete).toHaveBeenCalledWith(`${API_URL}/devices/cpanel/session-1`);
+    });
+
     it("creates a whitelist entry with the router id in the URL", async () => {
         jest.mocked(axios.post).mockResolvedValue({ data: { id: DEVICE.id, mac: "AA:BB" } });
         expect(await ApiUtils.createWhitelist({ routerId: "router-1", id: DEVICE.id, mac: "AA:BB" })).toEqual({

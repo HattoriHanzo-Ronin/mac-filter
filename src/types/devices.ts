@@ -18,6 +18,7 @@ interface DeviceFields {
     connections: DeviceConnection[];
     model?: string | null;
     ip?: string | null;
+    ssid?: string | null;
     wifi_pass?: string | null;
     admin_pass?: string | null;
     mac_filter?: boolean | null;
@@ -53,7 +54,8 @@ export type DeviceSearchInputProps = {
     style?: StyleProp<ViewStyle>;
 };
 
-export type WifiPasswordDialogProps = {
+export type WifiQrDialogProps = {
+    ssid: string;
     password: string;
     visible: boolean;
     onClose: () => void;

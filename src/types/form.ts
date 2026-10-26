@@ -39,10 +39,11 @@ export type FormFieldProps = PropsWithChildren<{
 
 export type DeviceFormValues = Omit<
     CreateDeviceRequest,
-    "model" | "ip" | "wifi_pass" | "admin_pass" | "mac_filter"
+    "model" | "ip" | "ssid" | "wifi_pass" | "admin_pass" | "mac_filter"
 > & {
     model: string;
     ip: string;
+    ssid: string;
     wifi_pass: string;
     admin_pass: string;
     mac_filter: boolean;

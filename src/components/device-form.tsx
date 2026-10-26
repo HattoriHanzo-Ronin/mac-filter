@@ -30,6 +30,7 @@ const DEFAULT_VALUES: DeviceFormValues = {
     connections: [],
     model: "",
     ip: "",
+    ssid: "",
     wifi_pass: "",
     admin_pass: "",
     mac_filter: false
@@ -166,6 +167,15 @@ export default function DeviceForm(props: DeviceFormProps) {
                             )}
                         />
                     </FormField>
+                    <FormField labelStyle={theme.label} label={UiUtils.getDeviceLabel("ssid")} errors={validationErrors.ssid}>
+                        <FormTextInput
+                            accessibilityLabel="SSID"
+                            control={control}
+                            name="ssid"
+                            onValueChange={() => UiUtils.clearValidationError(setValidationErrors, "ssid")}
+                            style={[deviceForm.input, theme.input]}
+                        />
+                    </FormField>
                     <FormField labelStyle={theme.label} label={UiUtils.getDeviceLabel("wifi_pass")} errors={validationErrors.wifi_pass}>
                         <FormPasswordInput
                             accessibilityLabel="Contraseña Wi-Fi"
@@ -288,6 +298,7 @@ function getDeviceValues(device: Device): DeviceFormValues {
         connections: device.connections,
         model: device.model ?? "",
         ip: device.ip ?? "",
+        ssid: device.ssid ?? "",
         wifi_pass: device.wifi_pass ?? "",
         admin_pass: device.admin_pass ?? "",
         mac_filter: device.mac_filter ?? false
@@ -304,6 +315,7 @@ function getRequest(values: DeviceFormValues, device?: Device | null): DeviceFor
     };
     if (values.type === "ROUTER") {
         request.mac_filter = values.mac_filter;
+        request.ssid = values.ssid.trim() || undefined;
         request.wifi_pass = values.wifi_pass || undefined;
         request.admin_pass = values.admin_pass || undefined;
     }

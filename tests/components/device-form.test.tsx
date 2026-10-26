@@ -1,6 +1,7 @@
 import { fireEvent, render, waitFor } from "@testing-library/react-native";
 import DeviceForm from "../../src/components/device-form";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import type { Device } from "../../src/types/devices";
 
 const INITIAL_METRICS = {
     frame: { x: 0, y: 0, width: 390, height: 844 },
@@ -28,6 +29,34 @@ describe("DeviceForm", () => {
                 connections: [],
                 model: "OLED",
                 ip: "192.168.1.20"
+            })
+        );
+    });
+
+    it("submits the SSID for a router", async () => {
+        const onSubmit = jest.fn().mockResolvedValue(undefined);
+        const device: Device = { id: "router-1", name: "Router", type: "ROUTER", connections: [], ssid: "Red anterior" };
+        const { getByLabelText, getByRole } = await render(
+            <SafeAreaProvider initialMetrics={INITIAL_METRICS}>
+                <DeviceForm device={device} onSubmit={onSubmit} />
+            </SafeAreaProvider>
+        );
+
+        await fireEvent.changeText(getByLabelText("SSID"), "  Red principal  ");
+        await fireEvent.press(getByRole("button", { name: "Guardar cambios" }));
+
+        await waitFor(() =>
+            expect(onSubmit).toHaveBeenCalledWith({
+                id: "router-1",
+                name: "Router",
+                type: "ROUTER",
+                connections: [],
+                ssid: "Red principal",
+                mac_filter: false,
+                wifi_pass: undefined,
+                admin_pass: undefined,
+                model: undefined,
+                ip: undefined
             })
         );
     });

@@ -19,6 +19,7 @@ import {
     DeleteWhitelistResponse
 } from "../types/whitelist";
 import type { UpdatePasswordRequest, UpdateUsernameRequest, UpdateUsernameResponse } from "../types/users";
+import type { RouterCpanelNavigationAction, RouterCpanelSession, RouterCpanelTheme } from "../types/router-cpanel";
 
 /**
  * API client
@@ -187,6 +188,50 @@ export default class ApiUtils {
             const { data } = await axios.delete<DeleteDeviceResponse>(this.buildUrl(`devices/${id}`));
             ApiUtils.DEVICES_VERSION = String(BigInt(ApiUtils.DEVICES_VERSION) + 1n);
             return data;
+        });
+    }
+
+    /**
+     * Creates a router control panel session
+     *
+     * @param routerId Router identifier
+     * @param theme Application theme
+     * @returns Router control panel session
+     */
+    static async createRouterCpanelSession(routerId: string, theme: RouterCpanelTheme): Promise<ApiResponse<RouterCpanelSession>> {
+        return this.executeRequest(async () => {
+            const { data } = await axios.post<RouterCpanelSession>(this.buildUrl(`devices/${routerId}/cpanel`), {
+                clientType: "mobile",
+                language: "es-ES",
+                theme
+            });
+            return data;
+        });
+    }
+
+    /**
+     * Navigates within a router control panel session
+     *
+     * @param sessionId Router control panel session identifier
+     * @param action Navigation action
+     */
+    static async navigateRouterCpanelSession(
+        sessionId: string,
+        action: RouterCpanelNavigationAction
+    ): Promise<ApiResponse<void>> {
+        return this.executeRequest(async () => {
+            await axios.post<void>(this.buildUrl(`devices/cpanel/${sessionId}/navigation`), { action });
+        });
+    }
+
+    /**
+     * Closes a router control panel session
+     *
+     * @param sessionId Router control panel session identifier
+     */
+    static async closeRouterCpanelSession(sessionId: string): Promise<ApiResponse<void>> {
+        return this.executeRequest(async () => {
+            await axios.delete<void>(this.buildUrl(`devices/cpanel/${sessionId}`));
         });
     }
 

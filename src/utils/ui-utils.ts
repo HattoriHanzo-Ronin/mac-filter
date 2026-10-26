@@ -29,6 +29,7 @@ export default class UiUtils {
         mac: "MAC",
         model: "Modelo",
         ip: "IP",
+        ssid: "SSID",
         wifi_pass: "Contraseña Wi-Fi",
         admin_pass: "Contraseña de administración",
         mac_filter: "Filtro MAC"
@@ -68,6 +69,22 @@ export default class UiUtils {
     /** Returns the translated display label for a device type. */
     static getDeviceTypeLabel(type: Device["type"]): string {
         return this.DEVICE_TYPE_LABELS[type];
+    }
+
+    /**
+     * Returns a Wi-Fi QR payload
+     *
+     * @param ssid Wi-Fi network name
+     * @param password Wi-Fi password
+     * @returns Wi-Fi QR payload
+     */
+    static getWifiQrPayload(ssid: string, password: string): string {
+        const escapeValue = (value: string): string => value.replace(/[\\;,:"]/g, "\\$&");
+        if (password === "") {
+            return `WIFI:T:nopass;S:${escapeValue(ssid)};;`;
+        }
+
+        return `WIFI:T:WPA;S:${escapeValue(ssid)};P:${escapeValue(password)};;`;
     }
 
     /**
@@ -147,6 +164,7 @@ export default class UiUtils {
         }
 
         this.addDeviceProperty(properties, "ip", this.getDeviceLabel("ip"), device.ip);
+        this.addDeviceProperty(properties, "ssid", this.getDeviceLabel("ssid"), device.ssid);
         this.addDeviceProperty(properties, "wifi_pass", this.getDeviceLabel("wifi_pass"), device.wifi_pass);
         return properties;
     }

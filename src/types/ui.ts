@@ -20,6 +20,7 @@ export type DeviceLabelKey =
     | "mac"
     | "model"
     | "ip"
+    | "ssid"
     | "wifi_pass"
     | "admin_pass"
     | "mac_filter";

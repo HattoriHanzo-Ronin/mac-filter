@@ -1,7 +1,7 @@
 import { useAppContext } from "@/src/components/app-context-provider";
 import DevicePicker from "@/src/components/device-picker";
 import DeviceSearchInput from "@/src/components/device-search-input";
-import type { Device, WifiPasswordDialogProps } from "@/src/types/devices";
+import type { Device, WifiQrDialogProps } from "@/src/types/devices";
 import type { GetDevicesVersionResponse } from "@/src/types/version";
 import ApiUtils from "@/src/utils/api-utils";
 import UiUtils from "@/src/utils/ui-utils";
@@ -16,8 +16,8 @@ import CustomButton from "@/src/components/custom-button";
 import ScreenBackground from "@/src/components/screen-background";
 import LoadingWindow from "@/src/components/loading-window";
 
-function WifiPasswordDialog(props: WifiPasswordDialogProps) {
-    const { password, visible, onClose } = props;
+function WifiQrDialog(props: WifiQrDialogProps) {
+    const { ssid, password, visible, onClose } = props;
     const { mode } = useTheme();
     const theme = indexStyles[mode];
 
@@ -31,10 +31,13 @@ function WifiPasswordDialog(props: WifiPasswordDialogProps) {
             <View style={index.qrBackdrop}>
                 <View style={[index.qrDialog, theme.qrDialog]}>
                     <Text style={[index.qrHelperText, theme.valueProp]}>
-                        Escanea el código para obtener la contraseña Wi-Fi.
+                        Escanea el código para conectar a la red Wi-Fi {ssid}.
+                    </Text>
+                    <Text style={[index.qrHelperText, theme.valueProp]}>
+                        Para que el filtro MAC permita el acceso, desactiva la MAC aleatoria o la dirección privada en los ajustes de esta red.
                     </Text>
                     <View style={index.qrContainer}>
-                        {password ? <QRCode backgroundColor="white" color="black" size={210} value={password} /> : null}
+                        <QRCode backgroundColor="white" color="black" size={210} value={UiUtils.getWifiQrPayload(ssid, password)} />
                     </View>
                     <View style={index.qrActions}>
                         <CustomButton buttonStyle={theme.qrCloseButton} label="Cerrar" onPress={onClose} style={index.qrAction} />
@@ -57,7 +60,7 @@ export default function Index() {
     const { devices, lastDevice, setDevices, setLastDevice, executeApiRequest, isAuthenticated, isLoading } = useAppContext();
     const [deviceId, setDeviceId] = useState<string>("");
     const [connectionTypeIndex, setConnectionTypeIndex] = useState<number>(0);
-    const [isWifiPasswordVisible, setIsWifiPasswordVisible] = useState<boolean>(false);
+    const [isWifiQrVisible, setIsWifiQrVisible] = useState<boolean>(false);
     const deviceProperties = lastDevice ? UiUtils.mapDeviceProperties(lastDevice) : [];
     const selectDevice = useCallback((device?: Device): void => {
         setLastDevice(device ?? null);
@@ -178,9 +181,11 @@ export default function Index() {
                                     <Text selectable style={[index.valueProp, theme.valueProp]}>
                                         {item.key === "mac" ? item.value[connectionTypeIndex] : item.value}
                                     </Text>
-                                    {item.key === "wifi_pass" && (
-                                        <Pressable hitSlop={8} onPress={() => setIsWifiPasswordVisible(true)}>
-                                            <Text style={[index.qrLink, theme.qrLink]}>Mostrar QR</Text>
+                                    {lastDevice?.ssid &&
+                                        ((item.key === "wifi_pass" && lastDevice.wifi_pass) ||
+                                            (item.key === "ssid" && !lastDevice.wifi_pass)) && (
+                                        <Pressable hitSlop={8} onPress={() => setIsWifiQrVisible(true)}>
+                                            <Text style={[index.qrLink, theme.qrLink]}>Conectar por QR</Text>
                                         </Pressable>
                                     )}
                                 </View>
@@ -192,10 +197,11 @@ export default function Index() {
             </View>
             </View>
             <LoadingWindow />
-            <WifiPasswordDialog
-                onClose={() => setIsWifiPasswordVisible(false)}
+            <WifiQrDialog
+                onClose={() => setIsWifiQrVisible(false)}
                 password={lastDevice?.wifi_pass ?? ""}
-                visible={isWifiPasswordVisible}
+                ssid={lastDevice?.ssid ?? ""}
+                visible={isWifiQrVisible}
             />
         </ScreenBackground>
     );

@@ -1,9 +1,9 @@
 import { useAppContext } from "@/src/components/app-context-provider";
+import { useOperationContext } from "@/src/components/operations-provider";
 import DevicePicker from "@/src/components/device-picker";
 import DeviceSearchInput from "@/src/components/device-search-input";
 import type { Device, WifiQrDialogProps } from "@/src/types/devices";
 import type { GetDevicesVersionResponse } from "@/src/types/version";
-import ApiUtils from "@/src/utils/api-utils";
 import UiUtils from "@/src/utils/ui-utils";
 import { Redirect, router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
@@ -57,7 +57,8 @@ function WifiQrDialog(props: WifiQrDialogProps) {
 export default function Index() {
     const { mode } = useTheme();
     const theme = indexStyles[mode];
-    const { devices, lastDevice, setDevices, setLastDevice, executeApiRequest, isAuthenticated, isLoading } = useAppContext();
+    const { devices, lastDevice, setDevices, setLastDevice, isAuthenticated, isLoading } = useAppContext();
+    const { apiUtils, executeApiRequest } = useOperationContext();
     const [deviceId, setDeviceId] = useState<string>("");
     const [connectionTypeIndex, setConnectionTypeIndex] = useState<number>(0);
     const [isWifiQrVisible, setIsWifiQrVisible] = useState<boolean>(false);
@@ -98,7 +99,7 @@ export default function Index() {
             void (async () => {
                 if (!isLoading) {
                     const result = await executeApiRequest((apiUtils) => apiUtils.getVersion<GetDevicesVersionResponse>("devices"), true);
-                    if (result.success && result.data.devices !== ApiUtils.DEVICES_VERSION) {
+                    if (result.success && result.data.devices !== apiUtils.DEVICES_VERSION) {
                         await loadDevices();
                     }
                 }
@@ -106,7 +107,7 @@ export default function Index() {
         }, 5000);
 
         return () => clearInterval(interval);
-    }, [executeApiRequest, isLoading, loadDevices]);
+    }, [apiUtils, executeApiRequest, isLoading, loadDevices]);
 
     if (!isAuthenticated) {
         return <Redirect href="/" />;

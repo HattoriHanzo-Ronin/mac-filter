@@ -18,14 +18,17 @@ export default class AuthUtils {
     private setIsAuthenticated: (isAuthenticated: boolean) => void;
     private setUser: (user: AuthUser | null) => void;
     private storage: Storage;
+    private apiUtils: ApiUtils;
 
     constructor(
         setIsAuthenticated: (isAuthenticated: boolean) => void,
         setUser: (user: AuthUser | null) => void,
+        apiUtils: ApiUtils,
         storage: Storage
     ) {
         this.setIsAuthenticated = setIsAuthenticated;
         this.setUser = setUser;
+        this.apiUtils = apiUtils;
         this.storage = storage;
     }
 
@@ -36,7 +39,7 @@ export default class AuthUtils {
      * @returns Validation error details or nothing
      */
     async login(credentials: LoginRequest): Promise<ApiValidationErrorDetail[] | undefined> {
-        const result = await this.authenticate(() => ApiUtils.login(credentials));
+        const result = await this.authenticate(() => this.apiUtils.login(credentials));
         if (!result.success) {
             const { code, details } = result.error;
             if (code === "VALIDATION_FAILED" && details) {
@@ -59,7 +62,7 @@ export default class AuthUtils {
             return false;
         }
 
-        const { success } = await this.authenticate(() => ApiUtils.refreshToken(refreshToken));
+        const { success } = await this.authenticate(() => this.apiUtils.refreshToken(refreshToken));
         return success;
     }
 
@@ -73,7 +76,7 @@ export default class AuthUtils {
             return;
         }
 
-        const result = await ApiUtils.logout(refreshToken);
+        const result = await this.apiUtils.logout(refreshToken);
         if (result.success) {
             await this.storage.delete(AuthUtils.REFRESH_TOKEN_KEY);
             this.clearSession();

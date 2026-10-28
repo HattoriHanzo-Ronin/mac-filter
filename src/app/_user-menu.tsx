@@ -3,6 +3,7 @@ import { userMenu, userMenuPalette, userMenuStyles } from "@/src/styles/app/styl
 import { Dispatch, SetStateAction, useState } from "react";
 import { Modal, Pressable, Text, TextInput, View } from "react-native";
 import { useAppContext } from "@/src/components/app-context-provider";
+import { useOperationContext } from "@/src/components/operations-provider";
 import { useTheme } from "@/src/components/theme-provider";
 import PasswordInput from "@/src/components/password-input";
 import ValidationMessages from "@/src/components/validation-messages";
@@ -41,7 +42,8 @@ function closeDialog(setIsVisible: Dispatch<SetStateAction<boolean>>, onClose: (
 
 function ChangeUsernameMenu(props: UserMenuSectionProps) {
     const { onClose } = props;
-    const { user, setUser, executeApiRequest } = useAppContext();
+    const { user, setUser } = useAppContext();
+    const { executeApiRequest } = useOperationContext();
     const [isVisible, setIsVisible] = useState<boolean>(false);
     const [newUsername, setNewUsername] = useState<string>("");
     const [validationErrors, setValidationErrors] = useState<ValidationErrors<UpdateUsernameRequest>>({});
@@ -89,7 +91,7 @@ function ChangeUsernameMenu(props: UserMenuSectionProps) {
 }
 
 function ChangePasswordMenu(props: UserMenuSectionProps) {
-    const { authUtils, executeApiRequest } = useAppContext();
+    const { executeApiRequest, authUtils } = useOperationContext();
     const [isVisible, setIsVisible] = useState<boolean>(false);
     const [currentPassword, setCurrentPassword] = useState<string>("");
     const [newPassword, setNewPassword] = useState<string>("");
@@ -151,7 +153,8 @@ function ChangePasswordMenu(props: UserMenuSectionProps) {
 }
 
 export default function UserMenu() {
-    const { user, authUtils } = useAppContext();
+    const { user } = useAppContext();
+    const { authUtils } = useOperationContext();
     const { mode } = useTheme();
     const palette = userMenuPalette[mode];
     const theme = userMenuStyles[mode];

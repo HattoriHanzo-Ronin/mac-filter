@@ -4,11 +4,13 @@ import ScreenBackground from "@/src/components/screen-background";
 import type { CreateDeviceRequest } from "@/src/types/devices";
 import type { DeviceFormRequest } from "@/src/types/form";
 import { useAppContext } from "@/src/components/app-context-provider";
+import { useOperationContext } from "@/src/components/operations-provider";
 import type { ApiErrorResponse } from "@/src/types/api-response";
 import LoadingWindow from "@/src/components/loading-window";
 
 export default function Add() {
-    const { setDevices, executeApiRequest, isAuthenticated } = useAppContext();
+    const { setDevices, isAuthenticated } = useAppContext();
+    const { executeApiRequest } = useOperationContext();
 
     async function createDevice(request: DeviceFormRequest): Promise<ApiErrorResponse | undefined> {
         const result = await executeApiRequest((apiUtils) => apiUtils.createDevice(request as CreateDeviceRequest));

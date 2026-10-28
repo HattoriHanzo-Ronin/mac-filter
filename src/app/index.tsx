@@ -9,6 +9,7 @@ import FormField from "../components/form-field";
 import FormTextInput from "../components/form-text-input";
 import { FormPasswordInput } from "../components/password-input";
 import { useAppContext } from "../components/app-context-provider";
+import { useOperationContext } from "../components/operations-provider";
 import { useTheme } from "../components/theme-provider";
 import { login, loginPalette, loginStyles } from "@/src/styles/app/style";
 import type { LoginRequest } from "../types/auth";
@@ -18,7 +19,8 @@ import UiUtils from "../utils/ui-utils";
 const DEFAULT_VALUES: LoginRequest = { username: "", password: "" };
 
 export default function Index() {
-    const { authUtils, loadingUtils, isAuthenticated, isLoading } = useAppContext();
+    const { isAuthenticated, isLoading } = useAppContext();
+    const { authUtils, loadingUtils } = useOperationContext();
     const { mode } = useTheme();
     const theme = loginStyles[mode];
     const palette = loginPalette[mode];

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { FlatList, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAppContext } from "../components/app-context-provider";
+import { useOperationContext } from "../components/operations-provider";
 import { macFilter, macFilterDynamic, macFilterStyles } from "@/src/styles/app/style";
 import { useTheme } from "@/src/components/theme-provider";
 import CustomButton from "../components/custom-button";
@@ -12,11 +13,11 @@ import ScreenBackground from "../components/screen-background";
 import LoadingWindow from "../components/loading-window";
 import type { Device } from "../types/devices";
 import type { GetFilteredDevicesVersionResponse } from "../types/version";
-import ApiUtils from "../utils/api-utils";
 import UiUtils from "../utils/ui-utils";
 
 export default function MacFilter() {
-    const { lastDevice, isAuthenticated, isLoading, executeApiRequest } = useAppContext();
+    const { lastDevice, isAuthenticated, isLoading } = useAppContext();
+    const { apiUtils, executeApiRequest } = useOperationContext();
     const { mode } = useTheme();
     const theme = macFilterStyles[mode];
     const routerId = lastDevice?.id;
@@ -96,8 +97,8 @@ export default function MacFilter() {
                     );
                     if (
                         versions.success &&
-                        (versions.data.devices !== ApiUtils.DEVICES_VERSION ||
-                            versions.data.whitelist !== ApiUtils.WHITELIST_VERSION)
+                        (versions.data.devices !== apiUtils.DEVICES_VERSION ||
+                            versions.data.whitelist !== apiUtils.WHITELIST_VERSION)
                     ) {
                         await loadDevices();
                     }
@@ -106,7 +107,7 @@ export default function MacFilter() {
         }, 5000);
 
         return () => clearInterval(interval);
-    }, [executeApiRequest, isLoading, loadDevices]);
+    }, [apiUtils, executeApiRequest, isLoading, loadDevices]);
 
     if (!isAuthenticated) {
         return <Redirect href="/" />;

@@ -1,5 +1,6 @@
 import { Stack } from "expo-router";
 import AppContextProvider from "@/src/components/app-context-provider";
+import OperationsProvider from "@/src/components/operations-provider";
 import ThemeProvider, { useTheme } from "@/src/components/theme-provider";
 import UserMenu from "./_user-menu";
 import { rootLayout, rootLayoutStyles } from "@/src/styles/app/style";
@@ -9,7 +10,11 @@ import { useEffect, useRef } from "react";
 export default function RootLayout() {
     return (
         <ThemeProvider>
-            <ThemedRootLayout />
+            <AppContextProvider>
+                <OperationsProvider>
+                    <ThemedRootLayout />
+                </OperationsProvider>
+            </AppContextProvider>
         </ThemeProvider>
     );
 }
@@ -52,7 +57,6 @@ function ThemedRootLayout() {
     }, []);
 
     return (
-        <AppContextProvider>
             <View style={rootLayout.screen}>
                 <Stack>
                     {screens.map(({ name, options }) => (
@@ -64,6 +68,5 @@ function ThemedRootLayout() {
                     ))}
                 </Stack>
             </View>
-        </AppContextProvider>
     );
 }

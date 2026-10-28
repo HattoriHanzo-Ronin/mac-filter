@@ -10,12 +10,3 @@ export const VALIDATION_PATTERNS = {
     INTERFACE: /^[A-Za-z]+$/,
     IP: /^((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)$/
 };
-
-export const PLACEHOLDER_ITEM = {
-    id: "placeholder",
-    name: "Dispositivo",
-    type: "",
-    mac: "00:00:00:00:00:00",
-    intrface: "LAN",
-    ip: "0.0.0.0"
-};

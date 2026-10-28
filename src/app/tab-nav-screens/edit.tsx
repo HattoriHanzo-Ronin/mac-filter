@@ -2,13 +2,15 @@ import { Redirect } from "expo-router";
 import type { DeviceFormRequest } from "@/src/types/form";
 import type { UpdateDeviceRequest } from "@/src/types/devices";
 import { useAppContext } from "@/src/components/app-context-provider";
+import { useOperationContext } from "@/src/components/operations-provider";
 import DeviceForm from "@/src/components/device-form";
 import ScreenBackground from "@/src/components/screen-background";
 import type { ApiErrorResponse } from "@/src/types/api-response";
 import LoadingWindow from "@/src/components/loading-window";
 
 export default function Edit() {
-    const { lastDevice, setDevices, setLastDevice, executeApiRequest, isAuthenticated } = useAppContext();
+    const { lastDevice, setDevices, setLastDevice, isAuthenticated } = useAppContext();
+    const { executeApiRequest } = useOperationContext();
 
     async function updateDevice(request: DeviceFormRequest): Promise<ApiErrorResponse | undefined> {
         const result = await executeApiRequest((apiUtils) => apiUtils.updateDevice(request as UpdateDeviceRequest));

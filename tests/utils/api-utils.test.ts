@@ -1,12 +1,13 @@
 import axios, { isAxiosError } from "axios";
-import ApiUtils from "../../src/utils/api-utils";
+import ApiUtilsClass from "../../src/utils/api-utils";
 import { LoginResponse } from "../../src/types/auth";
 import { CreateDeviceRequest, Device, UpdateDeviceRequest } from "../../src/types/devices";
 import { GetFilteredDevicesVersionResponse } from "../../src/types/version";
 
 jest.mock("axios");
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "https://api.test";
+const ApiUtils = new ApiUtilsClass(API_URL);
 const DEVICE: Device = { id: "device-1", name: "Laptop", type: "CLIENT", connections: [{ mac: "AA:BB", ctype: "WIFI" }] };
 const CREATE_DEVICE: CreateDeviceRequest = { name: "Laptop", type: "CLIENT", connections: DEVICE.connections };
 const UPDATE_DEVICE: UpdateDeviceRequest = { id: DEVICE.id, name: "Desktop" };

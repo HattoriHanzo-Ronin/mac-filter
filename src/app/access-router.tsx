@@ -8,11 +8,12 @@ import ScreenBackground from "@/src/components/screen-background";
 import { useTheme } from "@/src/components/theme-provider";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAppContext } from "../components/app-context-provider";
+import { useOperationContext } from "../components/operations-provider";
 import type { RouterCpanelNavigationAction } from "../types/router-cpanel";
-import ApiUtils from "../utils/api-utils";
 
 export default function AccessRouter() {
-    const { lastDevice, executeApiRequest } = useAppContext();
+    const { lastDevice } = useAppContext();
+    const { apiUtils, executeApiRequest } = useOperationContext();
     const { mode } = useTheme();
     const theme = accessRouterStyles[mode];
     const palette = accessRouterPalette[mode];
@@ -45,7 +46,7 @@ export default function AccessRouter() {
             }
 
             if (!isActive) {
-                void ApiUtils.closeRouterCpanelSession(result.data.id);
+                void apiUtils.closeRouterCpanelSession(result.data.id);
                 return;
             }
 
@@ -59,10 +60,10 @@ export default function AccessRouter() {
             const currentSessionId = sessionId.current;
             sessionId.current = null;
             if (currentSessionId) {
-                void ApiUtils.closeRouterCpanelSession(currentSessionId);
+                void apiUtils.closeRouterCpanelSession(currentSessionId);
             }
         };
-    }, [executeApiRequest, mode, routerId]);
+    }, [apiUtils, executeApiRequest, mode, routerId]);
 
     if (!routerId) {
         return <Redirect href="/tab-nav-screens" />;

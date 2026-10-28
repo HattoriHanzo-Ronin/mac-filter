@@ -27,8 +27,13 @@ import type { RouterCpanelNavigationAction, RouterCpanelSession, RouterCpanelThe
  * @author HattoriHanzo-Ronin
  */
 export default class ApiUtils {
-    static DEVICES_VERSION = "0";
-    static WHITELIST_VERSION = "0";
+    DEVICES_VERSION = "0";
+    WHITELIST_VERSION = "0";
+    private apiUrl: string;
+
+    constructor(apiUrl: string) {
+        this.apiUrl = apiUrl.replace(/\/+$/, "");
+    }
 
     /**
      * Returns the login result
@@ -36,7 +41,7 @@ export default class ApiUtils {
      * @param request Login credentials
      * @returns Login response
      */
-    static async login(request: LoginRequest): Promise<ApiResponse<LoginResponse>> {
+    async login(request: LoginRequest): Promise<ApiResponse<LoginResponse>> {
         return this.executeRequest(async () => {
             const { data } = await axios.post<LoginResponse>(this.buildUrl("auth"), request);
             return data;
@@ -49,7 +54,7 @@ export default class ApiUtils {
      * @param request Refresh token
      * @returns Refresh token response
      */
-    static async refreshToken(request: RefreshTokenRequest): Promise<ApiResponse<RefreshTokenResponse>> {
+    async refreshToken(request: RefreshTokenRequest): Promise<ApiResponse<RefreshTokenResponse>> {
         return this.executeRequest(async () => {
             const { data } = await axios.post<LoginResponse>(this.buildUrl("auth/refresh"), request);
             return data;
@@ -62,7 +67,7 @@ export default class ApiUtils {
      * @param request Logout token
      * @returns Logout response
      */
-    static async logout(request: LogoutRequest): Promise<ApiResponse<void>> {
+    async logout(request: LogoutRequest): Promise<ApiResponse<void>> {
         return this.executeRequest(async () => {
             await axios.delete<void>(this.buildUrl("auth"), { data: request });
         });
@@ -74,7 +79,7 @@ export default class ApiUtils {
      * @param request Username data
      * @returns Updated username
      */
-    static async updateUsername(request: UpdateUsernameRequest): Promise<ApiResponse<UpdateUsernameResponse>> {
+    async updateUsername(request: UpdateUsernameRequest): Promise<ApiResponse<UpdateUsernameResponse>> {
         return this.executeRequest(async () => {
             const { data } = await axios.put<UpdateUsernameResponse>(this.buildUrl("users"), request);
             return data;
@@ -87,7 +92,7 @@ export default class ApiUtils {
      * @param request Password data
      * @returns Update response
      */
-    static async updatePassword(request: UpdatePasswordRequest): Promise<ApiResponse<void>> {
+    async updatePassword(request: UpdatePasswordRequest): Promise<ApiResponse<void>> {
         return this.executeRequest(async () => {
             await axios.patch<void>(this.buildUrl("users/password"), request);
         });
@@ -99,7 +104,7 @@ export default class ApiUtils {
      * @param id Version identifier
      * @returns Version
      */
-    static async getVersion<T>(id: string): Promise<ApiResponse<T>> {
+    async getVersion<T>(id: string): Promise<ApiResponse<T>> {
         return this.executeRequest(async () => {
             const { data } = await axios.get<T>(this.buildUrl("data-versions"), { params: { id } });
             return data;
@@ -111,10 +116,10 @@ export default class ApiUtils {
      *
      * @returns Devices
      */
-    static async getDevices(): Promise<ApiResponse<GetDevicesResponse>> {
+    async getDevices(): Promise<ApiResponse<GetDevicesResponse>> {
         return this.executeRequest(async () => {
             const { data, headers } = await axios.get<GetDevicesResponse>(this.buildUrl("devices"));
-            ApiUtils.DEVICES_VERSION = String(headers["data-version"]);
+            this.DEVICES_VERSION = String(headers["data-version"]);
             return data;
         });
     }
@@ -125,11 +130,11 @@ export default class ApiUtils {
      * @param id Router identifier
      * @returns Allowed devices
      */
-    static async getAllowedDevices(id: string): Promise<ApiResponse<GetAllowedDevicesResponse>> {
+    async getAllowedDevices(id: string): Promise<ApiResponse<GetAllowedDevicesResponse>> {
         return this.executeRequest(async () => {
             const { data, headers } = await axios.get<GetAllowedDevicesResponse>(this.buildUrl(`devices/allowed/${id}`));
-            ApiUtils.DEVICES_VERSION = String(headers["devices-version"]);
-            ApiUtils.WHITELIST_VERSION = String(headers["whitelist-version"]);
+            this.DEVICES_VERSION = String(headers["devices-version"]);
+            this.WHITELIST_VERSION = String(headers["whitelist-version"]);
             return data;
         });
     }
@@ -140,11 +145,11 @@ export default class ApiUtils {
      * @param id Router identifier
      * @returns Not allowed devices
      */
-    static async getNotAllowedDevices(id: string): Promise<ApiResponse<GetNotAllowedDevicesResponse>> {
+    async getNotAllowedDevices(id: string): Promise<ApiResponse<GetNotAllowedDevicesResponse>> {
         return this.executeRequest(async () => {
             const { data, headers } = await axios.get<GetNotAllowedDevicesResponse>(this.buildUrl(`devices/notallowed/${id}`));
-            ApiUtils.DEVICES_VERSION = String(headers["devices-version"]);
-            ApiUtils.WHITELIST_VERSION = String(headers["whitelist-version"]);
+            this.DEVICES_VERSION = String(headers["devices-version"]);
+            this.WHITELIST_VERSION = String(headers["whitelist-version"]);
             return data;
         });
     }
@@ -155,10 +160,10 @@ export default class ApiUtils {
      * @param request Device data
      * @returns Created device
      */
-    static async createDevice(request: CreateDeviceRequest): Promise<ApiResponse<CreateDeviceResponse>> {
+    async createDevice(request: CreateDeviceRequest): Promise<ApiResponse<CreateDeviceResponse>> {
         return this.executeRequest(async () => {
             const { data } = await axios.post<CreateDeviceResponse>(this.buildUrl("devices"), request);
-            ApiUtils.DEVICES_VERSION = String(BigInt(ApiUtils.DEVICES_VERSION) + 1n);
+            this.DEVICES_VERSION = String(BigInt(this.DEVICES_VERSION) + 1n);
             return data;
         });
     }
@@ -169,10 +174,10 @@ export default class ApiUtils {
      * @param request Device data
      * @returns Updated device
      */
-    static async updateDevice(request: UpdateDeviceRequest): Promise<ApiResponse<UpdateDeviceResponse>> {
+    async updateDevice(request: UpdateDeviceRequest): Promise<ApiResponse<UpdateDeviceResponse>> {
         return this.executeRequest(async () => {
             const { data } = await axios.put<UpdateDeviceResponse>(this.buildUrl("devices"), request);
-            ApiUtils.DEVICES_VERSION = String(BigInt(ApiUtils.DEVICES_VERSION) + 1n);
+            this.DEVICES_VERSION = String(BigInt(this.DEVICES_VERSION) + 1n);
             return data;
         });
     }
@@ -183,10 +188,10 @@ export default class ApiUtils {
      * @param id Device identifier
      * @returns Deleted device identifier
      */
-    static async deleteDevice(id: string): Promise<ApiResponse<DeleteDeviceResponse>> {
+    async deleteDevice(id: string): Promise<ApiResponse<DeleteDeviceResponse>> {
         return this.executeRequest(async () => {
             const { data } = await axios.delete<DeleteDeviceResponse>(this.buildUrl(`devices/${id}`));
-            ApiUtils.DEVICES_VERSION = String(BigInt(ApiUtils.DEVICES_VERSION) + 1n);
+            this.DEVICES_VERSION = String(BigInt(this.DEVICES_VERSION) + 1n);
             return data;
         });
     }
@@ -198,7 +203,7 @@ export default class ApiUtils {
      * @param theme Application theme
      * @returns Router control panel session
      */
-    static async createRouterCpanelSession(routerId: string, theme: RouterCpanelTheme): Promise<ApiResponse<RouterCpanelSession>> {
+    async createRouterCpanelSession(routerId: string, theme: RouterCpanelTheme): Promise<ApiResponse<RouterCpanelSession>> {
         return this.executeRequest(async () => {
             const { data } = await axios.post<RouterCpanelSession>(this.buildUrl(`devices/${routerId}/cpanel`), {
                 clientType: "mobile",
@@ -215,7 +220,7 @@ export default class ApiUtils {
      * @param sessionId Router control panel session identifier
      * @param action Navigation action
      */
-    static async navigateRouterCpanelSession(
+    async navigateRouterCpanelSession(
         sessionId: string,
         action: RouterCpanelNavigationAction
     ): Promise<ApiResponse<void>> {
@@ -229,7 +234,7 @@ export default class ApiUtils {
      *
      * @param sessionId Router control panel session identifier
      */
-    static async closeRouterCpanelSession(sessionId: string): Promise<ApiResponse<void>> {
+    async closeRouterCpanelSession(sessionId: string): Promise<ApiResponse<void>> {
         return this.executeRequest(async () => {
             await axios.delete<void>(this.buildUrl(`devices/cpanel/${sessionId}`));
         });
@@ -241,11 +246,11 @@ export default class ApiUtils {
      * @param request Whitelist data
      * @returns Created whitelist entry
      */
-    static async createWhitelist(request: CreateWhitelistRequest): Promise<ApiResponse<CreateWhitelistResponse>> {
+    async createWhitelist(request: CreateWhitelistRequest): Promise<ApiResponse<CreateWhitelistResponse>> {
         return this.executeRequest(async () => {
             const { routerId, ...data } = request;
             const response = await axios.post<CreateWhitelistResponse>(this.buildUrl(`whitelist/${routerId}`), data);
-            ApiUtils.WHITELIST_VERSION = String(BigInt(ApiUtils.WHITELIST_VERSION) + 1n);
+            this.WHITELIST_VERSION = String(BigInt(this.WHITELIST_VERSION) + 1n);
             return response.data;
         });
     }
@@ -256,19 +261,19 @@ export default class ApiUtils {
      * @param request Whitelist data
      * @returns Deleted whitelist entry
      */
-    static async deleteWhitelist(request: DeleteWhitelistRequest): Promise<ApiResponse<DeleteWhitelistResponse>> {
+    async deleteWhitelist(request: DeleteWhitelistRequest): Promise<ApiResponse<DeleteWhitelistResponse>> {
         return this.executeRequest(async () => {
             const { routerId, ...data } = request;
             const response = await axios.delete<DeleteWhitelistResponse>(this.buildUrl(`whitelist/${routerId}`), {
                 data
             });
-            ApiUtils.WHITELIST_VERSION = String(BigInt(ApiUtils.WHITELIST_VERSION) + 1n);
+            this.WHITELIST_VERSION = String(BigInt(this.WHITELIST_VERSION) + 1n);
             return response.data;
         });
     }
 
-    private static buildUrl(entity: string): string {
-        return `${process.env.EXPO_PUBLIC_API_URL}/${entity}`;
+    private buildUrl(entity: string): string {
+        return `${this.apiUrl}/${entity}`;
     }
 
     /**
@@ -277,7 +282,7 @@ export default class ApiUtils {
      * @param callback API request
      * @returns Normalized API response
      */
-    private static async executeRequest<T>(callback: () => Promise<T>): Promise<ApiResponse<T>> {
+    private async executeRequest<T>(callback: () => Promise<T>): Promise<ApiResponse<T>> {
         try {
             return { success: true, data: await callback() };
         } catch (err) {

@@ -30,8 +30,8 @@ import type { SocketSession, SocketVersions, VersionEntity } from "../types/sock
  * @author HattoriHanzo-Ronin
  */
 export default class ApiUtils {
-    DEVICES_VERSION = "0";
-    WHITELIST_VERSION = "0";
+    private devicesVersion = "0";
+    private whitelistVersion = "0";
     private apiUrl: string;
     private storage: Storage;
     private socket: WebSocket | null = null;
@@ -48,6 +48,7 @@ export default class ApiUtils {
         this.storage = storage;
     }
 
+    /** Creates or renews the socket session */
     async refreshSocketSession(): Promise<void> {
         this.isSocketSuspended = false;
         this.isSocketTokenInvalid = false;
@@ -74,6 +75,7 @@ export default class ApiUtils {
         void this.openSocket().catch(() => undefined);
     }
 
+    /** Resumes the socket session */
     async resumeSocketSession(): Promise<void> {
         if (this.resumeSocketRequest) {
             await this.resumeSocketRequest;
@@ -91,11 +93,13 @@ export default class ApiUtils {
         await this.resumeSocketRequest;
     }
 
+    /** Suspends the socket session */
     suspendSocketSession(): void {
         this.isSocketSuspended = true;
         this.closeSocket();
     }
 
+    /** Closes the current socket session */
     async closeSocketSession(): Promise<void> {
         const session = this.socketSession;
         this.suspendSocketSession();
@@ -107,6 +111,7 @@ export default class ApiUtils {
         }
     }
 
+    /** Returns the current versions through the socket */
     async getSocketVersions<T extends SocketVersions>(entities: VersionEntity[]): Promise<ApiResponse<T>> {
         if (this.isSocketSuspended) {
             return { success: true, data: {} as T };
@@ -308,7 +313,7 @@ export default class ApiUtils {
     async getDevices(): Promise<ApiResponse<GetDevicesResponse>> {
         return this.executeRequest(async () => {
             const { data, headers } = await axios.get<GetDevicesResponse>(this.buildUrl("devices"));
-            this.DEVICES_VERSION = String(headers["data-version"]);
+            this.devicesVersion = String(headers["data-version"]);
             return data;
         });
     }
@@ -322,8 +327,8 @@ export default class ApiUtils {
     async getAllowedDevices(id: string): Promise<ApiResponse<GetAllowedDevicesResponse>> {
         return this.executeRequest(async () => {
             const { data, headers } = await axios.get<GetAllowedDevicesResponse>(this.buildUrl(`devices/allowed/${id}`));
-            this.DEVICES_VERSION = String(headers["devices-version"]);
-            this.WHITELIST_VERSION = String(headers["whitelist-version"]);
+            this.devicesVersion = String(headers["devices-version"]);
+            this.whitelistVersion = String(headers["whitelist-version"]);
             return data;
         });
     }
@@ -337,8 +342,8 @@ export default class ApiUtils {
     async getNotAllowedDevices(id: string): Promise<ApiResponse<GetNotAllowedDevicesResponse>> {
         return this.executeRequest(async () => {
             const { data, headers } = await axios.get<GetNotAllowedDevicesResponse>(this.buildUrl(`devices/notallowed/${id}`));
-            this.DEVICES_VERSION = String(headers["devices-version"]);
-            this.WHITELIST_VERSION = String(headers["whitelist-version"]);
+            this.devicesVersion = String(headers["devices-version"]);
+            this.whitelistVersion = String(headers["whitelist-version"]);
             return data;
         });
     }
@@ -352,7 +357,7 @@ export default class ApiUtils {
     async createDevice(request: CreateDeviceRequest): Promise<ApiResponse<CreateDeviceResponse>> {
         return this.executeRequest(async () => {
             const { data } = await axios.post<CreateDeviceResponse>(this.buildUrl("devices"), request);
-            this.DEVICES_VERSION = String(BigInt(this.DEVICES_VERSION) + 1n);
+            this.devicesVersion = String(BigInt(this.devicesVersion) + 1n);
             return data;
         });
     }
@@ -366,7 +371,7 @@ export default class ApiUtils {
     async updateDevice(request: UpdateDeviceRequest): Promise<ApiResponse<UpdateDeviceResponse>> {
         return this.executeRequest(async () => {
             const { data } = await axios.put<UpdateDeviceResponse>(this.buildUrl("devices"), request);
-            this.DEVICES_VERSION = String(BigInt(this.DEVICES_VERSION) + 1n);
+            this.devicesVersion = String(BigInt(this.devicesVersion) + 1n);
             return data;
         });
     }
@@ -380,7 +385,7 @@ export default class ApiUtils {
     async deleteDevice(id: string): Promise<ApiResponse<DeleteDeviceResponse>> {
         return this.executeRequest(async () => {
             const { data } = await axios.delete<DeleteDeviceResponse>(this.buildUrl(`devices/${id}`));
-            this.DEVICES_VERSION = String(BigInt(this.DEVICES_VERSION) + 1n);
+            this.devicesVersion = String(BigInt(this.devicesVersion) + 1n);
             return data;
         });
     }
@@ -439,7 +444,7 @@ export default class ApiUtils {
         return this.executeRequest(async () => {
             const { routerId, ...data } = request;
             const response = await axios.post<CreateWhitelistResponse>(this.buildUrl(`whitelist/${routerId}`), data);
-            this.WHITELIST_VERSION = String(BigInt(this.WHITELIST_VERSION) + 1n);
+            this.whitelistVersion = String(BigInt(this.whitelistVersion) + 1n);
             return response.data;
         });
     }
@@ -456,9 +461,17 @@ export default class ApiUtils {
             const response = await axios.delete<DeleteWhitelistResponse>(this.buildUrl(`whitelist/${routerId}`), {
                 data
             });
-            this.WHITELIST_VERSION = String(BigInt(this.WHITELIST_VERSION) + 1n);
+            this.whitelistVersion = String(BigInt(this.whitelistVersion) + 1n);
             return response.data;
         });
+    }
+
+    get DEVICES_VERSION(): string {
+        return this.devicesVersion;
+    }
+
+    get WHITELIST_VERSION(): string {
+        return this.whitelistVersion;
     }
 
     private buildUrl(entity: string): string {

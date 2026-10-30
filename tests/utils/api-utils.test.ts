@@ -1,13 +1,14 @@
 import axios, { isAxiosError } from "axios";
 import ApiUtilsClass from "../../src/utils/api-utils";
+import type { Storage } from "../../src/utils/storage/storage";
 import { LoginResponse } from "../../src/types/auth";
 import { CreateDeviceRequest, Device, UpdateDeviceRequest } from "../../src/types/devices";
-import { GetFilteredDevicesVersionResponse } from "../../src/types/version";
 
 jest.mock("axios");
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "https://api.test";
-const ApiUtils = new ApiUtilsClass(API_URL);
+const STORAGE: Storage = { get: jest.fn(), set: jest.fn(), delete: jest.fn() };
+const ApiUtils = new ApiUtilsClass(API_URL, STORAGE);
 const DEVICE: Device = { id: "device-1", name: "Laptop", type: "CLIENT", connections: [{ mac: "AA:BB", ctype: "WIFI" }] };
 const CREATE_DEVICE: CreateDeviceRequest = { name: "Laptop", type: "CLIENT", connections: DEVICE.connections };
 const UPDATE_DEVICE: UpdateDeviceRequest = { id: DEVICE.id, name: "Desktop" };
@@ -58,17 +59,6 @@ describe("ApiUtils", () => {
         const request = { currentPassword: "current-password", newPassword: "new-password" };
         expect(await ApiUtils.updatePassword(request)).toEqual({ success: true, data: undefined });
         expect(axios.patch).toHaveBeenCalledWith(`${API_URL}/users/password`, request);
-    });
-
-    it("returns the version for an identifier", async () => {
-        jest.mocked(axios.get).mockResolvedValue({ data: { devices: "12", whitelist: "7" } });
-        expect(await ApiUtils.getVersion<GetFilteredDevicesVersionResponse>("devices,whitelist")).toEqual({
-            success: true,
-            data: { devices: "12", whitelist: "7" }
-        });
-        expect(axios.get).toHaveBeenCalledWith(`${API_URL}/data-versions`, {
-            params: { id: "devices,whitelist" }
-        });
     });
 
     it("returns all devices", async () => {

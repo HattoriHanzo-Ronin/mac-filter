@@ -3,7 +3,6 @@ import { useOperationContext } from "@/src/components/operations-provider";
 import DevicePicker from "@/src/components/device-picker";
 import DeviceSearchInput from "@/src/components/device-search-input";
 import type { Device, WifiQrDialogProps } from "@/src/types/devices";
-import type { GetDevicesVersionResponse } from "@/src/types/version";
 import UiUtils from "@/src/utils/ui-utils";
 import { Redirect, router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
@@ -98,13 +97,16 @@ export default function Index() {
         const interval = setInterval(() => {
             void (async () => {
                 if (!isLoading) {
-                    const result = await executeApiRequest((apiUtils) => apiUtils.getVersion<GetDevicesVersionResponse>("devices"), true);
+                    const result = await executeApiRequest(
+                        (apiUtils) => apiUtils.getSocketVersions<{ devices: string }>(["devices"]),
+                        true
+                    );
                     if (result.success && result.data.devices !== apiUtils.DEVICES_VERSION) {
                         await loadDevices();
                     }
                 }
             })();
-        }, 5000);
+        }, 1000);
 
         return () => clearInterval(interval);
     }, [apiUtils, executeApiRequest, isLoading, loadDevices]);

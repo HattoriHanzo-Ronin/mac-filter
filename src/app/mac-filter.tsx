@@ -12,7 +12,6 @@ import CustomButton from "../components/custom-button";
 import ScreenBackground from "../components/screen-background";
 import LoadingWindow from "../components/loading-window";
 import type { Device } from "../types/devices";
-import type { GetFilteredDevicesVersionResponse } from "../types/version";
 import UiUtils from "../utils/ui-utils";
 
 export default function MacFilter() {
@@ -92,19 +91,15 @@ export default function MacFilter() {
             void (async () => {
                 if (!isLoading) {
                     const versions = await executeApiRequest(
-                        (apiUtils) => apiUtils.getVersion<GetFilteredDevicesVersionResponse>("devices,whitelist"),
+                        (apiUtils) => apiUtils.getSocketVersions<{ devices: string; whitelist: string }>(["devices", "whitelist"]),
                         true
                     );
-                    if (
-                        versions.success &&
-                        (versions.data.devices !== apiUtils.DEVICES_VERSION ||
-                            versions.data.whitelist !== apiUtils.WHITELIST_VERSION)
-                    ) {
+                    if (versions.success && (versions.data.devices !== apiUtils.DEVICES_VERSION || versions.data.whitelist !== apiUtils.WHITELIST_VERSION)) {
                         await loadDevices();
                     }
                 }
             })();
-        }, 5000);
+        }, 1000);
 
         return () => clearInterval(interval);
     }, [apiUtils, executeApiRequest, isLoading, loadDevices]);

@@ -7,7 +7,11 @@ import SecureStoreUtils from "../../src/utils/storage/impl/secure-store";
 import UiUtils from "../../src/utils/ui-utils";
 
 const CREDENTIALS: LoginRequest = { username: "ronin", password: "secret" };
-const ApiUtils = new ApiUtilsClass(process.env.EXPO_PUBLIC_API_URL ?? "https://api.test");
+const ApiUtils = new ApiUtilsClass(process.env.EXPO_PUBLIC_API_URL ?? "https://api.test", {
+    get: jest.fn(),
+    set: jest.fn(),
+    delete: jest.fn()
+});
 const USER: AuthUser = { id: "1", username: "ronin", roles: ["ADMIN"] };
 const LOGIN_RESPONSE: LoginResponse = {
     user: USER,

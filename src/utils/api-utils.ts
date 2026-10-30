@@ -20,6 +20,9 @@ import {
 } from "../types/whitelist";
 import type { UpdatePasswordRequest, UpdateUsernameRequest, UpdateUsernameResponse } from "../types/users";
 import type { RouterCpanelNavigationAction, RouterCpanelSession, RouterCpanelTheme } from "../types/router-cpanel";
+import type { Storage } from "./storage/storage";
+import { STORAGE_KEYS } from "../constants/storage";
+import type { SocketSession, SocketVersions, VersionEntity } from "../types/socket-session";
 
 /**
  * API client
@@ -30,9 +33,208 @@ export default class ApiUtils {
     DEVICES_VERSION = "0";
     WHITELIST_VERSION = "0";
     private apiUrl: string;
+    private storage: Storage;
+    private socket: WebSocket | null = null;
+    private socketSession: SocketSession | null = null;
+    private socketConnection: Promise<void> | null = null;
+    private socketRequest: Promise<ApiResponse<SocketVersions>> | null = null;
+    private resolveSocketRequest: ((response: ApiResponse<SocketVersions>) => void) | null = null;
+    private isSocketSuspended = true;
+    private isSocketTokenInvalid = false;
+    private resumeSocketRequest: Promise<void> | null = null;
 
-    constructor(apiUrl: string) {
+    constructor(apiUrl: string, storage: Storage) {
         this.apiUrl = apiUrl.replace(/\/+$/, "");
+        this.storage = storage;
+    }
+
+    async refreshSocketSession(): Promise<void> {
+        this.isSocketSuspended = false;
+        this.isSocketTokenInvalid = false;
+        const accessToken = await this.storage.get<string>(STORAGE_KEYS.ACCESS_TOKEN);
+        if (!accessToken) {
+            return;
+        }
+
+        const session = this.socketSession
+            ? await this.executeRequest(async () => (await axios.post<SocketSession>(this.buildUrl(`socket-sessions/${this.socketSession!.id}/refresh`))).data)
+            : await this.executeRequest(async () => (await axios.post<SocketSession>(this.buildUrl("socket-sessions"))).data);
+        if (!session.success && this.socketSession) {
+            this.socketSession = null;
+            this.closeSocket();
+            await this.refreshSocketSession();
+            return;
+        }
+
+        if (!session.success) {
+            return;
+        }
+
+        this.socketSession = session.data;
+        void this.openSocket().catch(() => undefined);
+    }
+
+    async resumeSocketSession(): Promise<void> {
+        if (this.resumeSocketRequest) {
+            await this.resumeSocketRequest;
+            return;
+        }
+
+        if (!this.isSocketSuspended) {
+            return;
+        }
+
+        this.isSocketSuspended = false;
+        this.resumeSocketRequest = this.refreshSocketSession().finally(() => {
+            this.resumeSocketRequest = null;
+        });
+        await this.resumeSocketRequest;
+    }
+
+    suspendSocketSession(): void {
+        this.isSocketSuspended = true;
+        this.closeSocket();
+    }
+
+    async closeSocketSession(): Promise<void> {
+        const session = this.socketSession;
+        this.suspendSocketSession();
+        this.socketSession = null;
+        if (session) {
+            await this.executeRequest(async () => {
+                await axios.delete(this.buildUrl(`socket-sessions/${session.id}`));
+            });
+        }
+    }
+
+    async getSocketVersions<T extends SocketVersions>(entities: VersionEntity[]): Promise<ApiResponse<T>> {
+        if (this.isSocketSuspended) {
+            return { success: true, data: {} as T };
+        }
+
+        if (this.socketRequest) {
+            return this.socketRequest as Promise<ApiResponse<T>>;
+        }
+
+        this.socketRequest = this.requestSocketVersions(entities).finally(() => {
+            this.socketRequest = null;
+        });
+        return this.socketRequest as Promise<ApiResponse<T>>;
+    }
+
+    private async requestSocketVersions(entities: VersionEntity[]): Promise<ApiResponse<SocketVersions>> {
+        const accessToken = await this.storage.get<string>(STORAGE_KEYS.ACCESS_TOKEN);
+        if (!accessToken || !this.socketSession) {
+            return { success: false, error: { code: "SOCKET_SESSION_NOT_FOUND", message: "Sesión de versiones no disponible" } };
+        }
+
+        try {
+            await this.openSocket();
+        } catch {
+            return { success: false, error: { code: "SOCKET_CONNECTION_FAILED", message: "No se pudo conectar al socket" } };
+        }
+
+        const socket = this.socket;
+        if (!socket) {
+            return { success: false, error: { code: "SOCKET_CONNECTION_FAILED", message: "No se pudo conectar al socket" } };
+        }
+
+        return new Promise((resolve) => {
+            this.resolveSocketRequest = resolve;
+            socket.onmessage = ({ data }) => {
+                try {
+                    const response = JSON.parse(data) as SocketVersions | ApiError;
+                    if ("code" in response) {
+                        if (response.code === "INVALID_TOKEN") {
+                            this.isSocketTokenInvalid = true;
+                        }
+
+                        this.completeSocketRequest({ success: false, error: response });
+                        return;
+                    }
+
+                    this.completeSocketRequest({ success: true, data: response });
+                } catch {
+                    this.completeSocketRequest({
+                        success: false,
+                        error: { code: "SOCKET_RESPONSE_INVALID", message: "El socket devolvió una respuesta no válida" }
+                    });
+                }
+            };
+            socket.send(JSON.stringify({ accessToken, entities }));
+        });
+    }
+
+    private completeSocketRequest(response: ApiResponse<SocketVersions>): void {
+        const resolve = this.resolveSocketRequest;
+        this.resolveSocketRequest = null;
+        resolve?.(response);
+    }
+
+    private openSocket(): Promise<void> {
+        if (!this.socketSession) {
+            return Promise.reject();
+        }
+
+        if (this.socket?.readyState === WebSocket.OPEN) {
+            return Promise.resolve();
+        }
+
+        if (this.socketConnection) {
+            return this.socketConnection;
+        }
+
+        const socket = new WebSocket(this.buildSocketUrl(this.socketSession.id));
+        let opened = false;
+        this.socket = socket;
+        this.socketConnection = new Promise((resolve, reject) => {
+            socket.onopen = () => {
+                opened = true;
+                this.socketConnection = null;
+                resolve();
+            };
+            socket.onerror = () => {
+                this.socketConnection = null;
+                reject();
+            };
+            socket.onclose = () => {
+                this.socketConnection = null;
+                if (!opened) {
+                    reject();
+                }
+
+                if (this.socket !== socket) {
+                    return;
+                }
+
+                this.socket = null;
+                this.completeSocketRequest({
+                    success: false,
+                    error: { code: "SOCKET_CONNECTION_FAILED", message: "No se pudo conectar al socket" }
+                });
+                if (!this.isSocketSuspended && !this.isSocketTokenInvalid && this.socketSession) {
+                    void this.refreshSocketSession();
+                }
+            };
+        });
+        return this.socketConnection;
+    }
+
+    private closeSocket(): void {
+        const socket = this.socket;
+        this.socket = null;
+        this.socketConnection = null;
+        this.completeSocketRequest({
+            success: false,
+            error: { code: "SOCKET_CONNECTION_FAILED", message: "No se pudo conectar al socket" }
+        });
+        socket?.close();
+    }
+
+    private buildSocketUrl(id: string): string {
+        const url = new URL(this.apiUrl);
+        const protocol = url.protocol === "https:" ? "wss:" : "ws:";
+        return `${protocol}//${url.host}/events/${encodeURIComponent(id)}`;
     }
 
     /**
@@ -95,19 +297,6 @@ export default class ApiUtils {
     async updatePassword(request: UpdatePasswordRequest): Promise<ApiResponse<void>> {
         return this.executeRequest(async () => {
             await axios.patch<void>(this.buildUrl("users/password"), request);
-        });
-    }
-
-    /**
-     * Returns the version for an identifier
-     *
-     * @param id Version identifier
-     * @returns Version
-     */
-    async getVersion<T>(id: string): Promise<ApiResponse<T>> {
-        return this.executeRequest(async () => {
-            const { data } = await axios.get<T>(this.buildUrl("data-versions"), { params: { id } });
-            return data;
         });
     }
 

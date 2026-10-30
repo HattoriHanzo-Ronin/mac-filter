@@ -63,12 +63,12 @@ export default class UiUtils {
      * @returns Device label
      */
     static getDeviceLabel(key: DeviceLabelKey): string {
-        return this.DEVICE_LABELS[key];
+        return UiUtils.DEVICE_LABELS[key];
     }
 
     /** Returns the translated display label for a device type. */
     static getDeviceTypeLabel(type: Device["type"]): string {
-        return this.DEVICE_TYPE_LABELS[type];
+        return UiUtils.DEVICE_TYPE_LABELS[type];
     }
 
     /**
@@ -119,7 +119,7 @@ export default class UiUtils {
         setValidationErrors: Dispatch<SetStateAction<ValidationErrors<T>>>,
         field: keyof T
     ): void {
-        setValidationErrors((current) => this.removeValidationError(current, field));
+        setValidationErrors((current) => UiUtils.removeValidationError(current, field));
     }
 
     /**
@@ -146,26 +146,26 @@ export default class UiUtils {
      */
     static mapDeviceProperties(device: Device): DeviceDisplayProperty[] {
         const properties: DeviceDisplayProperty[] = [
-            { key: "name", label: this.getDeviceLabel("name"), value: device.name },
-            { key: "type", label: this.getDeviceLabel("type"), value: this.DEVICE_TYPE_LABELS[device.type] }
+            { key: "name", label: UiUtils.getDeviceLabel("name"), value: device.name },
+            { key: "type", label: UiUtils.getDeviceLabel("type"), value: UiUtils.DEVICE_TYPE_LABELS[device.type] }
         ];
-        this.addDeviceProperty(properties, "model", this.getDeviceLabel("model"), device.model);
+        UiUtils.addDeviceProperty(properties, "model", UiUtils.getDeviceLabel("model"), device.model);
         if (device.connections.length > 0) {
             properties.push({
                 key: "connection_type",
-                label: this.getDeviceLabel("connection_type"),
-                value: device.connections.map((connection) => this.firstToUpper(connection.ctype))
+                label: UiUtils.getDeviceLabel("connection_type"),
+                value: device.connections.map((connection) => UiUtils.firstToUpper(connection.ctype))
             });
             properties.push({
                 key: "mac",
-                label: this.getDeviceLabel("mac"),
+                label: UiUtils.getDeviceLabel("mac"),
                 value: device.connections.map((connection) => connection.mac)
             });
         }
 
-        this.addDeviceProperty(properties, "ip", this.getDeviceLabel("ip"), device.ip);
-        this.addDeviceProperty(properties, "ssid", this.getDeviceLabel("ssid"), device.ssid);
-        this.addDeviceProperty(properties, "wifi_pass", this.getDeviceLabel("wifi_pass"), device.wifi_pass);
+        UiUtils.addDeviceProperty(properties, "ip", UiUtils.getDeviceLabel("ip"), device.ip);
+        UiUtils.addDeviceProperty(properties, "ssid", UiUtils.getDeviceLabel("ssid"), device.ssid);
+        UiUtils.addDeviceProperty(properties, "wifi_pass", UiUtils.getDeviceLabel("wifi_pass"), device.wifi_pass);
         return properties;
     }
 

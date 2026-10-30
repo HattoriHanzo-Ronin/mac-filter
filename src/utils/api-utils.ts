@@ -99,129 +99,6 @@ export default class ApiUtils {
         return () => this.socketReconnectListeners.delete(listener);
     }
 
-    private async executeSocketSessionRefresh(): Promise<ApiResponse<void>> {
-        this.isSocketSessionSuspended = false;
-        const session = this.socketSession
-            ? await this.executeRequest(async () => (await axios.post<SocketSession>(this.buildUrl(`socket-sessions/${this.socketSession!.id}/refresh`))).data)
-            : await this.executeRequest(async () => (await axios.post<SocketSession>(this.buildUrl("socket-sessions"))).data);
-        if (!session.success && this.socketSession && session.error.code === "SOCKET_SESSION_NOT_FOUND") {
-            this.socketSession = null;
-            this.closeSocket();
-            return this.executeSocketSessionRefresh();
-        }
-
-        if (!session.success) {
-            return { success: false, error: session.error };
-        }
-
-        this.socketSession = session.data;
-        void this.openSocket().catch(() => undefined);
-        return { success: true, data: undefined };
-    }
-
-    private async openSocket(): Promise<void> {
-        if (!this.socketSession) {
-            throw new Error("Socket session not found");
-        }
-
-        if (this.socket?.readyState === WebSocket.OPEN) {
-            return;
-        }
-
-        if (this.socketConnection) {
-            await this.socketConnection;
-            return;
-        }
-
-        const accessToken = await this.storage.get<string>(STORAGE_KEYS.ACCESS_TOKEN);
-        if (!accessToken) {
-            throw new Error("Access token not found");
-        }
-
-        const socket = new WebSocket(this.buildSocketUrl(this.socketSession.id));
-        let opened = false;
-        this.socket = socket;
-        this.socketConnection = new Promise((resolve, reject) => {
-            socket.onopen = () => {
-                opened = true;
-                this.socketConnection = null;
-                socket.send(JSON.stringify({ accessToken, entities: ["devices", "whitelist"] }));
-                resolve();
-            };
-            socket.onmessage = ({ data }) => this.handleSocketMessage(data);
-            socket.onerror = () => {
-                this.socketConnection = null;
-                reject();
-            };
-            socket.onclose = () => {
-                this.socketConnection = null;
-                if (!opened) {
-                    if (this.socket === socket) {
-                        this.socket = null;
-                    }
-
-                    reject();
-                    return;
-                }
-
-                if (this.socket !== socket) {
-                    return;
-                }
-
-                this.socket = null;
-                if (!this.isSocketSessionSuspended && this.socketSession) {
-                    this.socketReconnectListeners.forEach((listener) => listener());
-                }
-            };
-        });
-        await this.socketConnection;
-    }
-
-    private handleSocketMessage(data: string): void {
-        try {
-            const response = JSON.parse(data) as SocketNotification | ApiError;
-            if ("code" in response) {
-                this.socketSession = null;
-                this.closeSocket();
-                return;
-            }
-
-            if (
-                (response.entity !== "devices" && response.entity !== "whitelist") ||
-                typeof response.version !== "string"
-            ) {
-                return;
-            }
-
-            const currentVersion = response.entity === "devices" ? this.devicesVersion : this.whitelistVersion;
-            if (response.version === currentVersion) {
-                return;
-            }
-
-            this.socketChangeListeners.forEach((listener) => listener(response));
-        } catch {
-            return;
-        }
-    }
-
-    private closeSocket(): void {
-        const socket = this.socket;
-        this.socket = null;
-        this.socketConnection = null;
-        socket?.close();
-    }
-
-    private buildSocketUrl(id: string): string {
-        const url = new URL(this.apiUrl);
-        const protocol = url.protocol === "https:" ? "wss:" : "ws:";
-        return `${protocol}//${url.host}/events/${encodeURIComponent(id)}`;
-    }
-
-    private clearVersions(): void {
-        this.devicesVersion = "0";
-        this.whitelistVersion = "0";
-    }
-
     /**
      * Returns the login result
      *
@@ -475,5 +352,128 @@ export default class ApiUtils {
 
             return { success: false, error };
         }
+    }
+
+    private async executeSocketSessionRefresh(): Promise<ApiResponse<void>> {
+        this.isSocketSessionSuspended = false;
+        const session = this.socketSession
+            ? await this.executeRequest(async () => (await axios.post<SocketSession>(this.buildUrl(`socket-sessions/${this.socketSession!.id}/refresh`))).data)
+            : await this.executeRequest(async () => (await axios.post<SocketSession>(this.buildUrl("socket-sessions"))).data);
+        if (!session.success && this.socketSession && session.error.code === "SOCKET_SESSION_NOT_FOUND") {
+            this.socketSession = null;
+            this.closeSocket();
+            return this.executeSocketSessionRefresh();
+        }
+
+        if (!session.success) {
+            return { success: false, error: session.error };
+        }
+
+        this.socketSession = session.data;
+        void this.openSocket().catch(() => undefined);
+        return { success: true, data: undefined };
+    }
+
+    private async openSocket(): Promise<void> {
+        if (!this.socketSession) {
+            throw new Error("Socket session not found");
+        }
+
+        if (this.socket?.readyState === WebSocket.OPEN) {
+            return;
+        }
+
+        if (this.socketConnection) {
+            await this.socketConnection;
+            return;
+        }
+
+        const accessToken = await this.storage.get<string>(STORAGE_KEYS.ACCESS_TOKEN);
+        if (!accessToken) {
+            throw new Error("Access token not found");
+        }
+
+        const socket = new WebSocket(this.buildSocketUrl(this.socketSession.id));
+        let opened = false;
+        this.socket = socket;
+        this.socketConnection = new Promise((resolve, reject) => {
+            socket.onopen = () => {
+                opened = true;
+                this.socketConnection = null;
+                socket.send(JSON.stringify({ accessToken, entities: ["devices", "whitelist"] }));
+                resolve();
+            };
+            socket.onmessage = ({ data }) => this.handleSocketMessage(data);
+            socket.onerror = () => {
+                this.socketConnection = null;
+                reject();
+            };
+            socket.onclose = () => {
+                this.socketConnection = null;
+                if (!opened) {
+                    if (this.socket === socket) {
+                        this.socket = null;
+                    }
+
+                    reject();
+                    return;
+                }
+
+                if (this.socket !== socket) {
+                    return;
+                }
+
+                this.socket = null;
+                if (!this.isSocketSessionSuspended && this.socketSession) {
+                    this.socketReconnectListeners.forEach((listener) => listener());
+                }
+            };
+        });
+        await this.socketConnection;
+    }
+
+    private handleSocketMessage(data: string): void {
+        try {
+            const response = JSON.parse(data) as SocketNotification | ApiError;
+            if ("code" in response) {
+                this.socketSession = null;
+                this.closeSocket();
+                return;
+            }
+
+            if (
+                (response.entity !== "devices" && response.entity !== "whitelist") ||
+                typeof response.version !== "string"
+            ) {
+                return;
+            }
+
+            const currentVersion = response.entity === "devices" ? this.devicesVersion : this.whitelistVersion;
+            if (response.version === currentVersion) {
+                return;
+            }
+
+            this.socketChangeListeners.forEach((listener) => listener(response));
+        } catch {
+            return;
+        }
+    }
+
+    private closeSocket(): void {
+        const socket = this.socket;
+        this.socket = null;
+        this.socketConnection = null;
+        socket?.close();
+    }
+
+    private buildSocketUrl(id: string): string {
+        const url = new URL(this.apiUrl);
+        const protocol = url.protocol === "https:" ? "wss:" : "ws:";
+        return `${protocol}//${url.host}/events/${encodeURIComponent(id)}`;
+    }
+
+    private clearVersions(): void {
+        this.devicesVersion = "0";
+        this.whitelistVersion = "0";
     }
 }

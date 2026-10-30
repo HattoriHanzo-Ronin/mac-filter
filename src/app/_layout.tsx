@@ -2,7 +2,7 @@ import { Stack } from "expo-router";
 import AppContextProvider from "@/src/components/app-context-provider";
 import OperationsProvider from "@/src/components/operations-provider";
 import ThemeProvider, { useTheme } from "@/src/components/theme-provider";
-import UserMenu from "./_user-menu";
+import UserMenu from "@/src/components/user-menu";
 import { rootLayout, rootLayoutStyles } from "@/src/styles/app/style";
 import { BackHandler, ToastAndroid, View } from "react-native";
 import { useEffect, useRef } from "react";

@@ -69,6 +69,7 @@
   "private": true,
   "packageManager": "pnpm@11.17.0",
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "setupFiles": ["<rootDir>/tests/setup.ts"]
   }
 }

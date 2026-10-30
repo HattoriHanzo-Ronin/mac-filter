@@ -7,11 +7,13 @@ const mockRun = jest.fn((operation: () => Promise<unknown>) => operation());
 
 jest.mock("../../src/components/app-context-provider", () => ({
     useAppContext: () => ({
-        authUtils: { login: mockLogin, restoreSession: mockRestoreSession },
-        loadingUtils: { run: mockRun },
         isAuthenticated: false,
         isLoading: false
     })
+}));
+
+jest.mock("../../src/components/operations-provider", () => ({
+    useOperationContext: () => ({ authUtils: { login: mockLogin, restoreSession: mockRestoreSession }, loadingUtils: { run: mockRun } })
 }));
 
 describe("Login", () => {

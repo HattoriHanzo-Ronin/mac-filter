@@ -8,7 +8,7 @@ jest.mock("axios");
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "https://api.test";
 const STORAGE: Storage = { get: jest.fn(), set: jest.fn(), delete: jest.fn() };
-const ApiUtils = new ApiUtilsClass(API_URL, STORAGE);
+let ApiUtils: ApiUtilsClass;
 const DEVICE: Device = { id: "device-1", name: "Laptop", type: "CLIENT", connections: [{ mac: "AA:BB", ctype: "WIFI" }] };
 const CREATE_DEVICE: CreateDeviceRequest = { name: "Laptop", type: "CLIENT", connections: DEVICE.connections };
 const UPDATE_DEVICE: UpdateDeviceRequest = { id: DEVICE.id, name: "Desktop" };
@@ -21,8 +21,7 @@ const LOGIN_RESPONSE: LoginResponse = {
 describe("ApiUtils", () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        ApiUtils.DEVICES_VERSION = "0";
-        ApiUtils.WHITELIST_VERSION = "0";
+        ApiUtils = new ApiUtilsClass(API_URL, STORAGE);
     });
 
     it("logs in with credentials", async () => {

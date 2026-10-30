@@ -34,7 +34,7 @@ Mac Filter turns that manual process into a shared, repeatable workflow. The dat
 | Device inventory | Create, list, update and delete network devices with one or more interfaces |
 | Router management | Store router details, open its administration interface and manage MAC-filter rules |
 | MAC filtering | Search devices by name or MAC and move interfaces between allowed and blocked lists |
-| Data synchronization | Version-based polling refreshes data only when the server reports a change |
+| Data synchronization | WebSocket notifications refresh changed resources while local versions ignore updates produced by the current client |
 | Wi-Fi sharing | Generate a password QR code locally and copy its value without sending it to a third party |
 | Interface | Reusable form controls, responsive layouts, loading states and full light/dark theme support |
 | Error handling | Normalized API responses, network feedback and field-level server validation errors |
@@ -92,13 +92,15 @@ The application separates HTTP transport, session management, persistence and Re
 ```mermaid
 flowchart TD
     UI[Screens and components] --> Context[AppContext]
-    UI --> Domain[Feature workflows]
-    Context --> Auth[AuthUtils]
-    Domain --> API[ApiUtils]
+    UI --> Operations[OperationsProvider]
+    Operations --> Auth[AuthUtils]
+    Operations --> API[ApiUtils]
     Auth --> API
     Auth --> Storage[Storage abstraction]
     Storage --> Secure[Expo SecureStore]
     API --> Backend[REST API]
+    API --> Socket[WebSocket notifications]
+    Socket --> Backend
     UI --> Loading[LoadingUtils]
     UI --> Feedback[UiUtils]
 ```
@@ -106,7 +108,8 @@ flowchart TD
 | Layer | Responsibility |
 | --- | --- |
 | Screens and components | Render state, collect input and map validation errors to controls |
-| AppContext | Hold the authenticated user, loading/authentication state and a stable session manager |
+| AppContext | Hold authenticated user, loading state and selected-device state |
+| OperationsProvider | Provide API operations, authentication, loading management and socket lifecycle to the UI |
 | AuthUtils | Coordinate login, refresh, logout, persistence and the authorization interceptor |
 | ApiUtils | Encapsulate Axios and normalize successful responses, API errors and network failures |
 | Storage | Hide persistence details behind a small interface implemented with SecureStore |
@@ -138,6 +141,10 @@ sequenceDiagram
 ```
 
 Only the refresh token is persisted. The access token belongs to the active session and is attached through a single Axios interceptor, which is replaced after authentication and removed when the session is cleared.
+
+### Socket lifecycle
+
+While the application is active, `OperationsProvider` renews the socket session every ten minutes. `ApiUtils` opens a single WebSocket connection and sends the access token plus the subscribed entities once. Later messages only notify resource versions: matching local versions are ignored, while different versions trigger a regular HTTP refresh. The connection is suspended in the background and renewed after unexpected closures.
 
 ## Tech Stack
 
@@ -191,6 +198,7 @@ src/
 │       ├── index.tsx
 │       └── edit.tsx
 ├── components/
+│   └── user-menu.tsx
 ├── styles/
 │   ├── app/
 │   ├── components/
@@ -198,15 +206,16 @@ src/
 ├── types/
 └── utils/
     ├── storage/
-    │   ├── storage.ts
-    │   └── secure-store-utils.ts
+    │   ├── impl/
+    │   │   └── secure-store.ts
+    │   └── storage.ts
     ├── api-utils.ts
     ├── auth-utils.ts
     ├── loading-utils.ts
     └── ui-utils.ts
 ```
 
-Route files live under `app`, reusable visual building blocks under `components`, and styles mirror the application areas they belong to. Shared infrastructure is grouped by responsibility instead of being mixed into screens or split into speculative layers.
+Route files live under `app`; components, including route-specific visual components, live under `components`; and styles mirror the application areas they belong to. Shared infrastructure is grouped by responsibility instead of being mixed into screens or split into speculative layers.
 
 ## Key Decisions
 
@@ -214,7 +223,7 @@ Route files live under `app`, reusable visual building blocks under `components`
 - **Centralized session ownership:** `AuthUtils` owns token persistence, interceptor replacement and authentication state transitions.
 - **Secure persistence:** refresh tokens are stored through a generic storage interface backed by Expo SecureStore.
 - **Backend-led validation:** server errors are mapped to form fields while definitive validation and business rules remain in the API.
-- **Version-based polling:** the app checks lightweight version data before refreshing full resources.
+- **Version-based socket synchronization:** notifications compare server and local versions before refreshing changed resources through their regular HTTP endpoints.
 - **Local QR generation:** Wi-Fi credentials are encoded on-device and are not sent to an external QR service.
 - **Direct router access:** a WebView is available for operations that are not automated by the API.
 

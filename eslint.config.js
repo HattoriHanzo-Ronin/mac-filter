@@ -14,8 +14,7 @@ module.exports = defineConfig([
             "object-shorthand": ["error", "always"],
             "no-unused-vars": "warn",
             "consistent-return": "warn",
-            "arrow-body-style": ["warn", "as-needed"],
-            complexity: ["warn", 10]
+            "arrow-body-style": ["warn", "as-needed"]
         }
     },
     {

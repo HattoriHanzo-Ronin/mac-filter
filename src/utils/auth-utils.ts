@@ -79,8 +79,16 @@ export default class AuthUtils {
         await this.apiUtils.closeSocketSession();
         const result = await this.apiUtils.logout(refreshToken);
         if (result.success) {
-            await this.storage.delete(STORAGE_KEYS.REFRESH_TOKEN);
+            await this.clearStoredTokens();
             this.clearSession();
+            return;
+        }
+
+        if (result.error.code === "INVALID_TOKEN") {
+            if (await this.restoreSession()) {
+                await this.logout();
+            }
+
             return;
         }
 
@@ -105,8 +113,10 @@ export default class AuthUtils {
         const { success } = result;
         if (success) {
             const { user, refreshToken, accessToken } = result.data;
-            await this.storage.set<string>(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
-            await this.storage.set<RefreshTokenRequest>(STORAGE_KEYS.REFRESH_TOKEN, { refreshToken });
+            await Promise.all([
+                this.storage.set<string>(STORAGE_KEYS.ACCESS_TOKEN, accessToken),
+                this.storage.set<RefreshTokenRequest>(STORAGE_KEYS.REFRESH_TOKEN, { refreshToken })
+            ]);
             if (AuthUtils.AUTH_INTERCEPTOR_ID !== null) {
                 axios.interceptors.request.eject(AuthUtils.AUTH_INTERCEPTOR_ID);
             }
@@ -115,7 +125,6 @@ export default class AuthUtils {
                 config.headers.Authorization = `Bearer ${accessToken}`;
                 return config;
             });
-            await this.apiUtils.refreshSocketSession();
             this.setUser(user);
             this.setIsAuthenticated(true);
         }
@@ -123,8 +132,7 @@ export default class AuthUtils {
         if (!success) {
             const { error } = result;
             if (error.code === "INVALID_TOKEN") {
-                await this.storage.delete(STORAGE_KEYS.ACCESS_TOKEN);
-                await this.storage.delete(STORAGE_KEYS.REFRESH_TOKEN);
+                await this.clearStoredTokens();
                 this.clearSession();
             }
 
@@ -136,7 +144,16 @@ export default class AuthUtils {
         return result;
     }
 
+    private async clearStoredTokens(): Promise<void> {
+        await Promise.all([
+            this.storage.delete(STORAGE_KEYS.ACCESS_TOKEN),
+            this.storage.delete(STORAGE_KEYS.REFRESH_TOKEN)
+        ]);
+    }
+
     private clearSession(): void {
+        AuthUtils.SESSION_GENERATION++;
+        this.apiUtils.clearSocketSession();
         if (AuthUtils.AUTH_INTERCEPTOR_ID !== null) {
             axios.interceptors.request.eject(AuthUtils.AUTH_INTERCEPTOR_ID);
             AuthUtils.AUTH_INTERCEPTOR_ID = null;
@@ -144,6 +161,5 @@ export default class AuthUtils {
 
         this.setUser(null);
         this.setIsAuthenticated(false);
-        AuthUtils.SESSION_GENERATION++;
     }
 }

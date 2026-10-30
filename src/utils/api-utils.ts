@@ -22,7 +22,7 @@ import type { UpdatePasswordRequest, UpdateUsernameRequest, UpdateUsernameRespon
 import type { RouterCpanelNavigationAction, RouterCpanelSession, RouterCpanelTheme } from "../types/router-cpanel";
 import type { Storage } from "./storage/storage";
 import { STORAGE_KEYS } from "../constants/storage";
-import type { SocketSession, SocketVersions, VersionEntity } from "../types/socket-session";
+import type { SocketNotification, SocketSession } from "../types/socket-session";
 
 /**
  * API client
@@ -37,11 +37,10 @@ export default class ApiUtils {
     private socket: WebSocket | null = null;
     private socketSession: SocketSession | null = null;
     private socketConnection: Promise<void> | null = null;
-    private socketRequest: Promise<ApiResponse<SocketVersions>> | null = null;
-    private resolveSocketRequest: ((response: ApiResponse<SocketVersions>) => void) | null = null;
-    private isSocketSuspended = true;
-    private isSocketTokenInvalid = false;
-    private resumeSocketRequest: Promise<void> | null = null;
+    private readonly socketChangeListeners = new Set<(notification: SocketNotification) => void>();
+    private readonly socketReconnectListeners = new Set<() => void>();
+    private socketSessionRequest: Promise<ApiResponse<void>> | null = null;
+    private isSocketSessionSuspended = true;
 
     constructor(apiUrl: string, storage: Storage) {
         this.apiUrl = apiUrl.replace(/\/+$/, "");
@@ -49,53 +48,20 @@ export default class ApiUtils {
     }
 
     /** Creates or renews the socket session */
-    async refreshSocketSession(): Promise<void> {
-        this.isSocketSuspended = false;
-        this.isSocketTokenInvalid = false;
-        const accessToken = await this.storage.get<string>(STORAGE_KEYS.ACCESS_TOKEN);
-        if (!accessToken) {
-            return;
+    async refreshSocketSession(): Promise<ApiResponse<void>> {
+        if (this.socketSessionRequest) {
+            return this.socketSessionRequest;
         }
 
-        const session = this.socketSession
-            ? await this.executeRequest(async () => (await axios.post<SocketSession>(this.buildUrl(`socket-sessions/${this.socketSession!.id}/refresh`))).data)
-            : await this.executeRequest(async () => (await axios.post<SocketSession>(this.buildUrl("socket-sessions"))).data);
-        if (!session.success && this.socketSession) {
-            this.socketSession = null;
-            this.closeSocket();
-            await this.refreshSocketSession();
-            return;
-        }
-
-        if (!session.success) {
-            return;
-        }
-
-        this.socketSession = session.data;
-        void this.openSocket().catch(() => undefined);
-    }
-
-    /** Resumes the socket session */
-    async resumeSocketSession(): Promise<void> {
-        if (this.resumeSocketRequest) {
-            await this.resumeSocketRequest;
-            return;
-        }
-
-        if (!this.isSocketSuspended) {
-            return;
-        }
-
-        this.isSocketSuspended = false;
-        this.resumeSocketRequest = this.refreshSocketSession().finally(() => {
-            this.resumeSocketRequest = null;
+        this.socketSessionRequest = this.executeSocketSessionRefresh().finally(() => {
+            this.socketSessionRequest = null;
         });
-        await this.resumeSocketRequest;
+        return this.socketSessionRequest;
     }
 
     /** Suspends the socket session */
     suspendSocketSession(): void {
-        this.isSocketSuspended = true;
+        this.isSocketSessionSuspended = true;
         this.closeSocket();
     }
 
@@ -104,89 +70,72 @@ export default class ApiUtils {
         const session = this.socketSession;
         this.suspendSocketSession();
         this.socketSession = null;
-        if (session) {
-            await this.executeRequest(async () => {
-                await axios.delete(this.buildUrl(`socket-sessions/${session.id}`));
-            });
-        }
-    }
-
-    /** Returns the current versions through the socket */
-    async getSocketVersions<T extends SocketVersions>(entities: VersionEntity[]): Promise<ApiResponse<T>> {
-        if (this.isSocketSuspended) {
-            return { success: true, data: {} as T };
+        this.clearVersions();
+        if (!session) {
+            return;
         }
 
-        if (this.socketRequest) {
-            return this.socketRequest as Promise<ApiResponse<T>>;
-        }
-
-        this.socketRequest = this.requestSocketVersions(entities).finally(() => {
-            this.socketRequest = null;
-        });
-        return this.socketRequest as Promise<ApiResponse<T>>;
-    }
-
-    private async requestSocketVersions(entities: VersionEntity[]): Promise<ApiResponse<SocketVersions>> {
-        const accessToken = await this.storage.get<string>(STORAGE_KEYS.ACCESS_TOKEN);
-        if (!accessToken || !this.socketSession) {
-            return { success: false, error: { code: "SOCKET_SESSION_NOT_FOUND", message: "Sesión de versiones no disponible" } };
-        }
-
-        try {
-            await this.openSocket();
-        } catch {
-            return { success: false, error: { code: "SOCKET_CONNECTION_FAILED", message: "No se pudo conectar al socket" } };
-        }
-
-        const socket = this.socket;
-        if (!socket) {
-            return { success: false, error: { code: "SOCKET_CONNECTION_FAILED", message: "No se pudo conectar al socket" } };
-        }
-
-        return new Promise((resolve) => {
-            this.resolveSocketRequest = resolve;
-            socket.onmessage = ({ data }) => {
-                try {
-                    const response = JSON.parse(data) as SocketVersions | ApiError;
-                    if ("code" in response) {
-                        if (response.code === "INVALID_TOKEN") {
-                            this.isSocketTokenInvalid = true;
-                        }
-
-                        this.completeSocketRequest({ success: false, error: response });
-                        return;
-                    }
-
-                    this.completeSocketRequest({ success: true, data: response });
-                } catch {
-                    this.completeSocketRequest({
-                        success: false,
-                        error: { code: "SOCKET_RESPONSE_INVALID", message: "El socket devolvió una respuesta no válida" }
-                    });
-                }
-            };
-            socket.send(JSON.stringify({ accessToken, entities }));
+        await this.executeRequest(async () => {
+            await axios.delete(this.buildUrl(`socket-sessions/${session.id}`));
         });
     }
 
-    private completeSocketRequest(response: ApiResponse<SocketVersions>): void {
-        const resolve = this.resolveSocketRequest;
-        this.resolveSocketRequest = null;
-        resolve?.(response);
+    /** Clears the local socket state */
+    clearSocketSession(): void {
+        this.suspendSocketSession();
+        this.socketSession = null;
+        this.clearVersions();
     }
 
-    private openSocket(): Promise<void> {
+    /** Adds a socket change listener */
+    addSocketChangeListener(listener: (notification: SocketNotification) => void): () => void {
+        this.socketChangeListeners.add(listener);
+        return () => this.socketChangeListeners.delete(listener);
+    }
+
+    /** Adds a socket reconnection listener */
+    addSocketReconnectListener(listener: () => void): () => void {
+        this.socketReconnectListeners.add(listener);
+        return () => this.socketReconnectListeners.delete(listener);
+    }
+
+    private async executeSocketSessionRefresh(): Promise<ApiResponse<void>> {
+        this.isSocketSessionSuspended = false;
+        const session = this.socketSession
+            ? await this.executeRequest(async () => (await axios.post<SocketSession>(this.buildUrl(`socket-sessions/${this.socketSession!.id}/refresh`))).data)
+            : await this.executeRequest(async () => (await axios.post<SocketSession>(this.buildUrl("socket-sessions"))).data);
+        if (!session.success && this.socketSession && session.error.code === "SOCKET_SESSION_NOT_FOUND") {
+            this.socketSession = null;
+            this.closeSocket();
+            return this.executeSocketSessionRefresh();
+        }
+
+        if (!session.success) {
+            return { success: false, error: session.error };
+        }
+
+        this.socketSession = session.data;
+        void this.openSocket().catch(() => undefined);
+        return { success: true, data: undefined };
+    }
+
+    private async openSocket(): Promise<void> {
         if (!this.socketSession) {
-            return Promise.reject();
+            throw new Error("Socket session not found");
         }
 
         if (this.socket?.readyState === WebSocket.OPEN) {
-            return Promise.resolve();
+            return;
         }
 
         if (this.socketConnection) {
-            return this.socketConnection;
+            await this.socketConnection;
+            return;
+        }
+
+        const accessToken = await this.storage.get<string>(STORAGE_KEYS.ACCESS_TOKEN);
+        if (!accessToken) {
+            throw new Error("Access token not found");
         }
 
         const socket = new WebSocket(this.buildSocketUrl(this.socketSession.id));
@@ -196,8 +145,10 @@ export default class ApiUtils {
             socket.onopen = () => {
                 opened = true;
                 this.socketConnection = null;
+                socket.send(JSON.stringify({ accessToken, entities: ["devices", "whitelist"] }));
                 resolve();
             };
+            socket.onmessage = ({ data }) => this.handleSocketMessage(data);
             socket.onerror = () => {
                 this.socketConnection = null;
                 reject();
@@ -205,7 +156,12 @@ export default class ApiUtils {
             socket.onclose = () => {
                 this.socketConnection = null;
                 if (!opened) {
+                    if (this.socket === socket) {
+                        this.socket = null;
+                    }
+
                     reject();
+                    return;
                 }
 
                 if (this.socket !== socket) {
@@ -213,26 +169,45 @@ export default class ApiUtils {
                 }
 
                 this.socket = null;
-                this.completeSocketRequest({
-                    success: false,
-                    error: { code: "SOCKET_CONNECTION_FAILED", message: "No se pudo conectar al socket" }
-                });
-                if (!this.isSocketSuspended && !this.isSocketTokenInvalid && this.socketSession) {
-                    void this.refreshSocketSession();
+                if (!this.isSocketSessionSuspended && this.socketSession) {
+                    this.socketReconnectListeners.forEach((listener) => listener());
                 }
             };
         });
-        return this.socketConnection;
+        await this.socketConnection;
+    }
+
+    private handleSocketMessage(data: string): void {
+        try {
+            const response = JSON.parse(data) as SocketNotification | ApiError;
+            if ("code" in response) {
+                this.socketSession = null;
+                this.closeSocket();
+                return;
+            }
+
+            if (
+                (response.entity !== "devices" && response.entity !== "whitelist") ||
+                typeof response.version !== "string"
+            ) {
+                return;
+            }
+
+            const currentVersion = response.entity === "devices" ? this.devicesVersion : this.whitelistVersion;
+            if (response.version === currentVersion) {
+                return;
+            }
+
+            this.socketChangeListeners.forEach((listener) => listener(response));
+        } catch {
+            return;
+        }
     }
 
     private closeSocket(): void {
         const socket = this.socket;
         this.socket = null;
         this.socketConnection = null;
-        this.completeSocketRequest({
-            success: false,
-            error: { code: "SOCKET_CONNECTION_FAILED", message: "No se pudo conectar al socket" }
-        });
         socket?.close();
     }
 
@@ -240,6 +215,11 @@ export default class ApiUtils {
         const url = new URL(this.apiUrl);
         const protocol = url.protocol === "https:" ? "wss:" : "ws:";
         return `${protocol}//${url.host}/events/${encodeURIComponent(id)}`;
+    }
+
+    private clearVersions(): void {
+        this.devicesVersion = "0";
+        this.whitelistVersion = "0";
     }
 
     /**

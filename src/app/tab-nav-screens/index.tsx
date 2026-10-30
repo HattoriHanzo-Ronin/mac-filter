@@ -57,7 +57,7 @@ export default function Index() {
     const { mode } = useTheme();
     const theme = indexStyles[mode];
     const { devices, lastDevice, setDevices, setLastDevice, isAuthenticated, isLoading } = useAppContext();
-    const { apiUtils, executeApiRequest } = useOperationContext();
+    const { addSocketChangeListener, executeApiRequest } = useOperationContext();
     const [deviceId, setDeviceId] = useState<string>("");
     const [connectionTypeIndex, setConnectionTypeIndex] = useState<number>(0);
     const [isWifiQrVisible, setIsWifiQrVisible] = useState<boolean>(false);
@@ -93,23 +93,15 @@ export default function Index() {
         return () => clearTimeout(timeout);
     }, [loadDevices]);
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            void (async () => {
-                if (!isLoading) {
-                    const result = await executeApiRequest(
-                        (apiUtils) => apiUtils.getSocketVersions<{ devices: string }>(["devices"]),
-                        true
-                    );
-                    if (result.success && result.data.devices !== apiUtils.DEVICES_VERSION) {
-                        await loadDevices();
-                    }
+    useEffect(
+        () =>
+            addSocketChangeListener((notification) => {
+                if (notification.entity === "devices") {
+                    void loadDevices();
                 }
-            })();
-        }, 1000);
-
-        return () => clearInterval(interval);
-    }, [apiUtils, executeApiRequest, isLoading, loadDevices]);
+            }),
+        [addSocketChangeListener, loadDevices]
+    );
 
     if (!isAuthenticated) {
         return <Redirect href="/" />;

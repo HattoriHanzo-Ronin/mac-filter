@@ -13,7 +13,7 @@ import type { RouterCpanelNavigationAction } from "../types/router-cpanel";
 
 export default function AccessRouter() {
     const { lastDevice } = useAppContext();
-    const { apiUtils, executeApiRequest } = useOperationContext();
+    const { executeApiRequest } = useOperationContext();
     const { mode } = useTheme();
     const theme = accessRouterStyles[mode];
     const palette = accessRouterPalette[mode];
@@ -46,7 +46,7 @@ export default function AccessRouter() {
             }
 
             if (!isActive) {
-                void apiUtils.closeRouterCpanelSession(result.data.id);
+                void executeApiRequest((apiUtils) => apiUtils.closeRouterCpanelSession(result.data.id), true);
                 return;
             }
 
@@ -60,10 +60,10 @@ export default function AccessRouter() {
             const currentSessionId = sessionId.current;
             sessionId.current = null;
             if (currentSessionId) {
-                void apiUtils.closeRouterCpanelSession(currentSessionId);
+                void executeApiRequest((apiUtils) => apiUtils.closeRouterCpanelSession(currentSessionId), true);
             }
         };
-    }, [apiUtils, executeApiRequest, mode, routerId]);
+    }, [executeApiRequest, mode, routerId]);
 
     if (!routerId) {
         return <Redirect href="/tab-nav-screens" />;

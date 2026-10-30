@@ -1,9 +1,11 @@
-export type VersionEntity = "devices" | "whitelist";
+export type SocketEntity = "devices" | "whitelist";
 
 export interface SocketSession {
-    id: string;
-    expiresAt: string;
-    activityInterval: number;
+    readonly id: string;
+    readonly expiresAt: string;
 }
 
-export type SocketVersions = Partial<Record<VersionEntity, string>>;
+export interface SocketNotification {
+    readonly entity: SocketEntity;
+    readonly version: string;
+}

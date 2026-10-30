@@ -16,7 +16,7 @@ import UiUtils from "../utils/ui-utils";
 
 export default function MacFilter() {
     const { lastDevice, isAuthenticated, isLoading } = useAppContext();
-    const { apiUtils, executeApiRequest } = useOperationContext();
+    const { addSocketChangeListener, executeApiRequest } = useOperationContext();
     const { mode } = useTheme();
     const theme = macFilterStyles[mode];
     const routerId = lastDevice?.id;
@@ -86,23 +86,7 @@ export default function MacFilter() {
         return () => clearTimeout(timeout);
     }, [loadDevices]);
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            void (async () => {
-                if (!isLoading) {
-                    const versions = await executeApiRequest(
-                        (apiUtils) => apiUtils.getSocketVersions<{ devices: string; whitelist: string }>(["devices", "whitelist"]),
-                        true
-                    );
-                    if (versions.success && (versions.data.devices !== apiUtils.DEVICES_VERSION || versions.data.whitelist !== apiUtils.WHITELIST_VERSION)) {
-                        await loadDevices();
-                    }
-                }
-            })();
-        }, 1000);
-
-        return () => clearInterval(interval);
-    }, [apiUtils, executeApiRequest, isLoading, loadDevices]);
+    useEffect(() => addSocketChangeListener(() => void loadDevices()), [addSocketChangeListener, loadDevices]);
 
     if (!isAuthenticated) {
         return <Redirect href="/" />;

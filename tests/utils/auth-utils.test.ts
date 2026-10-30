@@ -134,6 +134,7 @@ describe("AuthUtils", () => {
         jest.spyOn(secureStoreUtils, "get").mockResolvedValue(STORED_REFRESH_TOKEN);
         jest.spyOn(ApiUtils, "logout").mockResolvedValue({ success: true, data: undefined });
         await authUtils.logout();
+        expect(secureStoreUtils.delete).toHaveBeenCalledWith("accessToken");
         expect(secureStoreUtils.delete).toHaveBeenCalledWith("refreshToken");
         expect(setUser).toHaveBeenCalledWith(null);
         expect(setIsAuthenticated).toHaveBeenCalledWith(false);
@@ -150,6 +151,20 @@ describe("AuthUtils", () => {
         expect(setUser).not.toHaveBeenCalled();
         expect(setIsAuthenticated).not.toHaveBeenCalled();
         expect(UiUtils.showMessage).toHaveBeenCalledWith("Error de red");
+    });
+
+    it("restores the access token and retries logout when it expires", async () => {
+        jest.spyOn(secureStoreUtils, "get").mockResolvedValue(STORED_REFRESH_TOKEN);
+        jest.spyOn(ApiUtils, "refreshToken").mockResolvedValue({ success: true, data: LOGIN_RESPONSE });
+        jest.spyOn(ApiUtils, "logout")
+            .mockResolvedValueOnce({ success: false, error: { code: "INVALID_TOKEN", message: "Token expirado" } })
+            .mockResolvedValueOnce({ success: true, data: undefined });
+
+        await authUtils.logout();
+
+        expect(ApiUtils.refreshToken).toHaveBeenCalledWith(STORED_REFRESH_TOKEN);
+        expect(ApiUtils.logout).toHaveBeenCalledTimes(2);
+        expect(setIsAuthenticated).toHaveBeenCalledWith(false);
     });
 
     it("adds the access token to subsequent requests", async () => {

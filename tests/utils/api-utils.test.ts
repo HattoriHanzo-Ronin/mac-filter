@@ -6,6 +6,22 @@ import { CreateDeviceRequest, Device, UpdateDeviceRequest } from "../../src/type
 
 jest.mock("axios");
 
+class MockWebSocket {
+    static readonly OPEN = 1;
+    static instances: MockWebSocket[] = [];
+    readonly send = jest.fn();
+    readonly close = jest.fn();
+    onopen: (() => void) | null = null;
+    onmessage: ((event: { data: string }) => void) | null = null;
+    onerror: (() => void) | null = null;
+    onclose: (() => void) | null = null;
+    readyState = 0;
+
+    constructor(readonly url: string) {
+        MockWebSocket.instances.push(this);
+    }
+}
+
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "https://api.test";
 const STORAGE: Storage = { get: jest.fn(), set: jest.fn(), delete: jest.fn() };
 let ApiUtils: ApiUtilsClass;
@@ -19,9 +35,87 @@ const LOGIN_RESPONSE: LoginResponse = {
 };
 
 describe("ApiUtils", () => {
+    const OriginalWebSocket = global.WebSocket;
+
+    beforeAll(() => {
+        global.WebSocket = MockWebSocket as unknown as typeof WebSocket;
+    });
+
     beforeEach(() => {
         jest.clearAllMocks();
+        MockWebSocket.instances = [];
         ApiUtils = new ApiUtilsClass(API_URL, STORAGE);
+    });
+
+    afterAll(() => {
+        global.WebSocket = OriginalWebSocket;
+    });
+
+    it("subscribes once and forwards socket notifications", async () => {
+        jest.mocked(STORAGE.get).mockResolvedValue("access-token");
+        jest.mocked(axios.post).mockResolvedValue({ data: { id: "socket-1", expiresAt: "2026-10-29T20:00:00.000Z" } });
+        const listener = jest.fn();
+        ApiUtils.addSocketChangeListener(listener);
+
+        expect(await ApiUtils.refreshSocketSession()).toEqual({ success: true, data: undefined });
+        await Promise.resolve();
+        const socket = MockWebSocket.instances[0];
+        socket?.onopen?.();
+        socket?.onmessage?.({ data: JSON.stringify({ entity: "devices", version: "1" }) });
+
+        expect(socket?.url).toBe("wss://api.test/events/socket-1");
+        expect(socket?.send).toHaveBeenCalledWith(JSON.stringify({ accessToken: "access-token", entities: ["devices", "whitelist"] }));
+        expect(socket?.send).toHaveBeenCalledTimes(1);
+        expect(listener).toHaveBeenCalledWith({ entity: "devices", version: "1" });
+    });
+
+    it("ignores notifications produced by the current client", async () => {
+        jest.mocked(STORAGE.get).mockResolvedValue("access-token");
+        jest.mocked(axios.get).mockResolvedValue({ data: [DEVICE], headers: { "data-version": "12" } });
+        jest.mocked(axios.post).mockResolvedValue({ data: { id: "socket-1", expiresAt: "2026-10-29T20:00:00.000Z" } });
+        const listener = jest.fn();
+        ApiUtils.addSocketChangeListener(listener);
+        await ApiUtils.getDevices();
+        await ApiUtils.refreshSocketSession();
+        await Promise.resolve();
+        const socket = MockWebSocket.instances[0];
+        socket?.onopen?.();
+
+        socket?.onmessage?.({ data: JSON.stringify({ entity: "devices", version: "12" }) });
+        expect(listener).not.toHaveBeenCalled();
+        socket?.onmessage?.({ data: JSON.stringify({ entity: "devices", version: "13" }) });
+        expect(listener).toHaveBeenCalledWith({ entity: "devices", version: "13" });
+    });
+
+    it("reuses an in-flight socket session request", async () => {
+        jest.mocked(STORAGE.get).mockResolvedValue("access-token");
+        jest.mocked(axios.post).mockResolvedValue({ data: { id: "socket-1", expiresAt: "2026-10-29T20:00:00.000Z" } });
+
+        await Promise.all([ApiUtils.refreshSocketSession(), ApiUtils.refreshSocketSession()]);
+        expect(axios.post).toHaveBeenCalledTimes(1);
+    });
+
+    it("clears entity versions with the local socket session", async () => {
+        jest.mocked(axios.get).mockResolvedValue({ data: [DEVICE], headers: { "data-version": "12" } });
+        await ApiUtils.getDevices();
+        ApiUtils.clearSocketSession();
+        expect(ApiUtils.DEVICES_VERSION).toBe("0");
+        expect(ApiUtils.WHITELIST_VERSION).toBe("0");
+    });
+
+    it("clears the socket session when the server returns an error", async () => {
+        jest.mocked(STORAGE.get).mockResolvedValue("access-token");
+        jest.mocked(axios.post).mockResolvedValue({ data: { id: "socket-1", expiresAt: "2026-10-29T20:00:00.000Z" } });
+        await ApiUtils.refreshSocketSession();
+        await Promise.resolve();
+        const socket = MockWebSocket.instances[0];
+        socket?.onopen?.();
+        socket?.onmessage?.({ data: JSON.stringify({ code: "INVALID_TOKEN", message: "Token inválido" }) });
+
+        expect(socket?.close).toHaveBeenCalled();
+        jest.mocked(axios.post).mockClear();
+        await ApiUtils.refreshSocketSession();
+        expect(axios.post).toHaveBeenCalledWith(`${API_URL}/socket-sessions`);
     });
 
     it("logs in with credentials", async () => {

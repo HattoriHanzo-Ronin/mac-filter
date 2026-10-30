@@ -5,6 +5,7 @@ import ApiUtils from "./api-utils";
 import type { Storage } from "./storage/storage";
 import UiUtils from "./ui-utils";
 import type { ApiValidationErrorDetail } from "../types/api-error";
+import { STORAGE_KEYS } from "../constants/storage";
 
 /**
  * Authentication manager
@@ -13,7 +14,6 @@ import type { ApiValidationErrorDetail } from "../types/api-error";
  */
 export default class AuthUtils {
     private static AUTH_INTERCEPTOR_ID: number | null = null;
-    private static REFRESH_TOKEN_KEY = "refreshToken";
     private static SESSION_GENERATION = 0;
     private setIsAuthenticated: (isAuthenticated: boolean) => void;
     private setUser: (user: AuthUser | null) => void;
@@ -56,7 +56,7 @@ export default class AuthUtils {
      * @returns Whether the session was restored
      */
     async restoreSession(): Promise<boolean> {
-        const refreshToken = await this.storage.get<RefreshTokenRequest>(AuthUtils.REFRESH_TOKEN_KEY);
+        const refreshToken = await this.storage.get<RefreshTokenRequest>(STORAGE_KEYS.REFRESH_TOKEN);
         if (!refreshToken) {
             this.clearSession();
             return false;
@@ -70,15 +70,16 @@ export default class AuthUtils {
      * Closes the current authentication session
      */
     async logout(): Promise<void> {
-        const refreshToken = await this.storage.get<RefreshTokenRequest>(AuthUtils.REFRESH_TOKEN_KEY);
+        const refreshToken = await this.storage.get<RefreshTokenRequest>(STORAGE_KEYS.REFRESH_TOKEN);
         if (!refreshToken) {
             this.clearSession();
             return;
         }
 
+        await this.apiUtils.closeSocketSession();
         const result = await this.apiUtils.logout(refreshToken);
         if (result.success) {
-            await this.storage.delete(AuthUtils.REFRESH_TOKEN_KEY);
+            await this.storage.delete(STORAGE_KEYS.REFRESH_TOKEN);
             this.clearSession();
             return;
         }
@@ -104,7 +105,8 @@ export default class AuthUtils {
         const { success } = result;
         if (success) {
             const { user, refreshToken, accessToken } = result.data;
-            await this.storage.set<RefreshTokenRequest>(AuthUtils.REFRESH_TOKEN_KEY, { refreshToken });
+            await this.storage.set<string>(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
+            await this.storage.set<RefreshTokenRequest>(STORAGE_KEYS.REFRESH_TOKEN, { refreshToken });
             if (AuthUtils.AUTH_INTERCEPTOR_ID !== null) {
                 axios.interceptors.request.eject(AuthUtils.AUTH_INTERCEPTOR_ID);
             }
@@ -113,6 +115,7 @@ export default class AuthUtils {
                 config.headers.Authorization = `Bearer ${accessToken}`;
                 return config;
             });
+            await this.apiUtils.refreshSocketSession();
             this.setUser(user);
             this.setIsAuthenticated(true);
         }
@@ -120,7 +123,8 @@ export default class AuthUtils {
         if (!success) {
             const { error } = result;
             if (error.code === "INVALID_TOKEN") {
-                await this.storage.delete(AuthUtils.REFRESH_TOKEN_KEY);
+                await this.storage.delete(STORAGE_KEYS.ACCESS_TOKEN);
+                await this.storage.delete(STORAGE_KEYS.REFRESH_TOKEN);
                 this.clearSession();
             }
 

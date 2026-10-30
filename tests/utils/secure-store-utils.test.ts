@@ -1,5 +1,5 @@
 import { deleteItemAsync, getItemAsync, setItemAsync } from "expo-secure-store";
-import SecureStoreUtils from "../../src/utils/storage/secure-store-utils";
+import SecureStoreUtils from "../../src/utils/storage/impl/secure-store";
 
 jest.mock("expo-secure-store");
 

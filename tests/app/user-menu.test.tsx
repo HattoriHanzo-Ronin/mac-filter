@@ -13,10 +13,12 @@ const mockExecuteApiRequest = jest.fn(async (request: (api: { updateUsername: ty
 jest.mock("../../src/components/app-context-provider", () => ({
     useAppContext: () => ({
         user: USER,
-        setUser: mockSetUser,
-        authUtils: { logout: mockLogout },
-        executeApiRequest: mockExecuteApiRequest
+        setUser: mockSetUser
     })
+}));
+
+jest.mock("../../src/components/operations-provider", () => ({
+    useOperationContext: () => ({ authUtils: { logout: mockLogout }, executeApiRequest: mockExecuteApiRequest })
 }));
 
 describe("UserMenu", () => {

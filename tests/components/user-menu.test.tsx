@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from "@testing-library/react-native";
-import UserMenu from "../../src/app/_user-menu";
+import UserMenu from "../../src/components/user-menu";
 import type { AuthUser } from "../../src/types/auth";
 
 const USER: AuthUser = { id: "user-1", username: "old_name", roles: ["ADMIN"] };
